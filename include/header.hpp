@@ -4,7 +4,13 @@
 
 #pragma once
 
+#include <SD.h>
 #include <M5Unified.h>
 
-#include <ESP32Servo.h>
-#include "loadcell.hpp"
+
+#include "servo.hpp"
+#include "scale.hpp"
+
+
+uint8_t sdInit(void);
+void dispTitle(void);
