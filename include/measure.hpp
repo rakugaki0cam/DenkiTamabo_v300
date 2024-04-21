@@ -11,3 +11,11 @@
 
 
 void measNukiF(void);
+
+//display
+void dispLoadMax(float);
+void dispLoad(float);
+void dispPosition(float);
+void dispMeasNum(uint16_t);
+
+

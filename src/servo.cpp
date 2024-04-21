@@ -8,8 +8,10 @@
 #include "servo.hpp"
 
 #define PIN_SERVO 33    //5...stack M5 BASIC v2.7
-
 #define ARM_LENGTH 9.0f       //サーボホーンアーム長さ
+//
+#define degToRad(deg) (deg / 180 * PI)
+#define radToDeg(rad) (rad / PI * 180)
 
 
 Servo servo1;
@@ -33,20 +35,23 @@ float     pwPerDeg    = (pwP90 - pwM90) / 180;        //1度あたりのパル�
 uint16_t  startPwidth  = pwPerDeg * startAngle  + pwN0;
 uint16_t  centerPwidth = pwPerDeg * centerAngle + pwN0;                                                 
 uint16_t  endPwidth    = pwPerDeg * endAngle    + pwN0;
-//
-float startPosition = ARM_LENGTH * sin(startMoving);
+//玉の位置[mm]
+float startPosition = ARM_LENGTH * sin(degToRad(startMoving));
+float endPosition = ARM_LENGTH * sin(degToRad(endMoving));
 
-//float servoAngle;
 
 
 void servoInit(void){
-  // Allow allocation of all timers
-  //ESP32PWM::allocateTimer(0);   //0〜3
-  servo1.setPeriodHertz(50);    // standard 50 hz servo
-  servo1.attach(PIN_SERVO, endPwidth, startPwidth); //パルス幅制限
   
-  //中点
+  //ESP32PWM::allocateTimer(0);   //0〜3// Allow allocation of all timers
+  servo1.setPeriodHertz(50);      // standard 50 hz servo
+  servo1.attach(PIN_SERVO, endPwidth, startPwidth); //パルス幅制限
+  //中点へ移動
   servo1.write(centerPwidth);
+  //
+  Serial.printf("start angle:%5.1fdeg (dx:%6.3fmm) ", startMoving, startPosition);
+  Serial.printf("~ end angle:%5.1fdeg (dx:%6.3fmm) \n", endMoving, endPosition);
+
 }
 
 float endAngleGet(void){
@@ -64,9 +69,12 @@ float servoMove(float angle){
   uint16_t pw = pwPerDeg * angleS + pwN0;
 
   servo1.writeMicroseconds(pw);
-  Serial.printf("Tamabo angle:%5.1f  Servo angle:%5.1f  pulse width:%5d \n", angle, angleS, pw);
+    float pos = ARM_LENGTH * sin(degToRad(angle)) - startPosition;
 
-  float pos = ARM_LENGTH * sin((float)centerAngle - angle) + startPosition;
+  //Serial.printf("Tamabo angle:%5.1fdeg ", angle);
+  Serial.printf("servo angle:%5.1fdeg  pulse width:%5dus ", angleS, pw);
+  Serial.printf("--> POSITION:%7.3fmm ", pos);
+
   return pos;
 }
 
@@ -115,18 +123,18 @@ void servoPosition(void){
 
 void btnBname(btn_b_name_t name){
   //ボタンBの名前の表示
-  M5.Display.setCursor(125, 220);
+  M5.Display.setCursor(112, 220);
   M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
   M5.Display.setTextColor(TFT_BLACK, TFT_WHITE);
   switch(name){
     case TO_START:
-      M5.Display.print("押し込み　");
+      M5.Display.print("スタート点へ");
       break;
     case TO_CENTER:
-      M5.Display.print("センタへ　");
+      M5.Display.print("センターへ　");
       break;
     case TO_END:
-      M5.Display.print("抜け出し　");
+      M5.Display.print("エンド位置へ");
       break;
   }
 
@@ -134,19 +142,19 @@ void btnBname(btn_b_name_t name){
 
 void dispTamaPos(tama_pos_t pos){
   //玉位置の表示
-  M5.Display.setCursor(240, 40);
+  M5.Display.setCursor(224, 40);
   M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
-  M5.Display.setTextColor(TFT_WHITE, TFT_BLACK);
+  M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
   switch(pos){
     case START_POS:
-      M5.Display.print("スタート");
+      M5.Display.print("スタート点　");
       break;
     case CENTER1_POS:
     case CENTER2_POS:
-      M5.Display.print("センタ　");
+      M5.Display.print("センタ位置　");
       break;
     case END_POS:
-      M5.Display.print("エンド　");
+      M5.Display.print("エンド位置　");
       break;
   }
 
@@ -164,8 +172,7 @@ void servoAdjust(void){
   Serial.println("**** servo adjust **********");
 
   //
-  M5.Display.init();
-  M5.Display.setRotation(1);
+  M5.Display.clearDisplay(TFT_BLACK);
   M5.Display.setColor(TFT_BROWN);
   M5.Display.fillRect(0, 0, 320, 20);
   M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
