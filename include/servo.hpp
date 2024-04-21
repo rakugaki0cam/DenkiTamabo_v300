@@ -31,7 +31,13 @@ typedef enum {
 
 
 void servoInit(void);
-void servoMove(void);
+//
+float endAngleGet(void);
+float startAngleGet(void);
+
+float servoMove(float);
+
+//
 void servoPosition(void);
 void btnBname(btn_b_name_t);
 void dispTamaPos(tama_pos_t );

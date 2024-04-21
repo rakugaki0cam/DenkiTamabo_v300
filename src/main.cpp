@@ -62,14 +62,14 @@ void loop() {
     Serial.println("Btn A");
     M5.Speaker.setVolume(64);
     M5.Speaker.tone(880,100);
-    
+    measNukiF();              //測定
     delay(200);
   }
   if (M5.BtnB.wasPressed()){
     Serial.println("Btn B");
     M5.Speaker.setVolume(64);
     M5.Speaker.tone(1320,100);
-    servoPosition();
+    servoPosition();          //玉ポジション移動
   }
   if (M5.BtnC.wasPressed()){
     Serial.println("Btn C");
@@ -168,20 +168,24 @@ void dispTitle(void){
   M5.Display.setTextColor(TFT_WHITE, TFT_BLACK);
   M5.Display.setCursor(265, 190);
   M5.Display.print("バッテリ電圧");
+  //button
+  //M5.Display.setTextDatum(TC_DATUM);  //TopCenter
   //Btn A
-  M5.Display.setCursor(10, 220);
+  M5.Display.setCursor(0, 220);
   M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
   M5.Display.setTextColor(TFT_BLACK, TFT_WHITE);
   M5.Display.printf("　測定開始　");
   //Btn B
-  M5.Display.setCursor(125, 220);
+  M5.Display.setCursor((16*7), 220);
   M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
   M5.Display.setTextColor(TFT_BLACK, TFT_WHITE);
-  M5.Display.printf("スタートへ");
+  M5.Display.printf("スタート位置");
   //Btn C
-  M5.Display.setCursor(220, 220);
+  M5.Display.setCursor((16*14), 220);
   M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
   M5.Display.setTextColor(TFT_BLACK, TFT_WHITE);
-  M5.Display.printf("ノズルセット");
+  M5.Display.printf("ノズル設定　");
+
+  //M5.Display.setTextDatum(TL_DATUM);  //TopLeft
 
 }

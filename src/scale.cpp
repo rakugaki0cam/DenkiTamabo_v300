@@ -40,10 +40,14 @@ if (scale.is_ready()) {
 
 float measLoad(uint8_t n){
     float load = scale.get_units(10);
-    Serial.println(load, 2); 
+    //Serial.println(load, 2); 
     return load;
 }
 
+void scaleTare(void){
+    //ゼロセット
+    scale.tare(); 
+}
 
 /*
 //non blocking

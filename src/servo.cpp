@@ -9,17 +9,6 @@
 
 #define PIN_SERVO 33    //5...stack M5 BASIC v2.7
 
-//サーボの実測パルス幅usec
-//#define SERVO_ANGLE_M90 560   
-//#define SERVO_ANGLE_0   1420  //0度     typ.1450
-//#define SERVO_ANGLE_P90 2320  //+90度   typ.2400
-//タマボーへの組み付け角度
-//#define NEUTRAL_ANGLE 60      //この装置での中点 サーボホーンが真上を向く角度...セレーションの影響あり
-//可動制限
-//#define TAMABO_START_ANGLE 26 //真上からの前進量
-//#define TAMABO_END_ANGLE 28   //真上からの後退量
-#define STEP_MOVING -2        //測定ステップ
-//アーム長さ
 #define ARM_LENGTH 9.0f       //サーボホーンアーム長さ
 
 
@@ -34,19 +23,20 @@ uint16_t  pwM90 = 560;    //-90度   typ.500
 uint16_t  pwN0  = 1420;   //0度     typ.1450
 uint16_t  pwP90 = 2320;   //+90度   typ.2400
 //サーボ角度とパルス幅　[deg]
-uint8_t   centerAngle = 60;   //この装置での中点 サーボホーンが真上を向く角度...セレーションの影響あり
-uint8_t   startMoving = 26;   //真上からの前進量
-uint8_t   endMoving   = 28;   //真上からの後退量
-uint8_t   startAngle  = centerAngle + startMoving;    //最大角度 60+26 = 86
-uint8_t   endAngle    = centerAngle - endMoving;      //最小角度 60-28 = 32 (測定時は角度をマイナスさせる方向 86 -> 32)
-float     pwPerDeg    = (pwP90 - pwM90) / 180;        //1度あたりのパルス幅usec
-                                                      
+float     centerAngle = 60;   //この装置での中点 サーボホーンが真上を向く角度...セレーションの影響あり
+float     startMoving = -26;   //真上からの前進量-------ノズル設定で変化ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+float     endMoving   = 28;   //真上からの後退量
+float     startAngle  = centerAngle - startMoving;    //最大角度 60-(-26) = 86
+float     endAngle    = centerAngle - endMoving;      //最小角度 60-28 = 32 (測定時は角度をマイナスさせる方向 86 -> 32)
+float     pwPerDeg    = (pwP90 - pwM90) / 180;        //1度あたりのパルス幅usec                           
 //各玉ポジションでのパルス幅 [usec]
 uint16_t  startPwidth  = pwPerDeg * startAngle  + pwN0;
 uint16_t  centerPwidth = pwPerDeg * centerAngle + pwN0;                                                 
 uint16_t  endPwidth    = pwPerDeg * endAngle    + pwN0;
+//
+float startPosition = ARM_LENGTH * sin(startMoving);
 
-float servoAngle;
+//float servoAngle;
 
 
 void servoInit(void){
@@ -59,11 +49,33 @@ void servoInit(void){
   servo1.write(centerPwidth);
 }
 
-void servoMove(float angle){
-  //角度入力　-90~+90度
-    ////////////////////
+float endAngleGet(void){
+  return endMoving;
 }
 
+float startAngleGet(void){
+  return startMoving;
+}
+
+
+float servoMove(float angle){
+  //角度入力　startMoving ~ endMoving (-26 ~ 28)装置での角度（真上がゼロ）
+  float angleS = centerAngle - angle;   //サーボでの角度
+  uint16_t pw = pwPerDeg * angleS + pwN0;
+
+  servo1.writeMicroseconds(pw);
+  Serial.printf("Tamabo angle:%5.1f  Servo angle:%5.1f  pulse width:%5d \n", angle, angleS, pw);
+
+  float pos = ARM_LENGTH * sin((float)centerAngle - angle) + startPosition;
+  return pos;
+}
+
+
+
+
+
+
+//-----------------------------------------------------------------
 
 void servoPosition(void){
   //BtnBが押された時に玉の位置を動かす

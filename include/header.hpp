@@ -10,6 +10,7 @@
 
 #include "servo.hpp"
 #include "scale.hpp"
+#include "measure.hpp"
 
 
 uint8_t sdInit(void);
