@@ -53,9 +53,9 @@ void setup() {
   servoInit();
   digitalWrite(PIN_BAT_ON, HIGH);    //サーボ用バッテリ電源オン
 
-  //test
-  //servoAdjust();/////////////////
-
+  ///////////// test ////////////////////////////////////////////////////////////////
+  //servoAdjust();
+  graphClear();
 
   
 
@@ -66,22 +66,27 @@ void loop() {
   M5.update();  //ボタンの状態を更新する。
 
   //button
-  if (M5.BtnA.wasPressed()){
+  if (M5.BtnA.pressedFor(200)){  //ms長押し
+    //測定
     Serial.println("Btn A");
-    M5.Speaker.setVolume(64);
-    M5.Speaker.tone(880,100);
-    measNukiF();              //測定
-    delay(200);
+    M5.Speaker.tone(1000,200);
+    graphClear();
+    measNukiF();
+    M5.Speaker.tone(1500,100);
+    //玉位置情報更新
+    tamaPos = END_POS;
+    btnBname(TO_CENTER);
   }
+  
   if (M5.BtnB.wasPressed()){
+    //玉位置移動
     Serial.println("Btn B");
-    M5.Speaker.setVolume(64);
     M5.Speaker.tone(1320,100);
     servoPosition();          //玉ポジション移動
   }
   if (M5.BtnC.wasPressed()){
+    //ノズル検出
     Serial.println("Btn C");
-    M5.Speaker.setVolume(64);
     M5.Speaker.tone(1760,100);
     delay(200);
   }
@@ -130,7 +135,7 @@ void loop() {
   //ret --> 1:err, 0:ok
   if(SD.begin(GPIO_NUM_4, SPI, 25000000)){
     Serial.println("SD OK!");
-    M5.Speaker.tone(2000,80);
+    M5.Speaker.tone(1500,80);
     M5.Display.setColor(TFT_BG_SCREEN);
     M5.Display.fillRect(22, 195, 64, 20);
     return 0;

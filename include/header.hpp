@@ -10,7 +10,7 @@
 #include "servo.hpp"
 #include "scale.hpp"
 #include "measure.hpp"
-
+#include "graph.hpp"
 
 //global
 extern uint16_t measCnt;   //測定回数 

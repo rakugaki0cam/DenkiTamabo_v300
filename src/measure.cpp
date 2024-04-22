@@ -27,7 +27,7 @@ void measNukiF(void){
   measCnt++;
 //番号
   Serial.println();
-  Serial.printf("***** measure Fnukidan  ********* #%3d\n", measCnt);
+  Serial.printf("***** measure Nukidan  #%3d  ********* \n", measCnt);
   Serial.printf("measure angle: %4.1f ~ %4.1f deg\n", startAngle, endAngle);
   dispMeasNum(measCnt);
 
@@ -69,6 +69,9 @@ void measNukiF(void){
     delay(10);            //サーボが動き終わるまで待つ
     load = measLoad(10);
     dispLoad(load);       //抵抗力測定
+    //
+    graphPlot(tamaPos, load);
+    //
     Serial.printf(" == LOAD: %6.1fgf ", load);
     //簡易グラフ表示
     #define A_SCALE 20
@@ -89,9 +92,6 @@ void measNukiF(void){
     servoAngle += stepMoving;
     
   }
-
-  M5.Speaker.tone(880,100);
-
 }
 
 
@@ -130,7 +130,7 @@ void dispPosition(float val){
 void dispMeasNum(uint16_t val){
   //測定番号
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
-  M5.Display.setTextColor(TFT_BLACK, TFT_BG_TITLE);
+  M5.Display.setTextColor(TFT_WHITE, TFT_BG_TITLE);
   sprintf((char*)text, "　#%3d", val);
   M5.Display.drawString((char*)text, 309, 0, &fonts::lgfxJapanGothicP_16);
   M5.Display.setTextDatum(TL_DATUM);  //TopLeft = default

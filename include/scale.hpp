@@ -1,5 +1,5 @@
 //
-// loadcell.hpp
+// scale.hpp
 //
 //  2024.04.19
 //
