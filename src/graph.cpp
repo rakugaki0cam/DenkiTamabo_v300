@@ -9,6 +9,11 @@
 
 
 //画面上の座標
+uint16_t X0_CLS = 0;        //グラフ全面 カラー:TFT_BG_SCREEN
+uint16_t Y0_CLS = 20;
+uint16_t X_SIZE_CLS = 210;
+uint16_t Y_SIZE_CLS = 200;
+//
 uint16_t X0 = 30;           //左上座標
 uint16_t Y0 = 30;        
 uint16_t X_SIZE = 170;      //大きさ
@@ -36,12 +41,13 @@ void graphClear(void){
   uint8_t   text[10];
   int16_t   x, y;     //測定値の値
   uint16_t  Xdisp, Ydisp;  //画面上の座標
-  uint16_t  TFT_N_GRAY = M5.Display.color565(0x66, 0x66, 0x66);
-  
+  uint16_t  TFT_N_GRAY = M5.Display.color565(0x40, 0x40, 0x40);
+  //
+  M5.Display.setColor(TFT_BG_SCREEN);
+  M5.Display.fillRect(X0_CLS, Y0_CLS, X_SIZE_CLS, Y_SIZE_CLS);
+  //
   M5.Display.setColor(TFT_BLACK);
   M5.Display.fillRect(X0, Y0, X_SIZE, Y_SIZE);
-  //grid
-  M5.Display.setColor(TFT_N_GRAY);
   //text
   M5.Display.setFont(&fonts::Font0);
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
@@ -51,6 +57,7 @@ void graphClear(void){
   for (y = yMin; y <= yMax; y += yScale){
     Ydisp = Y1 - (float)(y - yMin) * Yconv;
     //Serial.printf("y:%d Ydisp:%d \n", y, Ydisp);
+    M5.Display.setColor(TFT_N_GRAY);
     M5.Display.drawLine(X0, Ydisp, X1, Ydisp);
     sprintf((char*)text, "%d", y);
     M5.Display.drawString((char*)text, X0, Ydisp, &fonts::Font2);
@@ -60,6 +67,7 @@ void graphClear(void){
   M5.Display.setTextDatum(TC_DATUM);  //TopCenter
   for (x = xMin; x <= xMax; x += xScale){
     Xdisp = (float)(x - xMin) * Xconv + X0;
+    M5.Display.setColor(TFT_N_GRAY);
     M5.Display.drawLine(Xdisp, Y0, Xdisp, Y1);
     sprintf((char*)text, "%d", x);
     M5.Display.drawString((char*)text, Xdisp, Y1, &fonts::Font2);

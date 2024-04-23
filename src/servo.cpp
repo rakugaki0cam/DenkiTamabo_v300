@@ -4,20 +4,19 @@
  * 
  * 2024.04.20
 */
-
 #include "servo.hpp"
 
-#define PIN_SERVO 33    //5...stack M5 BASIC v2.7
-#define ARM_LENGTH 9.0f       //サーボホーンアーム長さ
+#define PIN_SERVO 33      //G5...stack M5 BASIC v2.7
+#define ARM_LENGTH 9.0f   //サーボホーンアーム長さ
 //
 #define degToRad(deg) (deg / 180 * PI)
 #define radToDeg(rad) (rad / PI * 180)
 
-
-Servo servo1;
-
 //global
 tama_pos_t tamaPos;  //玉のポジション
+
+//
+Servo servo1;
 
 //local
 //servo adjust　-90,0,+90deg --> [usec]
@@ -40,9 +39,7 @@ float startPosition = ARM_LENGTH * sin(degToRad(startMoving));
 float endPosition = ARM_LENGTH * sin(degToRad(endMoving));
 
 
-
 void servoInit(void){
-  
   //ESP32PWM::allocateTimer(0);   //0〜3// Allow allocation of all timers
   servo1.setPeriodHertz(50);      // standard 50 hz servo
   servo1.attach(PIN_SERVO, endPwidth, startPwidth); //パルス幅制限
@@ -51,8 +48,8 @@ void servoInit(void){
   //
   Serial.printf("start angle:%5.1fdeg (dx:%6.3fmm) ", startMoving, startPosition);
   Serial.printf("~ end angle:%5.1fdeg (dx:%6.3fmm) \n", endMoving, endPosition);
-
 }
+
 
 float endAngleGet(void){
   return endMoving;
@@ -82,86 +79,56 @@ float servoMove(float angle){
 // button B -----------------------------------------------------------------
 
 void servoPosition(void){
-  //BtnBが押された時に玉の位置を動かす
+  //ボタンBが押された時に玉の位置を動かす
   switch(tamaPos){
     case CENTER1_POS:
-      tamaPos = START_POS;        //スタートポジションへ移動
+      //スタート位置へ
+      tamaPos = START_POS;        //スタート位置へ移動
       servo1.write(startPwidth);
-      dispTamaPos(tamaPos);       //ポジション表示
-      btnBname(TO_CENTER);        //ボタンへは次の行先を表示
+      dispTamaPos(tamaPos);       //玉位置表示
+      dispBtnB(TO_CENTER);        //ボタンへは次の行先を表示
       break;
     case START_POS:
+      //センターへ
       tamaPos = CENTER2_POS;
       servo1.write(centerPwidth);
       dispTamaPos(tamaPos);
-      btnBname(TO_END);
+      dispBtnB(TO_END);
       break;
     case CENTER2_POS:
+      //エンド位置へ
       tamaPos = END_POS;
       servo1.write(endPwidth);
       dispTamaPos(tamaPos);
+      delay(300);
+      //ゼロセット
       dispZeroSet();
-      delay(500);
       scaleTare();
-      M5.Speaker.tone(1000,200);
-      btnBname(TO_CENTER);
+      M5.Speaker.tone(1000,500);
+      delay(2000);
+      //
+      dispBtnB(TO_CENTER);
       break; 
     case END_POS:
+      //センターへ
       tamaPos = CENTER1_POS;
       servo1.write(centerPwidth);
       dispTamaPos(tamaPos);
-      btnBname(TO_START);
+      dispBtnB(TO_START);
       break;
     default:
       tamaPos = CENTER1_POS;
-      btnBname(TO_START);
+      dispBtnB(TO_START);
       break;
   } 
 }
 
 
-void btnBname(btn_b_name_t name){
-  //ボタンBの名前の表示
-  M5.Display.setCursor(112, 220);
-  M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
-  M5.Display.setTextColor(TFT_BLACK, TFT_WHITE);
-  switch(name){
-    case TO_START:
-      M5.Display.print("スタート点へ");
-      break;
-    case TO_CENTER:
-      M5.Display.print("センターへ　");
-      break;
-    case TO_END:
-      M5.Display.print("エンド位置へ");
-      break;
-  }
-
-}
-
-void dispTamaPos(tama_pos_t pos){
-  //玉位置の表示
-  M5.Display.setCursor(224, 40);
-  M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
-  M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
-  switch(pos){
-    case START_POS:
-      M5.Display.print("スタート点　");
-      break;
-    case CENTER1_POS:
-    case CENTER2_POS:
-      M5.Display.print("センタ位置　");
-      break;
-    case END_POS:
-      M5.Display.print("エンド位置　");
-      break;
-  }
-}
-
 
 //------- TEST ------------------------------------------------------------------------------- 
 
 void servoAdjust(void){
+  //サーボホーンの組み付け調整
   uint16_t pw;
 
   ESP32PWM::allocateTimer(0);   //0〜3
@@ -169,14 +136,16 @@ void servoAdjust(void){
   servo1.attach(PIN_SERVO, 500, 2400); ///////////////////可動域制限///////////
   Serial.println("**** servo adjust **********");
 
-  //
+  //display init
   M5.Display.clearDisplay(TFT_BLACK);
   M5.Display.setColor(TFT_BROWN);
   M5.Display.fillRect(0, 0, 320, 20);
+  //title bar
   M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
   M5.Display.setTextColor(TFT_WHITE, TFT_BROWN);
   M5.Display.setCursor(4, 0);
   M5.Display.printf("サーボの設定　サーボホーンを外す");
+  //button
   M5.Display.setTextColor(TFT_WHITE, TFT_BLACK);
   M5.Display.setCursor(0, 220);
   M5.Display.printf("　　　ー　　　　ＮＥＸＴ　　　　＋");

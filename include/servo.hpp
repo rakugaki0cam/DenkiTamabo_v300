@@ -9,21 +9,10 @@
 
 #include "ESP32Servo.h"
 #include "header.hpp"
+#include "servo_common.hpp"
 
 //global
-typedef enum {
-  CENTER1_POS,
-  START_POS,
-  CENTER2_POS,
-  END_POS,
-} tama_pos_t;
 extern tama_pos_t tamaPos;
-
-typedef enum {
-  TO_START,
-  TO_CENTER,
-  TO_END,
-} btn_b_name_t;
 
 
 void servoInit(void);
@@ -33,7 +22,5 @@ float startAngleGet(void);
 float servoMove(float);
 //btnB
 void servoPosition(void);
-void  btnBname(btn_b_name_t);
-void  dispTamaPos(tama_pos_t);
 //test
 void servoAdjust(void);

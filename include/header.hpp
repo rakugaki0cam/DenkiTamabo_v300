@@ -16,15 +16,8 @@
 
 //global
 extern uint16_t measCnt;   //測定回数 
-//color
-extern uint16_t TFT_ENJI;       //エンジ色
-extern uint16_t TFT_BG_SCREEN;  //薄茶
-extern uint16_t TFT_BG_TITLE;   //茶色
-
+extern uint8_t fmVer[];
 
 
 uint8_t sdInit(void);
 
-//display
-void dispTitle(void);
-void dispBatV(float);
