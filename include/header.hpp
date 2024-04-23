@@ -11,6 +11,8 @@
 #include "scale.hpp"
 #include "measure.hpp"
 #include "graph.hpp"
+#include "display.hpp"
+
 
 //global
 extern uint16_t measCnt;   //測定回数 

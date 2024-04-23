@@ -79,11 +79,7 @@ float servoMove(float angle){
 }
 
 
-
-
-
-
-//-----------------------------------------------------------------
+// button B -----------------------------------------------------------------
 
 void servoPosition(void){
   //BtnBが押された時に玉の位置を動かす
@@ -104,6 +100,10 @@ void servoPosition(void){
       tamaPos = END_POS;
       servo1.write(endPwidth);
       dispTamaPos(tamaPos);
+      dispZeroSet();
+      delay(500);
+      scaleTare();
+      M5.Speaker.tone(1000,200);
       btnBname(TO_CENTER);
       break; 
     case END_POS:
@@ -117,9 +117,8 @@ void servoPosition(void){
       btnBname(TO_START);
       break;
   } 
-
-
 }
+
 
 void btnBname(btn_b_name_t name){
   //ボタンBの名前の表示
@@ -157,7 +156,6 @@ void dispTamaPos(tama_pos_t pos){
       M5.Display.print("エンド位置　");
       break;
   }
-
 }
 
 

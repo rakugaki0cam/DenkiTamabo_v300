@@ -38,7 +38,7 @@ void setup() {
 
   dispTitle();
 
-  M5.Speaker.setVolume(64);
+  M5.Speaker.setVolume(48);   //64
   M5.Speaker.tone(1500,300);
   
   if (sdInit()){
@@ -137,13 +137,13 @@ void loop() {
     Serial.println("SD OK!");
     M5.Speaker.tone(1500,80);
     M5.Display.setColor(TFT_BG_SCREEN);
-    M5.Display.fillRect(22, 195, 64, 20);
+    M5.Display.fillRect(220, 195, 64, 20);
     return 0;
   }
   Serial.println("SD failed!");
   M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
   M5.Display.setTextColor(TFT_WHITE, TFT_MAGENTA);
-  M5.Display.setCursor(22, 195);
+  M5.Display.setCursor(220, 195);
   M5.Display.println(" SD Fail! ");
   return 1;
  }

@@ -11,7 +11,6 @@
 #include "header.hpp"
 
 
-void scaleInit(void);
+void  scaleInit(void);
 float measLoad(uint8_t);
-
-void scaleTare(void);
+void  scaleTare(void);

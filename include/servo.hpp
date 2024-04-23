@@ -11,7 +11,6 @@
 #include "header.hpp"
 
 //global
-
 typedef enum {
   CENTER1_POS,
   START_POS,
@@ -27,19 +26,14 @@ typedef enum {
 } btn_b_name_t;
 
 
-
-
-
 void servoInit(void);
 //
 float endAngleGet(void);
 float startAngleGet(void);
-
 float servoMove(float);
-
-//
+//btnB
 void servoPosition(void);
-void btnBname(btn_b_name_t);
-void dispTamaPos(tama_pos_t );
-//
+void  btnBname(btn_b_name_t);
+void  dispTamaPos(tama_pos_t);
+//test
 void servoAdjust(void);
