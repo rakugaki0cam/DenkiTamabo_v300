@@ -48,22 +48,10 @@ void dispInit(void){
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
   M5.Display.setCursor(265, 190);
   M5.Display.print("バッテリ電圧");
-
   //button
-  M5.Display.setTextDatum(BC_DATUM);  //BottomCenter
-  M5.Display.setTextColor(TFT_WHITE, TFT_BG_BUTTON);
-  //Btn A
-  sprintf((char*)text, "　測定開始　");
-  M5.Display.drawString((char*)text, 50, 240, &fonts::lgfxJapanGothicP_16);
-  //Btn B
-  sprintf((char*)text, "スタート位置");
-  M5.Display.drawString((char*)text, 160, 240, &fonts::lgfxJapanGothicP_16);
-  //Btn C
-  sprintf((char*)text, "　ノズル設定");
-  M5.Display.drawString((char*)text, 270, 240, &fonts::lgfxJapanGothicP_16);
-  //
-  M5.Display.setTextDatum(TL_DATUM);  //TopLeft
-
+  dispBtnA(MEAS_START);
+  dispBtnB(TO_START);
+  dispBtnC(BTNC_NOZZLE_SET);
 }
 
 //--- display --------------------
@@ -136,6 +124,7 @@ void dispBatV(float val){
 
 void dispSdcardStatus(uint8_t stat){
   //SDカード無しの警告
+  //stat 0:OK, 1:fail
   #define SD_DISP_X 0
   #define SD_DISP_Y 200
 
@@ -152,28 +141,6 @@ void dispSdcardStatus(uint8_t stat){
     M5.Display.setCursor(SD_DISP_X, SD_DISP_Y);
     M5.Display.println(" SDcard OK! ");
   }
-}
-
-
-void dispBtnB(btn_b_name_t name){
-  //ボタンBの名前の表示
-  uint8_t txt[20];
-
-  M5.Display.setTextDatum(BC_DATUM);  //BottomCenter
-  M5.Display.setTextColor(TFT_WHITE, TFT_BG_BUTTON);
-  switch(name){
-    case TO_START:
-      sprintf((char*)txt, "スタート点へ");
-      break;
-    case TO_CENTER:
-      sprintf((char*)txt, "センターへ　");
-      break;
-    case TO_END:
-      sprintf((char*)txt, "エンド位置へ");
-      break;
-  }
-  M5.Display.drawString((char*)txt, 160, 240, &fonts::lgfxJapanGothicP_16);
-  M5.Display.setTextDatum(TL_DATUM);  //TopLeft
 }
 
 
@@ -194,6 +161,137 @@ void dispTamaPos(tama_pos_t pos){
       M5.Display.print("エンド位置　");
       break;
   }
+}
+
+
+void dispWifi(wifi_stat_t stat){
+  //WiFi接続状況
+  #define WIFI_DISP_X 10
+  #define WIFI_DISP_Y 70
+  switch(stat){
+    case TEXT_WIFI:
+      //WiFi
+      M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
+      M5.Display.setCursor(WIFI_DISP_X, WIFI_DISP_Y);
+      M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
+      M5.Display.print("WiFi ");
+      break;
+    case TEXT_DOT:
+      //waiting1
+      M5.Display.setCursor(WIFI_DISP_X + 40, WIFI_DISP_Y);
+      M5.Display.print("...");
+      break;
+    case TEXT_DOT_NONE:
+      //waiting2
+      M5.Display.setCursor(WIFI_DISP_X + 40, WIFI_DISP_Y);
+      M5.Display.print("　　");
+      break;
+    case TEXT_WIFI_CONECT:
+      //conect
+      M5.Display.setCursor(WIFI_DISP_X + 40, WIFI_DISP_Y);
+      M5.Display.print(".. 接続OK");
+      break;
+    case TEXT_WIFI_TIMEOUT: 
+      //timeout 
+      M5.Display.setCursor(WIFI_DISP_X + 40, WIFI_DISP_Y);
+      M5.Display.print(".. 接続不可!");
+      break;
+    case TEXT_IP: 
+      //IP adress 
+      M5.Display.setCursor(WIFI_DISP_X, WIFI_DISP_Y + 20);
+      M5.Display.print("IP:");
+      M5.Display.println(WiFi.localIP());
+      break;
+    case TEXT_NTP:
+      //NTP date time  
+      M5.Display.setCursor(WIFI_DISP_X, WIFI_DISP_Y + 50);
+      M5.Display.print("NTP: ");
+      break;
+    case TEXT_DATE_TIME:
+      //date time  
+      M5.Display.setCursor(WIFI_DISP_X + 40, WIFI_DISP_Y + 50);
+      getTime((char*)text);
+      M5.Display.println((char*)text);
+      break;
+    case TEXT_NTP_TIMEOUT:
+      //timeout
+      M5.Display.setCursor(WIFI_DISP_X + 40, WIFI_DISP_Y + 50);
+      M5.Display.print("取得不可!");
+      break;
+    case TEXT_WIFI_OK:
+      //OK
+      M5.Display.setCursor(WIFI_DISP_X, WIFI_DISP_Y + 70);
+      M5.Display.print("OK");
+      break;  
+  }
+
+}
+
+
+//--------- ボタン -------------------------
+void dispBtnA(btn_a_name_t name){
+  //ボタンAの名前の表示
+  M5.Display.setTextDatum(BC_DATUM);  //BottomCenter
+  M5.Display.setTextColor(TFT_WHITE, TFT_BG_BUTTON);
+  switch(name){
+    case MEAS_START:
+      sprintf((char*)text, "　測定開始　");
+      break;
+    case MEAS_RUNNING:
+      sprintf((char*)text, "　測定中　　");
+      break;
+    case MEAS_COMPLETE:
+      sprintf((char*)text, "　測定完了　");
+      break;
+  }
+  M5.Display.drawString((char*)text, 50, 240, &fonts::lgfxJapanGothicP_16);
+  M5.Display.setTextDatum(TL_DATUM);  //TopLeft
+}
+
+
+void dispBtnB(btn_b_name_t name){
+  //ボタンBの名前の表示
+  M5.Display.setTextDatum(BC_DATUM);  //BottomCenter
+  M5.Display.setTextColor(TFT_WHITE, TFT_BG_BUTTON);
+  switch(name){
+    case TO_START:
+      sprintf((char*)text, "スタート位置");
+      break;
+    case TO_CENTER:
+      sprintf((char*)text, "センターへ　");
+      break;
+    case TO_END:
+      sprintf((char*)text, "エンド位置へ");
+      break;
+  }
+  M5.Display.drawString((char*)text, 160, 240, &fonts::lgfxJapanGothicP_16);
+  M5.Display.setTextDatum(TL_DATUM);  //TopLeft
+}
+
+
+void dispBtnC(btn_c_name_t name){
+  //ボタンCの名前の表示
+  M5.Display.setTextDatum(BC_DATUM);  //BottomCenter
+  M5.Display.setTextColor(TFT_WHITE, TFT_BG_BUTTON);
+  switch(name){
+    case BTNC_NOZZLE_SET:
+      sprintf((char*)text, "ノズル設定　");
+      break;
+    case BTNC_PUSH_TO_START:
+      sprintf((char*)text, "　設定開始　");
+      break;
+    case BTNC_RUNNING:
+      sprintf((char*)text, "ノズル測定中");
+      break;
+    case BTNC_PACKING:
+      sprintf((char*)text, "隙間測定中");
+      break;
+    case BTNC_NOZZLE_RESET:
+      sprintf((char*)text, "ノズル無効　");
+      break;
+  }
+  M5.Display.drawString((char*)text, 270, 240, &fonts::lgfxJapanGothicP_16);
+  M5.Display.setTextDatum(TL_DATUM);  //TopLeft
 }
 
 

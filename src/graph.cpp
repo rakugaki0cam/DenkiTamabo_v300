@@ -36,7 +36,7 @@ int16_t Xbefore, Ybefore;
 
 
 
-void graphClear(void){
+void graphInit(void){
   //graph draw
   uint8_t   text[10];
   int16_t   x, y;     //測定値の値
@@ -104,4 +104,9 @@ void graphPlot(float x, float y){
   Xbefore = Xdisp;
   Ybefore = Ydisp;
 
+}
+
+void graphAreaClear(void){
+  M5.Display.setColor(TFT_BG_SCREEN);
+  M5.Display.fillRect(X0_CLS, Y0_CLS, X_SIZE_CLS, Y_SIZE_CLS);
 }

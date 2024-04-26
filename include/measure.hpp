@@ -12,3 +12,4 @@
 
 void measNukiF(void);
 
+void measNozzlePos(void);

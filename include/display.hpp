@@ -9,6 +9,15 @@
 
 #include "header.hpp"
 #include "servo_common.hpp"
+#include "sd_common.hpp"
+
+
+//button
+typedef enum {
+  MEAS_START,
+  MEAS_RUNNING,
+  MEAS_COMPLETE,
+} btn_a_name_t;
 
 typedef enum {
   TO_START,
@@ -16,6 +25,13 @@ typedef enum {
   TO_END,
 } btn_b_name_t;
 
+typedef enum {
+  BTNC_NOZZLE_SET,
+  BTNC_PUSH_TO_START,
+  BTNC_RUNNING,
+  BTNC_PACKING,
+  BTNC_NOZZLE_RESET,
+} btn_c_name_t;
 
 
 //color
@@ -35,6 +51,11 @@ void  dispPosition(float);
 void  dispMeasNum(uint16_t);
 void  dispBatV(float);
 void  dispSdcardStatus(uint8_t);
-//button B
-void  dispBtnB(btn_b_name_t);
 void  dispTamaPos(tama_pos_t);
+void  dispWifi(wifi_stat_t);
+
+//button 
+void  dispBtnA(btn_a_name_t);
+void  dispBtnB(btn_b_name_t);
+void  dispBtnC(btn_c_name_t);
+

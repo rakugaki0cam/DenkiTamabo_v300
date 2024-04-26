@@ -66,7 +66,7 @@ float servoMove(float angle){
   uint16_t pw = pwPerDeg * angleS + pwN0;
 
   servo1.writeMicroseconds(pw);
-    float pos = ARM_LENGTH * sin(degToRad(angle)) - startPosition;
+  float pos = ARM_LENGTH * sin(degToRad(angle)) - startPosition;
 
   //Serial.printf("Tamabo angle:%5.1fdeg ", angle);
   Serial.printf("servo angle:%5.1fdeg  pulse width:%5dus ", angleS, pw);

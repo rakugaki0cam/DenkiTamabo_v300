@@ -11,7 +11,8 @@
 
 
 //void graphInit(void);
-void graphClear(void);
+void graphInit(void);
 void graphPlot(float, float);
-
+//
+void graphAreaClear(void);
 
