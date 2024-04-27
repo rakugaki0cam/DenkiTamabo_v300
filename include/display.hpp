@@ -10,6 +10,7 @@
 #include "header.hpp"
 #include "servo_common.hpp"
 #include "sd_common.hpp"
+#include "measure_common.hpp"
 
 
 //button
@@ -29,6 +30,7 @@ typedef enum {
   BTNC_NOZZLE_SET,
   BTNC_PUSH_TO_START,
   BTNC_RUNNING,
+  BTNC_NULL,
   BTNC_PACKING,
   BTNC_NOZZLE_RESET,
 } btn_c_name_t;
@@ -53,6 +55,7 @@ void  dispBatV(float);
 void  dispSdcardStatus(uint8_t);
 void  dispTamaPos(tama_pos_t);
 void  dispWifi(wifi_stat_t);
+void  dispNozzle(noz_stat_t);
 
 //button 
 void  dispBtnA(btn_a_name_t);

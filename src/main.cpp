@@ -35,7 +35,8 @@ void setup() {
 
   M5.Speaker.setVolume(30);
   M5.Speaker.tone(1500,300);
-  Serial.printf("*** DENKI Tamabo M5 ver.%s **********************\n", (char*)fmVer);
+  Serial.println();
+  Serial.printf("*** DENKI Tamabo M5 ver.%s ******************************************\n", (char*)fmVer);
 
   dispInit();
   wifiInit();
@@ -47,7 +48,7 @@ void setup() {
   ///////////// test ////////////////////////////////////////////////////////////////
   //servoAdjust();
   //graphInit();
-  Serial.println("**************************************************");
+  Serial.println("***********************************************************************");
 
 }
 
@@ -71,12 +72,14 @@ void loop() {
     M5.Speaker.tone(1320,100);
     servoPosition();          //玉ポジション移動
   }
+
   if (M5.BtnC.wasPressed()){
     //ノズル検出
     M5.Speaker.tone(1760,100);
     measNozzlePos();
     delay(200);
   }
+
 
   //routine
   delay(20);

@@ -7,6 +7,11 @@
 #include "servo.hpp"
 
 #define PIN_SERVO 33      //G5...stack M5 BASIC v2.7
+//LEDC
+#define LEDC_CH     0
+#define LEDC_BIT    15  //resolution
+#define LEDC_FREQ   50  //Hz
+//
 #define ARM_LENGTH 9.0f   //サーボホーンアーム長さ
 //
 #define degToRad(deg) (deg / 180 * PI)
@@ -40,11 +45,35 @@ float endPosition = ARM_LENGTH * sin(degToRad(endMoving));
 
 
 void servoInit(void){
+/*
   //ESP32PWM::allocateTimer(0);   //0〜3// Allow allocation of all timers
   servo1.setPeriodHertz(50);      // standard 50 hz servo
   servo1.attach(PIN_SERVO, endPwidth, startPwidth); //パルス幅制限
   //中点へ移動
-  servo1.write(centerPwidth);
+  //servo1.write(centerPwidth);
+*/
+  ledcSetup(LEDC_CH, LEDC_FREQ, LEDC_BIT);
+  ledcAttachPin(PIN_SERVO, LEDC_CH);
+
+  servo1WriteMs(centerPwidth);
+
+/*
+//test
+  #define PIN_BAT_ON  19    //サーボ用バッテリ電源オフ　(G13..stack M5 BASIC v2.7)
+    digitalWrite(PIN_BAT_ON, HIGH);    //サーボ用バッテリ電源オン///////////////////////
+
+  while(1){
+    for (centerPwidth = 600; centerPwidth < 2000; centerPwidth++){
+      servo1WriteMs(centerPwidth);
+      delay(10);
+    }
+    for (centerPwidth = 2000; centerPwidth > 600; centerPwidth--){
+      servo1WriteMs(centerPwidth);
+      delay(10);
+    }
+  }
+*/
+
   //
   Serial.printf("start angle:%5.1fdeg (dx:%6.3fmm) ", startMoving, startPosition);
   Serial.printf("~ end angle:%5.1fdeg (dx:%6.3fmm) \n", endMoving, endPosition);
@@ -60,12 +89,20 @@ float startAngleGet(void){
 }
 
 
+void servo1WriteMs(uint32_t usec){
+  uint32_t dutyTick = usec * (32768.0 / 20000.0);
+  //Serial.printf("pulse:%5d -- dutyTick:%6lu\n", usec, dutyTick);
+  ledcWrite(LEDC_CH, dutyTick);
+}
+
+
 float servoMove(float angle){
   //角度入力　startMoving ~ endMoving (-26 ~ 28)装置での角度（真上がゼロ）
-  float angleS = centerAngle - angle;   //サーボでの角度
-  uint16_t pw = pwPerDeg * angleS + pwN0;
+  float angleS = centerAngle - angle;     //サーボでの角度
+  uint32_t pw = pwPerDeg * angleS + pwN0; //usec
 
-  servo1.writeMicroseconds(pw);
+  //servo1.writeMicroseconds(pw);
+  servo1WriteMs(pw);
   float pos = ARM_LENGTH * sin(degToRad(angle)) - startPosition;
 
   //Serial.printf("Tamabo angle:%5.1fdeg ", angle);
@@ -84,21 +121,24 @@ void servoPosition(void){
     case CENTER1_POS:
       //スタート位置へ
       tamaPos = START_POS;        //スタート位置へ移動
-      servo1.write(startPwidth);
+      //servo1.write(startPwidth);
+      servo1WriteMs(startPwidth);
       dispTamaPos(tamaPos);       //玉位置表示
       dispBtnB(TO_CENTER);        //ボタンへは次の行先を表示
       break;
     case START_POS:
       //センターへ
       tamaPos = CENTER2_POS;
-      servo1.write(centerPwidth);
+      //servo1.write(centerPwidth);
+      servo1WriteMs(centerPwidth);
       dispTamaPos(tamaPos);
       dispBtnB(TO_END);
       break;
     case CENTER2_POS:
       //エンド位置へ
       tamaPos = END_POS;
-      servo1.write(endPwidth);
+      //servo1.write(endPwidth);
+      servo1WriteMs(endPwidth);
       dispTamaPos(tamaPos);
       delay(300);
       //ゼロセット
@@ -112,7 +152,8 @@ void servoPosition(void){
     case END_POS:
       //センターへ
       tamaPos = CENTER1_POS;
-      servo1.write(centerPwidth);
+      //servo1.write(centerPwidth);
+      servo1WriteMs(centerPwidth);
       dispTamaPos(tamaPos);
       dispBtnB(TO_START);
       break;
@@ -164,7 +205,8 @@ void servoAdjust(void){
   pw = 2320;
   while(true){
     M5.update();
-    servo1.writeMicroseconds(pw);
+    //servo1.writeMicroseconds(pw);
+    servo1WriteMs(pw);
     Serial.printf("pulse width:%d \n", pw);
     M5.Display.setCursor(0, 30);
     M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
@@ -191,7 +233,8 @@ void servoAdjust(void){
   pw = 560;
   while(true){
     M5.update();
-    servo1.writeMicroseconds(pw);
+    //servo1.writeMicroseconds(pw);
+    servo1WriteMs(pw);
     Serial.printf("pulse width:%d \n", pw);
     M5.Display.setCursor(0, 50);
     M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
@@ -218,7 +261,8 @@ void servoAdjust(void){
   pw = 1420;
   while(true){
     M5.update();
-    servo1.writeMicroseconds(pw);
+    //servo1.writeMicroseconds(pw);
+    servo1WriteMs(pw);
     Serial.printf("pulse width:%d \n", pw);
     M5.Display.setCursor(0, 70);
     M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
@@ -251,7 +295,8 @@ void servoAdjust(void){
   while(true){
     M5.update();
     pw = (pwP90 - pwM90) / 180 * centerAngle + pwN0;
-    servo1.writeMicroseconds(pw);
+    //servo1.writeMicroseconds(pw);
+    servo1WriteMs(pw);
     Serial.printf("pulse width:%d \n", pw);
     M5.Display.setCursor(0, 110);
     M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
@@ -275,3 +320,4 @@ void servoAdjust(void){
   M5.Speaker.tone(1500, 300);
   delay(2000);
 }
+

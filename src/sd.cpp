@@ -82,6 +82,7 @@ uint8_t wifiInit(void){
   WiFi.disconnect();
   //
   M5.Speaker.tone(1000, 100);
+  dispWifi(TEXT_WIFI_OK);
   return 0;
 }
 

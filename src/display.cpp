@@ -43,6 +43,8 @@ void dispInit(void){
   M5.Display.setCursor(228, 112);
   M5.Display.printf("抜弾ピーク値");
   dispLoadMax(-9999);
+  //nozzle mark
+  dispNozzle(NOZ_MARK);
   //batV
   M5.Display.setFont(&fonts::lgfxJapanGothicP_8);
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
@@ -166,63 +168,153 @@ void dispTamaPos(tama_pos_t pos){
 
 void dispWifi(wifi_stat_t stat){
   //WiFi接続状況
-  #define WIFI_DISP_X 10
-  #define WIFI_DISP_Y 70
+  #define WIFI_DISP_X0  10
+  #define WIFI_DISP_X1  40
+  #define WIFI_DISP_Y0  50
+  #define WIFI_DISP_Y1  70
+  #define WIFI_DISP_Y2  100
+  #define WIFI_DISP_Y3  120
+
+
   switch(stat){
     case TEXT_WIFI:
       //WiFi
-      M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
-      M5.Display.setCursor(WIFI_DISP_X, WIFI_DISP_Y);
+      M5.Display.setFont(&fonts::lgfxJapanGothic_16);
+      M5.Display.setCursor(WIFI_DISP_X0, WIFI_DISP_Y0);
       M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
       M5.Display.print("WiFi ");
       break;
     case TEXT_DOT:
       //waiting1
-      M5.Display.setCursor(WIFI_DISP_X + 40, WIFI_DISP_Y);
+      M5.Display.setCursor(WIFI_DISP_X1, WIFI_DISP_Y0);
       M5.Display.print("...");
       break;
     case TEXT_DOT_NONE:
       //waiting2
-      M5.Display.setCursor(WIFI_DISP_X + 40, WIFI_DISP_Y);
+      M5.Display.setCursor(WIFI_DISP_X1, WIFI_DISP_Y0);
       M5.Display.print("　　");
       break;
     case TEXT_WIFI_CONECT:
       //conect
-      M5.Display.setCursor(WIFI_DISP_X + 40, WIFI_DISP_Y);
+      M5.Display.setCursor(WIFI_DISP_X1, WIFI_DISP_Y0);
       M5.Display.print(".. 接続OK");
       break;
     case TEXT_WIFI_TIMEOUT: 
       //timeout 
-      M5.Display.setCursor(WIFI_DISP_X + 40, WIFI_DISP_Y);
+      M5.Display.setCursor(WIFI_DISP_X1, WIFI_DISP_Y0);
       M5.Display.print(".. 接続不可!");
       break;
     case TEXT_IP: 
       //IP adress 
-      M5.Display.setCursor(WIFI_DISP_X, WIFI_DISP_Y + 20);
+      M5.Display.setCursor(WIFI_DISP_X0, WIFI_DISP_Y1);
       M5.Display.print("IP:");
       M5.Display.println(WiFi.localIP());
       break;
     case TEXT_NTP:
       //NTP date time  
-      M5.Display.setCursor(WIFI_DISP_X, WIFI_DISP_Y + 50);
+      M5.Display.setCursor(WIFI_DISP_X0, WIFI_DISP_Y2);
       M5.Display.print("NTP: ");
       break;
     case TEXT_DATE_TIME:
       //date time  
-      M5.Display.setCursor(WIFI_DISP_X + 40, WIFI_DISP_Y + 50);
+      M5.Display.setCursor(WIFI_DISP_X1, WIFI_DISP_Y2);
       getTime((char*)text);
       M5.Display.println((char*)text);
       break;
     case TEXT_NTP_TIMEOUT:
       //timeout
-      M5.Display.setCursor(WIFI_DISP_X + 40, WIFI_DISP_Y + 50);
+      M5.Display.setCursor(WIFI_DISP_X1, WIFI_DISP_Y2);
       M5.Display.print("取得不可!");
       break;
     case TEXT_WIFI_OK:
       //OK
-      M5.Display.setCursor(WIFI_DISP_X, WIFI_DISP_Y + 70);
+      M5.Display.setCursor(WIFI_DISP_X0, WIFI_DISP_Y3);
       M5.Display.print("OK");
       break;  
+  }
+
+}
+
+void dispNozzle(noz_stat_t stat){
+  //ノズル測定
+  #define DISP_X0  0
+  #define DISP_X1  40
+  #define DISP_X8  226
+  #define DISP_Y0  30
+  #define DISP_Y1  60
+  #define DISP_Y2  76
+  #define DISP_Y3  92
+  #define DISP_Y4  114
+  #define DISP_Y7  190
+  #define DISP_Y8  200
+
+  switch(stat){
+    case NOZ_TITLE:
+      //WiFi
+      M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
+      M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
+      M5.Display.setCursor(DISP_X0, DISP_Y0);
+      M5.Display.println("ノズル位置の検出");
+      break;
+    case NOZ_EXP1:
+      //explanation1
+      M5.Display.setFont(&fonts::lgfxJapanGothicP_12);
+      M5.Display.setCursor(DISP_X0, DISP_Y1);
+      //M5.Display.println("1.ホップ調整を最弱にする。");
+      M5.Display.println("ノズル先端に玉が軽く当たるように");
+      M5.Display.println("棒の長さを調整する。");
+      break;
+    case NOZ_MEAS:
+      //nozzle position measure
+      M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
+      M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
+      M5.Display.setCursor(DISP_X0, DISP_Y0);
+      M5.Display.println("ノズル位置測定中");
+      M5.Display.setFont(&fonts::lgfxJapanGothicP_12);
+      M5.Display.println("　玉を奥へ移動中");
+      break;
+    case NOZ_EXP3:
+      //waiting2
+      
+      break;
+    case NOZ_PACKING:
+      //packing
+      M5.Display.setCursor(DISP_X0, DISP_Y3);
+      M5.Display.print("パッキン");
+      break;
+    case NOZ_OK:
+      //OK
+      M5.Display.setCursor(DISP_X0, DISP_Y3);
+      M5.Display.print("OK");
+      break;  
+    case NOZ_RESET:
+      //ノズル設定をリセット
+      M5.Display.setFont(&fonts::lgfxJapanGothicP_12);
+      M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
+      M5.Display.setCursor(DISP_X0, DISP_Y0);
+      M5.Display.print("ノズル位置設定を無効にしました。");
+      break;
+    case NOZ_MARK:
+      //nozzle set mark
+      M5.Display.setFont(&fonts::lgfxJapanGothicP_8);
+      M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
+      M5.Display.setCursor(DISP_X8, DISP_Y7);
+      M5.Display.print("ノズル");
+      break;  
+    case NOZ_EN:
+      //nozzle set mark enable
+      M5.Display.setFont(&fonts::lgfxJapanGothic_16);
+      M5.Display.setTextColor(TFT_GREEN, TFT_BG_SCREEN);
+      M5.Display.setCursor(DISP_X8, DISP_Y8);
+      M5.Display.print("●");
+      break;  
+    case NOZ_DIS:
+      //nozzle set mark disable
+      M5.Display.setFont(&fonts::lgfxJapanGothic_16);
+      M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
+      M5.Display.setCursor(DISP_X8, DISP_Y8);
+      M5.Display.print("◯");
+      break;
   }
 
 }
@@ -280,6 +372,9 @@ void dispBtnC(btn_c_name_t name){
     case BTNC_PUSH_TO_START:
       sprintf((char*)text, "　設定開始　");
       break;
+    case BTNC_NULL:
+      sprintf((char*)text, "　　　　　　");
+      break;
     case BTNC_RUNNING:
       sprintf((char*)text, "ノズル測定中");
       break;
@@ -287,7 +382,7 @@ void dispBtnC(btn_c_name_t name){
       sprintf((char*)text, "隙間測定中");
       break;
     case BTNC_NOZZLE_RESET:
-      sprintf((char*)text, "ノズル無効　");
+      sprintf((char*)text, "　リセット　");
       break;
   }
   M5.Display.drawString((char*)text, 270, 240, &fonts::lgfxJapanGothicP_16);

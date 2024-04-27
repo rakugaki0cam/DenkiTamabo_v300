@@ -8,6 +8,7 @@
 #pragma once
 
 #include "header.hpp"
+#include "measure_common.hpp"
 
 
 void measNukiF(void);
