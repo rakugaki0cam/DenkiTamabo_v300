@@ -14,19 +14,26 @@
 #include "time.h"
 #include "esp_sntp.h"
 
-//sd
-uint8_t sdInit(void);
-void    sdDataSave(uint16_t, uint8_t, float*, float*);
-
-
+#include <BluetoothSerial.h>
 
 
 //wifi
 uint8_t wifiInit(void);
-//time
-void printLocalTime(void);
-void getTime(char*);
-void getFileName(void);
 
+uint8_t ntpTimeInit(void);
+void    printLocalTime(void);
+void    getTimeStamp(char*);
+void    getTimeText(char*);
+void    generateFileName(void);
 //time callback
-void timeavailable(struct timeval *t);
+void    timeavailable(struct timeval *t);
+
+//SD card
+uint8_t sdInit(void);
+void    sdDataSave(char*, uint16_t, uint8_t, float*, float*);
+
+//Bluetooth serial
+void    bluetoothSerialInit(void);
+void    btDataSend(char*, uint16_t, uint8_t, float*, float*);
+void    btSerialRx(void);
+

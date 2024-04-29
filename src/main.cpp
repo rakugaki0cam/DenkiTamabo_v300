@@ -4,7 +4,8 @@
     stack M5 CORE2 v1.1 #2
 
     2024.04.19 uiFlow + stack M5 CORE Basic V2.7から移植
-
+    2024.04.29  ver.3.02  BTserial仮完成
+    
 */
 
 #include "header.hpp"
@@ -13,10 +14,11 @@
 #define ANALOG_CH   0     //G36...ADC1_0
 #define PIN_BAT_ON  19    //サーボ用バッテリ電源オフ　(G13..stack M5 BASIC v2.7)
 
+
 //global
-uint8_t fmVer[] = "3.01";
-uint16_t measCnt;   //測定回数 
-uint8_t sdStat = 0;       //SDcard detect 0:未,1:OK,2:fail
+uint8_t   fmVer[] = "3.02";
+uint16_t  measCnt;   //測定回数 
+uint8_t   sdStat = 0;       //SDcard detect 0:未,1:OK,2:fail
 
 //local
 uint8_t cnt = 0;          //ループのカウンタ処理カウント用
@@ -41,8 +43,9 @@ void setup() {
   dispInit();
   wifiInit();
   sdStat = sdInit();  //dispInitの後に
+  bluetoothSerialInit();
   scaleInit();
-  servoInit();
+  servoInit(0);   //default set
   digitalWrite(PIN_BAT_ON, HIGH);    //サーボ用バッテリ電源オン
 
   ///////////// test ////////////////////////////////////////////////////////////////
@@ -110,6 +113,7 @@ void loop() {
     //Serial.printf("SD flag %d\n", sdFlag);
     sdStat = sdInit();
   }
+  btSerialRx();
   
 }
 

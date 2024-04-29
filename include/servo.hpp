@@ -15,7 +15,7 @@
 extern tama_pos_t tamaPos;
 
 
-void servoInit(void);
+void servoInit(float);
 //
 float endAngleGet(void);
 float startAngleGet(void);

@@ -7,7 +7,6 @@
 #include <SD.h>
 #include <M5Unified.h>
 
-
 //usr
 #include "servo.hpp"
 #include "scale.hpp"

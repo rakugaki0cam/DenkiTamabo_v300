@@ -44,7 +44,7 @@ void dispInit(void){
   M5.Display.printf("抜弾ピーク値");
   dispLoadMax(-9999);
   //nozzle mark
-  dispNozzle(NOZ_MARK);
+  dispNozzle(NOZ_MARK, 0);
   //batV
   M5.Display.setFont(&fonts::lgfxJapanGothicP_8);
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
@@ -168,12 +168,12 @@ void dispTamaPos(tama_pos_t pos){
 
 void dispWifi(wifi_stat_t stat){
   //WiFi接続状況
-  #define WIFI_DISP_X0  10
+  #define WIFI_DISP_X0  0
   #define WIFI_DISP_X1  40
-  #define WIFI_DISP_Y0  50
-  #define WIFI_DISP_Y1  70
-  #define WIFI_DISP_Y2  100
-  #define WIFI_DISP_Y3  120
+  #define WIFI_DISP_Y0  30
+  #define WIFI_DISP_Y1  50
+  #define WIFI_DISP_Y2  80
+  #define WIFI_DISP_Y3  100
 
 
   switch(stat){
@@ -207,23 +207,21 @@ void dispWifi(wifi_stat_t stat){
     case TEXT_IP: 
       //IP adress 
       M5.Display.setCursor(WIFI_DISP_X0, WIFI_DISP_Y1);
-      M5.Display.print("IP:");
+      M5.Display.print("IP: ");
       M5.Display.println(WiFi.localIP());
       break;
     case TEXT_NTP:
       //NTP date time  
       M5.Display.setCursor(WIFI_DISP_X0, WIFI_DISP_Y2);
-      M5.Display.print("NTP: ");
+      M5.Display.print("NTP->RTC: ");
       break;
     case TEXT_DATE_TIME:
       //date time  
-      M5.Display.setCursor(WIFI_DISP_X1, WIFI_DISP_Y2);
-      getTime((char*)text);
+      getTimeStamp((char*)text);
       M5.Display.println((char*)text);
       break;
     case TEXT_NTP_TIMEOUT:
       //timeout
-      M5.Display.setCursor(WIFI_DISP_X1, WIFI_DISP_Y2);
       M5.Display.print("取得不可!");
       break;
     case TEXT_WIFI_OK:
@@ -235,7 +233,49 @@ void dispWifi(wifi_stat_t stat){
 
 }
 
-void dispNozzle(noz_stat_t stat){
+
+void dispBtSerial(bts_stat_t stat){
+  //WiFi接続状況
+  #define BTS_DISP_X0   0
+  #define BTS_DISP_X1   80
+  #define BTS_DISP_Y0   120
+  
+  switch(stat){
+    case BTS_INIT:
+      //WiFi
+      M5.Display.setFont(&fonts::lgfxJapanGothic_16);
+      M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
+      M5.Display.setCursor(BTS_DISP_X0, BTS_DISP_Y0);
+      M5.Display.print("BTserial ");
+      break;
+    case BTS_OK: 
+      //OK 
+      M5.Display.setCursor(BTS_DISP_X1, BTS_DISP_Y0);
+      M5.Display.println(".. 接続OK");
+      break;
+    case BTS_TIMEOUT:
+      //timeout 
+      M5.Display.setCursor(BTS_DISP_X1, BTS_DISP_Y0);
+      M5.Display.println(".. 接続不可!");
+      break; 
+     case BTS_PORT1:
+      //ポート名1
+      M5.Display.setFont(&fonts::lgfxJapanGothic_12);
+      M5.Display.println("ポート:/dev/cu.");
+      M5.Display.println("Bluetooth-Incoming-Port");
+      break;    
+    case BTS_PORT2:
+      //ポート名2
+      M5.Display.setFont(&fonts::lgfxJapanGothic_12);
+      M5.Display.println("ポート:/dev/cu.");
+      M5.Display.println("DENKI-Tamabo-v3-ESP32SPP");
+      break;
+    
+  }
+}
+
+
+void dispNozzle(noz_stat_t stat, float val){
   //ノズル測定
   #define DISP_X0  0
   #define DISP_X1  40
@@ -273,20 +313,33 @@ void dispNozzle(noz_stat_t stat){
       M5.Display.setFont(&fonts::lgfxJapanGothicP_12);
       M5.Display.println("　玉を奥へ移動中");
       break;
-    case NOZ_EXP3:
-      //waiting2
-      
-      break;
     case NOZ_PACKING:
-      //packing
-      M5.Display.setCursor(DISP_X0, DISP_Y3);
-      M5.Display.print("パッキン");
+      //パッキン端検出中
+      M5.Display.println("　　パッキン端検出中");
+      break;
+    case NOZ_PACKING_OK:
+      //パッキン抜け出し位置表示
+      M5.Display.println("　　　パッキンから抜け出しを確認");
+      M5.Display.printf("　　　位置:%6.2fmm\n", val);      
+      break;
+    case NOZ_NOZZLE:
+      //ノズル検出中
+      M5.Display.println("　　ノズル検出中");
+      break;
+    case NOZ_DETECT:
+      //OK
+      M5.Display.println("　　　ノズル先端を確認");
+      M5.Display.printf("　　　位置:%6.2fmm\n", val);
+      break;
+    case NOZ_TUMADUKI:
+      M5.Display.printf("　　　つまづき距離:%6.2fmm\n", val); 
+      break; 
+    case NOZ_ERR:
+      M5.Display.println("ノズル先端検出できず");
       break;
     case NOZ_OK:
-      //OK
-      M5.Display.setCursor(DISP_X0, DISP_Y3);
-      M5.Display.print("OK");
-      break;  
+      M5.Display.println("OK");
+      break;
     case NOZ_RESET:
       //ノズル設定をリセット
       M5.Display.setFont(&fonts::lgfxJapanGothicP_12);

@@ -55,7 +55,8 @@ void  dispBatV(float);
 void  dispSdcardStatus(uint8_t);
 void  dispTamaPos(tama_pos_t);
 void  dispWifi(wifi_stat_t);
-void  dispNozzle(noz_stat_t);
+void  dispBtSerial(bts_stat_t);
+void  dispNozzle(noz_stat_t, float);
 
 //button 
 void  dispBtnA(btn_a_name_t);

@@ -29,63 +29,61 @@ uint16_t  pwM90 = 560;    //-90度   typ.500
 uint16_t  pwN0  = 1420;   //0度     typ.1450
 uint16_t  pwP90 = 2320;   //+90度   typ.2400
 //サーボ角度とパルス幅　[deg]
-float     centerAngle = 60;   //この装置での中点 サーボホーンが真上を向く角度...セレーションの影響あり
-float     startMoving = -26;   //真上からの前進量-------ノズル設定で変化ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
-float     endMoving   = 28;   //真上からの後退量
-float     startAngle  = centerAngle - startMoving;    //最大角度 60-(-26) = 86
-float     endAngle    = centerAngle - endMoving;      //最小角度 60-28 = 32 (測定時は角度をマイナスさせる方向 86 -> 32)
-float     pwPerDeg    = (pwP90 - pwM90) / 180;        //1度あたりのパルス幅usec                           
+const float centerAngle  = 0;     //この装置での基準角度
+const float startAngleD  = -26;   //真上からの前進量(マイナス値)
+const float endAngle     = 28;    //真上からの後退量(プラス値)
+float       centerAngleS = 60;    //この装置での中点でのサーボの角度 サーボホーンが真上を向く角度...セレーションの影響あり
+float       startAngle;
+float startAngleS;                //サーボのスタート角度　AngleS　S=Servo
+float endAngleS;                  //サーボのエンド角度
+float pwPerDeg;                          
 //各玉ポジションでのパルス幅 [usec]
-uint16_t  startPwidth  = pwPerDeg * startAngle  + pwN0;
-uint16_t  centerPwidth = pwPerDeg * centerAngle + pwN0;                                                 
-uint16_t  endPwidth    = pwPerDeg * endAngle    + pwN0;
+uint16_t  startPwidth;
+uint16_t  centerPwidth;                                                 
+uint16_t  endPwidth;
 //玉の位置[mm]
-float startPosition = ARM_LENGTH * sin(degToRad(startMoving));
-float endPosition = ARM_LENGTH * sin(degToRad(endMoving));
+float startPosition;
+float endPosition;
 
 
-void servoInit(void){
-/*
-  //ESP32PWM::allocateTimer(0);   //0〜3// Allow allocation of all timers
-  servo1.setPeriodHertz(50);      // standard 50 hz servo
-  servo1.attach(PIN_SERVO, endPwidth, startPwidth); //パルス幅制限
-  //中点へ移動
-  //servo1.write(centerPwidth);
-*/
+void servoInit(float setAngle){
+  //サーボの初期化
+  //setAngle 0:default setting, -20~-26:set Angle
+  if ((setAngle < -20) && (setAngle > -26)){
+    //スタート角度を変更（ノズル検出による変更）
+    startAngle = setAngle;
+    Serial.printf("CHANGE start angle:%6.1fdeg\n", setAngle);
+  }else{
+    startAngle = startAngleD;
+  }
+  startAngleS  = centerAngleS - startAngle;      //最大角度 60-(-26) = 86
+  endAngleS    = centerAngleS - endAngle;    //最小角度 60-28 = 32 (測定時は角度をマイナスさせる方向 86 -> 32)
+  pwPerDeg    = (pwP90 - pwM90) / 180;      //1度あたりのパルス幅usec                           
+  //各玉ポジションでのパルス幅 [usec]
+  startPwidth  = pwPerDeg * startAngleS  + pwN0;
+  centerPwidth = pwPerDeg * centerAngleS + pwN0;                                                 
+  endPwidth    = pwPerDeg * endAngleS    + pwN0;
+  //玉の位置[mm]
+  startPosition = ARM_LENGTH * sin(degToRad(startAngle));
+  endPosition = ARM_LENGTH * sin(degToRad(endAngle));
+
+  //PWM(LEDC) init
   ledcSetup(LEDC_CH, LEDC_FREQ, LEDC_BIT);
   ledcAttachPin(PIN_SERVO, LEDC_CH);
-
-  servo1WriteMs(centerPwidth);
-
-/*
-//test
-  #define PIN_BAT_ON  19    //サーボ用バッテリ電源オフ　(G13..stack M5 BASIC v2.7)
-    digitalWrite(PIN_BAT_ON, HIGH);    //サーボ用バッテリ電源オン///////////////////////
-
-  while(1){
-    for (centerPwidth = 600; centerPwidth < 2000; centerPwidth++){
-      servo1WriteMs(centerPwidth);
-      delay(10);
-    }
-    for (centerPwidth = 2000; centerPwidth > 600; centerPwidth--){
-      servo1WriteMs(centerPwidth);
-      delay(10);
-    }
-  }
-*/
-
   //
-  Serial.printf("start angle:%5.1fdeg (dx:%6.3fmm) ", startMoving, startPosition);
-  Serial.printf("~ end angle:%5.1fdeg (dx:%6.3fmm) \n", endMoving, endPosition);
+  servo1WriteMs(centerPwidth);
+  //
+  Serial.printf("start angle:%5.1fdeg (dx:%6.3fmm) ", startAngle, startPosition);
+  Serial.printf("~ end angle:%5.1fdeg (dx:%6.3fmm) \n", endAngle, endPosition);
 }
 
 
 float endAngleGet(void){
-  return endMoving;
+  return endAngle;
 }
 
 float startAngleGet(void){
-  return startMoving;
+  return startAngle;
 }
 
 
@@ -98,7 +96,7 @@ void servo1WriteMs(uint32_t usec){
 
 float servoMove(float angle){
   //角度入力　startMoving ~ endMoving (-26 ~ 28)装置での角度（真上がゼロ）
-  float angleS = centerAngle - angle;     //サーボでの角度
+  float angleS = centerAngleS - angle;     //サーボでの角度
   uint32_t pw = pwPerDeg * angleS + pwN0; //usec
 
   //servo1.writeMicroseconds(pw);
@@ -172,9 +170,9 @@ void servoAdjust(void){
   //サーボホーンの組み付け調整
   uint16_t pw;
 
-  ESP32PWM::allocateTimer(0);   //0〜3
-  servo1.setPeriodHertz(50);    // standard 50 hz servo
-  servo1.attach(PIN_SERVO, 500, 2400); ///////////////////可動域制限///////////
+  //ESP32PWM::allocateTimer(0);   //0〜3
+  //servo1.setPeriodHertz(50);    // standard 50 hz servo
+  //servo1.attach(PIN_SERVO, 500, 2400); ///////////////////可動域制限///////////
   Serial.println("**** servo adjust **********");
 
   //display init
@@ -294,22 +292,22 @@ void servoAdjust(void){
 
   while(true){
     M5.update();
-    pw = (pwP90 - pwM90) / 180 * centerAngle + pwN0;
+    pw = (pwP90 - pwM90) / 180 * centerAngleS + pwN0;
     //servo1.writeMicroseconds(pw);
     servo1WriteMs(pw);
     Serial.printf("pulse width:%d \n", pw);
     M5.Display.setCursor(0, 110);
     M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
     M5.Display.setTextColor(TFT_WHITE, TFT_BLACK);
-    M5.Display.printf("　%2d度　　　パルス幅：%5dusec　", centerAngle, pw);
+    M5.Display.printf("　%2d度　　　パルス幅：%5dusec　", centerAngleS, pw);
   
     if (M5.BtnA.isPressed()){
-      centerAngle -= 1;
-      if (centerAngle < 30){centerAngle = 30;}
+      centerAngleS -= 1;
+      if (centerAngleS < 30){centerAngleS = 30;}
     }
     if (M5.BtnC.isPressed()){
-      centerAngle += 1;
-      if (centerAngle > 70){centerAngle = 70;}
+      centerAngleS += 1;
+      if (centerAngleS > 70){centerAngleS = 70;}
     }
     if (M5.BtnB.isPressed()){
       break;

@@ -22,3 +22,11 @@ typedef enum {
   TEXT_NTP_TIMEOUT,
   TEXT_WIFI_OK,
 } wifi_stat_t;
+
+typedef enum {
+  BTS_INIT,
+  BTS_OK,
+  BTS_TIMEOUT,
+  BTS_PORT1,
+  BTS_PORT2,
+} bts_stat_t;

@@ -20,10 +20,12 @@ void measNukiF(void){
   float startAngle = startAngleGet();
   float endAngle = endAngleGet();
   uint8_t i;
+  uint8_t measTime[] ="00/00/00 00:00:00     ";
 
   measCnt++;    //測定番号
+  getTimeText((char*)measTime);
   Serial.println();
-  Serial.printf("***** measure Nukidan  #%3d  ********* \n", measCnt);
+  Serial.printf("***** measure Nukidan  #%3d  (%s) ********* \n", measCnt, measTime);
   Serial.printf("measure angle: %4.1f ~ %4.1f deg\n", startAngle, endAngle);
   dispMeasNum(measCnt);
   dispBtnA(MEAS_RUNNING);
@@ -87,8 +89,9 @@ void measNukiF(void){
   }
   dispBtnA(MEAS_COMPLETE);
   
-  //SDsave
-  sdDataSave(measCnt, saNum, tamaPos, load);
+  //SDsave BTserialsend
+  sdDataSave((char*)measTime, measCnt, saNum, tamaPos, load);
+  btDataSend((char*)measTime, measCnt, saNum, tamaPos, load);
   //
   M5.Speaker.tone(1500,100);
   delay(500);
@@ -97,7 +100,7 @@ void measNukiF(void){
 }
 
 
-//------ nozzle set ----------------------------------------------------------
+//------ nozzle set ----------------------------------------------------------------------------
 
 typedef enum {
   NZFL_IDLE,
@@ -123,21 +126,24 @@ void measNozzlePos(void){
   if (NZFL_ANGLESET == nozzleStat){
     //ノズル位置設定をリセットする
     M5.Speaker.tone(2000, 800);
-
-    //servoInit(-26);/////////////////////////////////////////
+    servoInit(0);   //default set
     Serial.println("nozzle position RESET!");
-    dispNozzle(NOZ_RESET);
+    dispNozzle(NOZ_RESET, 0);
     dispBtnC(BTNC_NOZZLE_SET);
+
     tamaPos = CENTER1_POS;
     servoPosition();
     nozzleStat = NZFL_IDLE;   
-    dispNozzle(NOZ_DIS);
-    delay(500);
+    dispNozzle(NOZ_DIS, 0);
+    delay(200);
+    //中間ポジションへ移動
+    tamaPos = END_POS;  
+    servoPosition();
     return;
   }
 
   //ノズル位置の測定ーーーーーーーーーーーーーーーーーーーーーーー
-  dispNozzle(NOZ_TITLE);
+  dispNozzle(NOZ_TITLE, 0);
   Serial.println("nozzle position setting");
   //抜き弾値リセット
   dispLoadMax(-9999); //表示をリセット
@@ -151,12 +157,12 @@ void measNozzlePos(void){
   delay(200);
 
   //棒の長さを調整する
-  servoAngle = startAngleGet() + 2;   //最前位置より2度戻し
+  servoAngle = startAngleGet() + 3;   //最前位置より3度戻し
   Serial.print("Start pos set --> ");
   dispPosition(servoMove(servoAngle));
   dispLoad(measLoad(10));
   Serial.println();
-  dispNozzle(NOZ_EXP1);
+  dispNozzle(NOZ_EXP1, 0);
   delay(800);   //玉を落ち着かせる
   //調整後ボタンCを押す
   Serial.println("wait for button C");
@@ -198,13 +204,14 @@ void measNozzlePos(void){
   float paFreeAngle;
   float nozPos;     //ノズル位置
   float nozAngle;
+  const float nozStep = -0.2;   //deg 測定ステップ角度
   uint8_t stat;
   graphAreaClear();
 
   dispBtnC(BTNC_RUNNING);
   Serial.println();
   Serial.println("measure Packing Free & Nozzle position.");
-  dispNozzle(NOZ_MEAS);
+  dispNozzle(NOZ_MEAS, 0);
   servoAngle += 10;           //10度戻す
   servoMove(servoAngle);
   Serial.println("measure start position set.");
@@ -212,12 +219,13 @@ void measNozzlePos(void){
   //
   Serial.println("--> TAMA goes to right.");
   stat = 0;
+  dispNozzle(NOZ_PACKING, 0);
   while(servoAngle > -26){
     //玉を奥へ進める
     Serial.printf("Angle:%5.1fdeg --> ", servoAngle);
     pos = servoMove(servoAngle);
     dispPosition(pos);
-    delay(50);
+    delay(100);    /////////////
 
     nLoad = measLoad(10);
     if (abs(nLoad) < minLoad){
@@ -232,44 +240,52 @@ void measNozzlePos(void){
       paFreeAngle = servoAngle;
       M5.Speaker.tone(1500, 100);
       Serial.printf("***** PACKING FREE  %6.2fdeg - %6.3fmm **********\n", paFreeAngle, paFreePos);
-
+      dispNozzle(NOZ_PACKING_OK, paFreePos);
       stat = 1;
       delay(1000);
+      dispNozzle(NOZ_NOZZLE, 0);
     }
     if ((stat == 1) && (nLoad < -20.0)){
+      //ノズル先端位置を検出
       nozPos = pos;
       nozAngle = servoAngle;
       M5.Speaker.tone(1500, 100);
       Serial.printf("***** NOZZLE FIND  %6.2fdeg - %6.3fmm ***********\n", nozAngle, nozPos);
-
+      dispNozzle(NOZ_DETECT, nozPos);
+      nozAngle -= nozStep;
       stat = 9;
+      float tumaDuki = paFreePos - nozPos;
+      dispNozzle(NOZ_TUMADUKI, tumaDuki);
       break;
     }
-    servoAngle -= 0.1;
+    //
+    servoAngle += nozStep;
   }
+
   Serial.printf("min Load (absolute):%6.1f\n", minLoad);
 
   if (stat == 9){
     //正常測定完了
-    //angle set
-
-    //servoInit(-26);/////////////////////
+    Serial.println("OK");
+    dispNozzle(NOZ_OK, 0);
+    servoInit(nozAngle);  //start angle set
+    Serial.println(" Start angle set OK");
+    dispNozzle(NOZ_EN, 0);
     dispBtnC(BTNC_NOZZLE_RESET);
-    dispNozzle(NOZ_EN);
     nozzleStat = NZFL_ANGLESET; 
     //Serial.printf("nozzle status:%d\n", nozzleStat);
-
   }else{
     //ノズル検出不可
-  //dispNozzle(NOZ_PACKING);
-
-  
-
+    Serial.println("Nozzle detect error!");
+    dispNozzle(NOZ_ERR, 0);
+    servoInit(0);   //default set
+    dispNozzle(NOZ_DIS, 0);
+    dispBtnC(BTNC_NOZZLE_SET);
+    nozzleStat = NZFL_IDLE; 
   }
 
   delay(1000);
-
   tamaPos = END_POS;
   servoPosition();
-
 }
+
