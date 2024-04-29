@@ -317,10 +317,13 @@ void btDataSend(char* time, uint16_t mNum, uint8_t n, float* pos, float* load){
 
 void btSerialRx(void){
   //BTSerial 受信
+  if (!SerialBT.available()){
+    return;
+  }
   while (SerialBT.available()){
     Serial.write(SerialBT.read());
   }
-
+  M5.Speaker.tone(2000, 50);
 }
 
 
