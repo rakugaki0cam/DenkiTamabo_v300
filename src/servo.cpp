@@ -70,10 +70,10 @@ void servoInit(float setAngle){
   endPosition = ARM_LENGTH * sin(degToRad(endAngle));
 
   //PWM(LEDC) init
+  //ver.2
   //ledcSetup(LEDC_CH, LEDC_FREQ, LEDC_BIT);
   //ledcAttachPin(PIN_SERVO, LEDC_CH);
-  
-  //ledcSetClockSource( );
+  //ver.3
   ledcAttach(PIN_SERVO, LEDC_FREQ, LEDC_BIT);
 
 
@@ -98,7 +98,10 @@ float startAngleGet(void){
 void servo1WriteMs(uint32_t usec){
   uint32_t dutyTick = usec * (32768.0 / 20000.0);
   //Serial.printf("pulse:%5d -- dutyTick:%6lu\n", usec, dutyTick);
-  ledcWrite(LEDC_CH, dutyTick);
+  //ver.2
+  //ledcWrite(LEDC_CH, dutyTick);
+  //ver.3
+  ledcWrite(PIN_SERVO, dutyTick);
 }
 
 

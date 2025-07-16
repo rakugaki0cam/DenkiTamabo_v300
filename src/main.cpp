@@ -22,7 +22,7 @@
 
 
 //global
-uint8_t   fmVer[] = "3.02";
+uint8_t   fmVer[] = "3.03";
 uint16_t  measCnt;   //測定回数 
 uint8_t   sdStat = 0;       //SDcard detect 0:未,1:OK,2:fail
 
@@ -47,12 +47,12 @@ void setup() {
   Serial.printf("*** DENKI Tamabo M5 ver.%s ******************************************\n", (char*)fmVer);
 
   dispInit();
-  //wifiInit();
+  wifiInit();
   sdStat = sdInit();  //dispInitの後に
   //bluetoothSerialInit();
   scaleInit();
-  //servoInit(0);   //default set
-  //digitalWrite(PIN_BAT_ON, HIGH);    //サーボ用バッテリ電源オン
+  servoInit(0);   //default set
+  digitalWrite(PIN_BAT_ON, HIGH);    //サーボ用バッテリ電源オン
 
   ///////////// test ////////////////////////////////////////////////////////////////
   //servoAdjust();
