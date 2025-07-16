@@ -4,7 +4,8 @@
     stack M5 CORE2 v1.1 #2
 
     2024.04.19 uiFlow + stack M5 CORE Basic V2.7から移植
-    2024.04.29  ver.3.02  BTserial仮完成
+    2024.04.29 ver.3.02  BTserial仮完成
+    2025.07.14 ライブラリを更新（手動でPIOホームから行う）
     
 */
 
@@ -41,12 +42,12 @@ void setup() {
   Serial.printf("*** DENKI Tamabo M5 ver.%s ******************************************\n", (char*)fmVer);
 
   dispInit();
-  wifiInit();
+  //wifiInit();
   sdStat = sdInit();  //dispInitの後に
-  bluetoothSerialInit();
+  //bluetoothSerialInit();
   scaleInit();
-  servoInit(0);   //default set
-  digitalWrite(PIN_BAT_ON, HIGH);    //サーボ用バッテリ電源オン
+  //servoInit(0);   //default set
+  //digitalWrite(PIN_BAT_ON, HIGH);    //サーボ用バッテリ電源オン
 
   ///////////// test ////////////////////////////////////////////////////////////////
   //servoAdjust();
@@ -113,7 +114,7 @@ void loop() {
     //Serial.printf("SD flag %d\n", sdFlag);
     sdStat = sdInit();
   }
-  btSerialRx();
+  //btSerialRx();
   
 }
 

@@ -82,7 +82,7 @@ void dispLoad(float val){
   //抜き弾力[gf]
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
-  sprintf((char*)text, "　%6.1fgf", val);
+  sprintf((char*)text, "　%9.0fgf", val);/////////////////////
   M5.Display.drawString((char*)text, 309, 82, &fonts::lgfxJapanGothicP_16);
   M5.Display.setTextDatum(TL_DATUM);  //TopLeft = default
 }
