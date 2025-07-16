@@ -3,9 +3,14 @@
     Platform IO + VScode
     stack M5 CORE2 v1.1 #2
 
-    2024.04.19 uiFlow + stack M5 CORE Basic V2.7から移植
-    2024.04.29 ver.3.02  BTserial仮完成
-    2025.07.14 ライブラリを更新（手動でPIOホームから行う）
+    2024.04.19  uiFlow + stack M5 CORE Basic V2.7から移植
+    2024.04.29  ver.3.02  BTserial仮完成
+    2025.07.14  ライブラリを更新（手動でPIOホームから行う）
+    2025.07.16  ESP32board ver.3につき変更
+                BTserialはIRAMエラーになるため廃止
+                WiFi NTP 手順変更
+
+
     
 */
 

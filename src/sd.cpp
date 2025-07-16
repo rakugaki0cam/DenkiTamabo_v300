@@ -36,17 +36,13 @@ uint8_t wifiInit(void){
   uint8_t toutCnt = 0;  //タイムアウトカウント
   uint8_t stat = 0;
 
-  //NTP
-  sntp_set_time_sync_notification_cb( timeavailable );
-  //sntp_servermode_dhcp(1);    // (optional)before WiFi connect....NTP/////
-  esp_sntp_servermode_dhcp(1);
-
   //
   WiFi.disconnect();
   delay(500);
   WiFi.begin(ssid, passwd);               //アクセスポイント接続のためのIDとパスワードの設定
   Serial.print("WiFi ");
   dispWifi(TEXT_WIFI);
+  esp_sntp_servermode_dhcp(1);// (optional)
 
   while (WiFi.status() != WL_CONNECTED) { //接続状態の確認
     delay(500);                           //接続していなければ0.5秒待つ
@@ -65,7 +61,8 @@ uint8_t wifiInit(void){
       return 1;
     }
   }
-
+  //NTP
+  sntp_set_time_sync_notification_cb( timeavailable );
   //通信が可能となったら各種情報を表示する
   Serial.print(" Connected.  ");       //接続したらシリアルモニタに「WiFi Connected」と表示
   dispWifi(TEXT_WIFI_CONECT);
