@@ -8,7 +8,7 @@
 
 
 
-#define PIN_SERVO 33      //G5...stack M5 BASIC v2.7
+#define PIN_SERVO 33      //G5@stack M5 BASIC v2.7
 //LEDC
 #define LEDC_CH     0
 #define LEDC_BIT    15  //resolution
