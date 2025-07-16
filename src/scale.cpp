@@ -16,24 +16,28 @@
 
 HX711 scale;
 
-void scaleInit(void){
-  const long LOADCELL_DIVIDER = 3192.f;   //adjust by 20gf,45gf,193gf OK!
-  //const long LOADCELL_OFFSET = 50682624;
+void scaleInit(void)
+{
+  //const long LOADCELL_DIVIDER = 3192.f;   //adjust by 20gf,45gf,193gf OK!  [Full scale 500gf]
+  const long LOADCELL_DIVIDER = 200; //3192.f;   //[Full scale 10kg]
+  const long LOADCELL_OFFSET = 315600;//50682624;
 
   scale.begin(PIN_HX711_DOUT, PIN_HX711_SCK);
   scale.set_scale(LOADCELL_DIVIDER);
-  //scale.set_offset(LOADCELL_OFFSET);
-  scale.tare();   //zero set
+  scale.set_offset(LOADCELL_OFFSET);
+  //scaleTare();   //zero set
 }
 
 
-float measLoad(uint8_t n){
-  float load = scale.get_units(10);
+float measLoad(uint8_t n)
+{
+  float load = scale.get_units(50);//////////
   //Serial.println(load, 2); 
   return load;
 }
 
-void scaleTare(void){
+void scaleTare(void)
+{
   //ゼロセット
   scale.tare(); 
 }

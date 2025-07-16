@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.c": "c",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "algorithm": "cpp"
     }
 }

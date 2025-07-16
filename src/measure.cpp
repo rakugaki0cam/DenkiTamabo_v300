@@ -91,7 +91,7 @@ void measNukiF(void){
   
   //SDsave BTserialsend
   sdDataSave((char*)measTime, measCnt, saNum, tamaPos, load);
-  btDataSend((char*)measTime, measCnt, saNum, tamaPos, load);
+  //btDataSend((char*)measTime, measCnt, saNum, tamaPos, load);
   //
   M5.Speaker.tone(1500,100);
   delay(500);

@@ -38,7 +38,8 @@ uint8_t wifiInit(void){
 
   //NTP
   sntp_set_time_sync_notification_cb( timeavailable );
-  sntp_servermode_dhcp(1);    // (optional)before WiFi connect....NTP/////
+  //sntp_servermode_dhcp(1);    // (optional)before WiFi connect....NTP/////
+  esp_sntp_servermode_dhcp(1);
 
   //
   WiFi.disconnect();
@@ -257,7 +258,7 @@ void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load){
   Serial.println("SDcard data saved.");
 }
 
-
+/*
 //------------ Bluetooth ----------------------------------------
 
 void bluetoothSerialInit(void){
@@ -327,3 +328,4 @@ void btSerialRx(void){
 }
 
 
+*/

@@ -6,6 +6,8 @@
 */
 #include "servo.hpp"
 
+
+
 #define PIN_SERVO 33      //G5...stack M5 BASIC v2.7
 //LEDC
 #define LEDC_CH     0
@@ -68,8 +70,14 @@ void servoInit(float setAngle){
   endPosition = ARM_LENGTH * sin(degToRad(endAngle));
 
   //PWM(LEDC) init
-  ledcSetup(LEDC_CH, LEDC_FREQ, LEDC_BIT);
-  ledcAttachPin(PIN_SERVO, LEDC_CH);
+  //ledcSetup(LEDC_CH, LEDC_FREQ, LEDC_BIT);
+  //ledcAttachPin(PIN_SERVO, LEDC_CH);
+  
+  //ledcSetClockSource( );
+  ledcAttach(PIN_SERVO, LEDC_FREQ, LEDC_BIT);
+
+
+
   //
   servo1WriteMs(centerPwidth);
   //
