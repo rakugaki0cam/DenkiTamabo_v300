@@ -116,26 +116,26 @@ void loop()
   {
     //
   }
-  
-  if (cnt == 10)
+  switch (cnt)
   {
-    //batteryVolt
-    dispBatV((float)analogReadMilliVolts(PIN_BAT_V) * 2.0f / 1000);
-  }
-  if (cnt == 20)
-  {
-    //bat %
-  }
-  if (cnt == 30)
-  {
-    //battery charge    
-  }
-  if ((cnt == 40) && (sdStat == 2))
-  {
-    //SD card
-    //抜いたのは検出しない
-    //Serial.printf("SD flag %d\n", sdFlag);
-    sdStat = sdInit();
+    case 10:
+      //batteryVolt
+      dispBatV((float)analogReadMilliVolts(PIN_BAT_V) * 2.0f / 1000);
+      break;
+    case 20:
+      //bat %
+      break;
+    case 30:
+      //battery charge
+      break;
+    case 40:
+      if (sdStat == 2)
+      { //SD card
+        //抜いたのは検出しない
+        //Serial.printf("SD flag %d\n", sdFlag);
+        sdStat = sdInit();
+      }
+      break;
   }
   //btSerialRx();
   

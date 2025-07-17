@@ -37,7 +37,7 @@ void measNukiF(void)
 
   //スケールのゼロセット
   Serial.print("Zero set --> ");
-  servoMove(endAngle);
+  servoMove(endAngle, 30);
   delay(200);
   scaleTare();  //スケールゼロ
   Serial.println(" ---> scale zero set.");
@@ -47,19 +47,19 @@ void measNukiF(void)
   //スタート位置
   servoAngle = startAngle;
   Serial.print("Start pos --> ");
-  dispPosition(servoMove(servoAngle));
+  dispPosition(servoMove(servoAngle, 40));
   dispLoad(measLoad(10));
   Serial.println(" ---> start position wait.");
   //
-  delay(800);   //玉を落ち着かせる
+  delay(1200);   //玉を落ち着かせる
 
   //測定loop
   while(servoAngle <= endAngle)
   {
     Serial.printf("Measure angle:%5.1fdeg --> ", servoAngle);
-    tamaPos[saNum] = servoMove(servoAngle);
+    tamaPos[saNum] = servoMove(servoAngle, 20000);
     dispPosition(tamaPos[saNum]);
-    delay(20);            //サーボが動き終わるまで待つ
+    //delay(20);            //サーボが動き終わるまで待つ
 
     load[saNum] = measLoad(10);
     dispLoad(load[saNum]);       //抵抗力測定
@@ -157,7 +157,7 @@ void measNozzlePos(void)
   dispLoadMax(-9999); //表示をリセット
   //スケールのゼロセット
   Serial.print("Scale zero set --> ");
-  servoMove(endAngleGet());
+  servoMove(endAngleGet(), 10);
   delay(200);
   scaleTare();  //スケールゼロ
   dispLoad(measLoad(10));
@@ -167,7 +167,7 @@ void measNozzlePos(void)
   //棒の長さを調整する
   servoAngle = startAngleGet() + 3;   //最前位置より3度戻し
   Serial.print("Start pos set --> ");
-  dispPosition(servoMove(servoAngle));
+  dispPosition(servoMove(servoAngle, 10));
   dispLoad(measLoad(10));
   Serial.println();
   dispNozzle(NOZ_EXP1, 0);
@@ -226,7 +226,7 @@ void measNozzlePos(void)
   Serial.println("measure Packing Free & Nozzle position.");
   dispNozzle(NOZ_MEAS, 0);
   servoAngle += 10;           //10度戻す
-  servoMove(servoAngle);
+  servoMove(servoAngle, 10);//////////////////////////////////////////////////
   Serial.println("measure start position set.");
   delay(1500);
   //
@@ -237,7 +237,7 @@ void measNozzlePos(void)
   {
     //玉を奥へ進める
     Serial.printf("Angle:%5.1fdeg --> ", servoAngle);
-    pos = servoMove(servoAngle);
+    pos = servoMove(servoAngle, 30);
     dispPosition(pos);
     delay(100);    /////////////
 

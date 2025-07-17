@@ -54,6 +54,9 @@ uint16_t  endPwidth;
 float startPosition;
 float endPosition;
 
+//debug
+static const char *TAG = "servo";
+
 
 void servoInit(float setAngle)
 {
@@ -87,10 +90,10 @@ void servoInit(float setAngle)
   //ver.3
   ledcAttach(PIN_SERVO, LEDC_FREQ, LEDC_BIT);
   //
-  servoMove(centerAngle);
+  servoMove(centerAngle, 1);/////////////////////////
   //
-  Serial.printf("start angle:%5.1fdeg (dx:%6.3fmm) ", startAngle, startPosition);
-  Serial.printf("~ end angle:%5.1fdeg (dx:%6.3fmm) \n", endAngle, endPosition);
+  ESP_LOGI(TAG, "start angle:%5.1fdeg (dx:%6.3fmm)", startAngle, startPosition);
+  ESP_LOGI(TAG, "~ end angle:%5.1fdeg (dx:%6.3fmm)", endAngle, endPosition);
 }
 
 
@@ -134,33 +137,50 @@ float servoMove(float angle, uint16_t speed)
   float prevAngle = servoAngleS;          //現在角度を退避
   servoAngleS = centerAngleS - angle;     //サーボでの角度
 
+  ESP_LOGI(TAG, "angle:%5.1fdeg speed:%5dus", angle, speed);
   //servo1.writeMicroseconds(pw);
   //servo1WriteUs(pw);
 
-  //方向
-  int8_t dir = (servoAngleS >= prevAngle) ? +1 : -1;
+  
+
   uint32_t prevPw = pwPerDeg * prevAngle + pwN0; //usec
   uint32_t toPw = pwPerDeg * servoAngleS + pwN0; //usec
 
+//方向
+  int8_t dir = (servoAngleS >= prevAngle) ? +1 : -1;
  
 
-uint32_t pw;
+  uint32_t pw;
   //ゆっくりうごかす
-  for (pw = prevPw; pw >= toPw; pw += dir)
+  if (dir > 0)
   {
-
-  uint32_t dutyTick = pw * ((1 << LEDC_BIT) / PWM_PERIOD); // 15bit / 20000usec (50Hz)
-  //ver.3
-  ledcWrite(PIN_SERVO, dutyTick);
-  delayMicroseconds(speed);
+    for (pw = prevPw; pw < toPw; pw++)
+    {
+      uint32_t dutyTick = pw * (32768.0 / 20000.0); // 15bit / 20000usec (50Hz)
+      //ver.3
+      ledcWrite(PIN_SERVO, dutyTick);
+      ESP_LOGD(TAG, "pw:%dus duty:%04x dir:%d", pw, dutyTick, dir);
+      delayMicroseconds(speed);
+    }
+  }
+  else
+  {
+    for (pw = prevPw; pw > toPw; pw--)
+    {
+      uint32_t dutyTick = pw * (32768.0 / 20000.0); // 15bit / 20000usec (50Hz)
+      //ver.3
+      ledcWrite(PIN_SERVO, dutyTick);
+      ESP_LOGD(TAG, "pw:%dus duty:%04x dir:%d", pw, dutyTick, dir);
+      delayMicroseconds(speed);
+    }
   }
 
 
   float pos = ARM_LENGTH * sin(degToRad(angle)) - startPosition;
 
   //Serial.printf("Tamabo angle:%5.1fdeg ", angle);
-  Serial.printf("servo angle:%5.1fdeg  pulse width:%5dus ", servoAngleS, pw);
-  Serial.printf("--> POSITION:%7.3fmm ", pos);
+  ESP_LOGI(TAG, "servo angle:%5.1fdeg  pulse width:%5dus ", servoAngleS, pw);
+  ESP_LOGI(TAG, "--> POSITION:%7.3fmm \n", pos);
 
   return pos;
 }
@@ -176,24 +196,27 @@ void servoPosition(void)
     case CENTER1_POS:
       //スタート位置へ
       tamaPos = START_POS;        //スタート位置へ移動
-      //servo1.write(startPwidth);
-      servo1WriteUs(startPwidth);
+      
+      servoMove(startAngle, 20);
+
       dispTamaPos(tamaPos);       //玉位置表示
       dispBtnB(TO_CENTER);        //ボタンへは次の行先を表示
       break;
     case START_POS:
       //センターへ
       tamaPos = CENTER2_POS;
-      //servo1.write(centerPwidth);
-      servo1WriteUs(centerPwidth);
+      
+      servoMove(centerAngle, 20);
+
       dispTamaPos(tamaPos);
       dispBtnB(TO_END);
       break;
     case CENTER2_POS:
       //エンド位置へ
       tamaPos = END_POS;
-      //servo1.write(endPwidth);
-      servo1WriteUs(endPwidth);
+      
+      servoMove(endAngle, 20);
+
       dispTamaPos(tamaPos);
       delay(300);
       //ゼロセット
@@ -207,8 +230,9 @@ void servoPosition(void)
     case END_POS:
       //センターへ
       tamaPos = CENTER1_POS;
-      //servo1.write(centerPwidth);
-      servo1WriteUs(centerPwidth);
+      
+      servoMove(centerAngle, 20);
+
       dispTamaPos(tamaPos);
       dispBtnB(TO_START);
       break;
