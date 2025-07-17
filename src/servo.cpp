@@ -10,35 +10,41 @@
 
 #define PIN_SERVO 33      //G5@stack M5 BASIC v2.7
 //LEDC
-#define LEDC_CH     0
-#define LEDC_BIT    15  //resolution
-#define LEDC_FREQ   50  //Hz
+//#define LEDC_CH     0
+#define LEDC_BIT    15  //resolution[bit]
+#define LEDC_FREQ   50  //PWM frequency[Hz]
 //
-#define ARM_LENGTH 9.0f   //サーボホーンアーム長さ
+#define ARM_LENGTH 9.0f   //サーボホーンアーム長さ[mm]
 //
 #define degToRad(deg) (deg / 180 * PI)
 #define radToDeg(rad) (rad / PI * 180)
+//servo
+#define DEAD_BAND   1 //[usec]
+#define SERVO_SPEED 120000 / 60 //[usec/deg] = 2ms/deg
+#define PWM_PERIOD 1000000 / LEDC_FREQ  //[usec] = 20000usec
 
 //global
-tama_pos_t tamaPos;  //玉のポジション
+tama_pos_t tamaPos;  //玉のポジション[mm]
 
 //
 Servo servo1;
 
 //local
 //servo adjust　-90,0,+90deg --> [usec]
-uint16_t  pwM90 = 560;    //-90度   typ.500
-uint16_t  pwN0  = 1420;   //0度     typ.1450
-uint16_t  pwP90 = 2320;   //+90度   typ.2400
+uint16_t  pwM90 = 560;    //-90度   typ.500us
+uint16_t  pwN0  = 1420;   //0度     typ.1450us
+uint16_t  pwP90 = 2320;   //+90度   typ.2400us
+float deadBandPw = 180.0 / (pwP90 - pwM90);   //[deg/us]
+
 //サーボ角度とパルス幅　[deg]
 const float centerAngle  = 0;   //この装置での基準角度
-const float startAngleD  = -26; //真上からの前進量(マイナス値)
-const float endAngle     = 28;  //真上からの後退量(プラス値)
-float centerAngleS = 60;        //この装置での中点でのサーボの角度 サーボホーンが真上を向く角度...セレーションの影響あり
+const float startAngleD  = -26; //真上からの前進量(マイナス値)[deg]
+const float endAngle     = 28;  //真上からの後退量(プラス値)[deg]
+float centerAngleS = 60;        //この装置での中点でのサーボの角度 サーボホーンが真上を向く角度...セレーションの影響あり[deg]
 float startAngle;
-float startAngleS;              //サーボのスタート角度　AngleS　S=Servo
-float endAngleS;                //サーボのエンド角度
-float servoAngleS;              //サーボの現在角度
+float startAngleS;              //サーボのスタート角度　AngleS　S=Servo[deg]
+float endAngleS;                //サーボのエンド角度[deg]
+float servoAngleS;              //サーボの現在角度[deg]
 float pwPerDeg;                          
 //各玉ポジションでのパルス幅 [usec]
 uint16_t  startPwidth;
@@ -53,7 +59,7 @@ void servoInit(float setAngle)
 {
   //サーボの初期化
   //setAngle 0:default setting, -20~-26:set Angle
-  if ((setAngle < -20) && (setAngle > -26))
+  if ((setAngle < -20.0) && (setAngle > -26.0))
   {
     //スタート角度を変更（ノズル検出による変更）
     startAngle = setAngle;
@@ -65,7 +71,7 @@ void servoInit(float setAngle)
   }
   startAngleS  = centerAngleS - startAngle;   //最大角度 60-(-26) = 86
   endAngleS    = centerAngleS - endAngle;     //最小角度 60-28 = 32 (測定時は角度をマイナスさせる方向 86 -> 32)
-  pwPerDeg    = (pwP90 - pwM90) / 180;        //1度あたりのパルス幅usec                           
+  pwPerDeg    = (pwP90 - pwM90) / 180.0;      //1度あたりのパルス幅usec                           
   //各玉ポジションでのパルス幅 [usec]
   startPwidth  = pwPerDeg * startAngleS  + pwN0;
   centerPwidth = pwPerDeg * centerAngleS + pwN0;                                                 
@@ -81,7 +87,7 @@ void servoInit(float setAngle)
   //ver.3
   ledcAttach(PIN_SERVO, LEDC_FREQ, LEDC_BIT);
   //
-  servo1WriteUs(centerPwidth);
+  servoMove(centerAngle);
   //
   Serial.printf("start angle:%5.1fdeg (dx:%6.3fmm) ", startAngle, startPosition);
   Serial.printf("~ end angle:%5.1fdeg (dx:%6.3fmm) \n", endAngle, endPosition);
@@ -101,7 +107,7 @@ float startAngleGet(void)
 
 void servo1WriteUs(uint32_t usec)
 { //LEDCのPWM dutyでサーボを動かす
-  uint32_t dutyTick = usec * ((1 << LEDC_BIT)  / (1000000.0 / LEDC_FREQ));  //(32768.0/20000.0);
+  uint32_t dutyTick = usec * ((1 << LEDC_BIT)  / PWM_PERIOD);  // 15bit / 20000usec (50Hz)
 
   //Serial.printf("pulse:%5d -- dutyTick:%6lu\n", usec, dutyTick);
   //ver.2
@@ -120,27 +126,34 @@ void servo1WriteUs(uint32_t usec)
 }
 
 
-float servoMove(float angle)
-{
-  //角度入力　startMoving ~ endMoving (-26 ~ 28)装置での角度（真上がゼロ）
-  float prevAngle = servoAngleS;          //現在角度
+float servoMove(float angle, uint16_t speed)
+{ //サーボを動かす
+  //angle: 装置での角度[deg]（真上がゼロ）　 startMoving ~ endMoving (-26.0 ~ 28.0)
+  //ret pos: 玉の位置[mm]
+
+  float prevAngle = servoAngleS;          //現在角度を退避
   servoAngleS = centerAngleS - angle;     //サーボでの角度
-  uint32_t pw = pwPerDeg * servoAngleS + pwN0; //usec
 
   //servo1.writeMicroseconds(pw);
   //servo1WriteUs(pw);
 
+  //方向
+  int8_t dir = (servoAngleS >= prevAngle) ? +1 : -1;
+  uint32_t prevPw = pwPerDeg * prevAngle + pwN0; //usec
+  uint32_t toPw = pwPerDeg * servoAngleS + pwN0; //usec
 
+ 
 
-
+uint32_t pw;
   //ゆっくりうごかす
+  for (pw = prevPw; pw >= toPw; pw += dir)
+  {
 
-
-
-  
-  uint32_t dutyTick = pw * ((1 << LEDC_BIT) / (1000000.0 / LEDC_FREQ)); // 15bit / 20msec (50Hz)
+  uint32_t dutyTick = pw * ((1 << LEDC_BIT) / PWM_PERIOD); // 15bit / 20000usec (50Hz)
   //ver.3
   ledcWrite(PIN_SERVO, dutyTick);
+  delayMicroseconds(speed);
+  }
 
 
   float pos = ARM_LENGTH * sin(degToRad(angle)) - startPosition;
