@@ -26,7 +26,8 @@ struct tm timeInfo;       //time information
 
 //---- WiFi ---------------------------------------
 
-uint8_t wifiInit(void){
+uint8_t wifiInit(void)
+{
   //SDに日付を入れるために使用
 
   //アクセスポイント情報
@@ -44,16 +45,21 @@ uint8_t wifiInit(void){
   dispWifi(TEXT_WIFI);
   esp_sntp_servermode_dhcp(1);// (optional)
 
-  while (WiFi.status() != WL_CONNECTED) { //接続状態の確認
+  while (WiFi.status() != WL_CONNECTED)
+  { //接続状態の確認
     delay(500);                           //接続していなければ0.5秒待つ
     Serial.print(".");                    //接続しなかったらシリアルモニタに「.」と表示
-    if (toutCnt % 2 + 1){
+    if (toutCnt % 2 + 1)
+    {
       dispWifi(TEXT_DOT);
-    }else{
+    }
+    else
+    {
       dispWifi(TEXT_DOT_NONE);
     }
     toutCnt++;
-    if (toutCnt > 100){
+    if (toutCnt > 100)
+    {
       //timeout
       Serial.println(" Timeout!");
       dispWifi(TEXT_WIFI_TIMEOUT);
@@ -95,11 +101,13 @@ uint8_t ntpTimeInit(void){
   dispWifi(TEXT_NTP);
 
   toutCnt = 0;
-  while(!timeFlag){
+  while(!timeFlag)
+  {
     Serial.print(".");
     delay(500);                           //接続していなければ0.5秒待つ
     toutCnt++;
-    if (toutCnt > 20){
+    if (toutCnt > 20)
+    {
       //timeout 10秒
       Serial.println(" Timeout!");
       dispWifi(TEXT_NTP_TIMEOUT);
@@ -109,7 +117,8 @@ uint8_t ntpTimeInit(void){
   printLocalTime();
   //RTCに時刻をセット
   time_t ti = time(nullptr) + 1;
-  while(ti > time(nullptr)){
+  while(ti > time(nullptr))
+  {
     //秒の繰り上げまで待機
   }
   M5.Rtc.setDateTime(localtime(&ti));
@@ -126,9 +135,11 @@ uint8_t ntpTimeInit(void){
 
 
 //***** NTP & RTC time sub ******************************
-void printLocalTime(void){
+void printLocalTime(void)
+{
 
-  if(!getLocalTime(&timeInfo)){
+  if(!getLocalTime(&timeInfo))
+  {
     Serial.println("No time available (yet)");
     return;
   }
@@ -140,7 +151,8 @@ void printLocalTime(void){
 }
 
 
-void getTimeStamp(char* txt){
+void getTimeStamp(char* txt)
+{
   //タイムスタンプ取得
 /*
   //NTPより取得したタイム（WiFi切った後も動いている）
@@ -158,7 +170,8 @@ void getTimeStamp(char* txt){
   //Serial.printf("RTC: %s\n", txt);
 }
 
-void getTimeText(char* txt){
+void getTimeText(char* txt)
+{
   //タイムテキスト
   M5.Rtc.getDate(&rtcDateDef);
   M5.Rtc.getTime(&rtcTimeDef);
@@ -167,7 +180,8 @@ void getTimeText(char* txt){
 }
 
 
-void generateFileName(void){
+void generateFileName(void)
+{
   //filename
   uint8_t fTime[] = "000000-000000          ";
 
@@ -178,7 +192,8 @@ void generateFileName(void){
 
 
 // Callback function (get's called when time adjusts via NTP)
-void timeavailable(struct timeval *t){
+void timeavailable(struct timeval *t)
+{
   Serial.print(" get time :");
   timeFlag = 1;
 }
@@ -186,17 +201,21 @@ void timeavailable(struct timeval *t){
 
 //***** SD card ****************************************************
 
-uint8_t sdInit(void){
+uint8_t sdInit(void)
+{
   //SDcard init
   //ret --> 2:err, 1:ok, 0:未（初回）
 
-  if (sdStat == 1){
+  if (sdStat == 1)
+  {
     return 1;
   }
 
-  if (!SD.begin(GPIO_NUM_4, SPI, 20000000)){ //25000000
+  if (!SD.begin(GPIO_NUM_4, SPI, 20000000))
+  { //25000000
     Serial.println("SD failed!");
-    if (sdStat == 0){
+    if (sdStat == 0)
+    {
       //最初だけ表示と音で警告
       delay(300);
       dispSdcardStatus(1);
@@ -208,7 +227,8 @@ uint8_t sdInit(void){
   generateFileName();
   tamaFile = SD.open((char*)tamaFileName, FILE_WRITE);  //SDカードを抜き差しした後はエラーになってしまう
   //Serial.printf("SDopen:%d\n", tamaFile);/////////
-  if (tamaFile != 1){
+  if (tamaFile != 1)
+  {
     Serial.println("SD card error!");
     tamaFile.close();
     return 2;
@@ -218,7 +238,8 @@ uint8_t sdInit(void){
   //Serial.println("write title");
   tamaFile.close();
   Serial.println("SD card OK!");
-  if (sdStat != 0){
+  if (sdStat != 0)
+  {
     //SD mount OK
     M5.Speaker.tone(1500,30);
     dispSdcardStatus(0);
@@ -228,13 +249,15 @@ uint8_t sdInit(void){
 } 
  
 
-void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load){
+void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load)
+{
   uint16_t i;
 
   tamaFile = SD.open((char*)tamaFileName, FILE_APPEND);
   //Serial.print("tamaFile = ");
   //Serial.println(tamaFile);
-  if (tamaFile != 1){
+  if (tamaFile != 1)
+  {
     Serial.println("SD error");
     //sdStat = 2;
     //エラーの時、SDマウントしなおしたいけれど、SDライブラリ側で再マウントできない仕様らしい
@@ -247,7 +270,8 @@ void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load){
   tamaFile.printf("%s\n", time);
   tamaFile.printf("measure angle: %4.1f ~ %4.1f deg\n", startAngleGet(), endAngleGet());
   tamaFile.println("#, pos[mm], load[gf]");
-  for (i = 0; i < n; i++){
+  for (i = 0; i < n; i++)
+  {
     tamaFile.printf("%5d, %6.3f, %6.2f\n", (i + 1), pos[i], load[i]);
   }
   tamaFile.println();
@@ -258,7 +282,8 @@ void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load){
 /*
 //------------ Bluetooth ----------------------------------------
 
-void bluetoothSerialInit(void){
+void bluetoothSerialInit(void)
+{
   //Bluetoothシリアル設定
 
   dispBtSerial(BTS_INIT);
@@ -273,13 +298,16 @@ void bluetoothSerialInit(void){
   connected = SerialBT.connect(slaveName);
   Serial.printf("Bluetooth Serial connect --> BT device\"%s\" ", slaveName.c_str());
 
-  if (connected){
+  if (connected)
+  {
     Serial.println("port: '/dev/cu.Bluetooth-Incoming-Port' ");
     Serial.println(" OK!");
     dispBtSerial(BTS_OK);
     dispBtSerial(BTS_PORT1);
 
-  }else{
+  }
+  else
+  {
     SerialBT.connected(10000));  //timeout 10000msec
     Serial.println("failed.");
     dispBtSerial(BTS_TIMEOUT);
@@ -296,7 +324,8 @@ void bluetoothSerialInit(void){
 
 }
 
-void btDataSend(char* time, uint16_t mNum, uint8_t n, float* pos, float* load){
+void btDataSend(char* time, uint16_t mNum, uint8_t n, float* pos, float* load)
+{
   //Bluetoothシリアルでデータを送信
   uint16_t i;
 
@@ -304,7 +333,8 @@ void btDataSend(char* time, uint16_t mNum, uint8_t n, float* pos, float* load){
   SerialBT.printf("%s\n", time);
   SerialBT.printf("measure angle: %4.1f ~ %4.1f deg\n", startAngleGet(), endAngleGet());
   SerialBT.println("#, pos[mm], load[gf]");
-  for (i = 0; i < n; i++){
+  for (i = 0; i < n; i++)
+  {
     SerialBT.printf("%5d, %6.3f, %6.2f\n", (i + 1), pos[i], load[i]);
   }
   SerialBT.println();
@@ -313,12 +343,15 @@ void btDataSend(char* time, uint16_t mNum, uint8_t n, float* pos, float* load){
 }
 
 
-void btSerialRx(void){
+void btSerialRx(void)
+{
   //BTSerial 受信
-  if (!SerialBT.available()){
+  if (!SerialBT.available())
+  {
     return;
   }
-  while (SerialBT.available()){
+  while (SerialBT.available())
+  {
     Serial.write(SerialBT.read());
   }
   M5.Speaker.tone(2000, 50);

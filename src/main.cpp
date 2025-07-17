@@ -33,7 +33,8 @@ uint8_t   sdStat = 0;       //SDcard detect 0:未,1:OK,2:fail
 uint8_t cnt = 0;          //ループのカウンタ処理カウント用
 
 
-void setup() {
+void setup()
+{
   auto cfg = M5.config();
   M5.begin(cfg);
   //
@@ -65,11 +66,13 @@ void setup() {
 }
 
 
-void loop() {
+void loop()
+{
   M5.update();  //ボタンの状態を更新する。
 
   //button
-  if (M5.BtnA.pressedFor(150)){  //ms長押し
+  if (M5.BtnA.pressedFor(150))
+  {  //ms長押し
     //測定
     M5.Speaker.tone(1000,200);
     graphInit();
@@ -79,13 +82,15 @@ void loop() {
     dispBtnB(TO_CENTER);
   }
   
-  if (M5.BtnB.wasPressed()){
+  if (M5.BtnB.wasPressed())
+  {
     //玉位置移動
     M5.Speaker.tone(1320,100);
     servoPosition();          //玉ポジション移動
   }
 
-  if (M5.BtnC.wasPressed()){
+  if (M5.BtnC.wasPressed())
+  {
     //ノズル検出
     M5.Speaker.tone(1760,100);
     measNozzlePos();
@@ -96,27 +101,35 @@ void loop() {
   //routine
   delay(20);
   cnt++;
-  if (cnt > 50){
+  if (cnt > 50)
+  {
     cnt = 0;
   }
-  if ((cnt % 2) == 1){
+  if ((cnt % 2) == 1)
+  {
     //load
     dispLoad(measLoad(10));
-  }else{
+  }
+  else
+  {
     //
   }
   
-  if (cnt == 10){
+  if (cnt == 10)
+  {
     //batteryVolt
     dispBatV((float)analogReadMilliVolts(PIN_BAT_V) * 2.0f / 1000);
   }
-  if (cnt == 20){
+  if (cnt == 20)
+  {
     //bat %
   }
-  if (cnt == 30){
+  if (cnt == 30)
+  {
     //battery charge    
   }
-  if ((cnt == 40) && (sdStat == 2)){
+  if ((cnt == 40) && (sdStat == 2))
+  {
     //SD card
     //抜いたのは検出しない
     //Serial.printf("SD flag %d\n", sdFlag);

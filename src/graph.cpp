@@ -36,7 +36,8 @@ int16_t Xbefore, Ybefore;
 
 
 
-void graphInit(void){
+void graphInit(void)
+{
   //graph draw
   uint8_t   text[10];
   int16_t   x, y;     //測定値の値
@@ -54,7 +55,8 @@ void graphInit(void){
 
   //y軸
   M5.Display.setTextDatum(MR_DATUM);  //MiddleRight
-  for (y = yMin; y <= yMax; y += yScale){
+  for (y = yMin; y <= yMax; y += yScale)
+  {
     Ydisp = Y1 - (float)(y - yMin) * Yconv;
     //Serial.printf("y:%d Ydisp:%d \n", y, Ydisp);
     M5.Display.setColor(TFT_N_GRAY);
@@ -65,7 +67,8 @@ void graphInit(void){
 
   //x軸
   M5.Display.setTextDatum(TC_DATUM);  //TopCenter
-  for (x = xMin; x <= xMax; x += xScale){
+  for (x = xMin; x <= xMax; x += xScale)
+  {
     Xdisp = (float)(x - xMin) * Xconv + X0;
     M5.Display.setColor(TFT_N_GRAY);
     M5.Display.drawLine(Xdisp, Y0, Xdisp, Y1);
@@ -85,15 +88,19 @@ void graphInit(void){
 }
 
 
-void graphPlot(float x, float y){
+void graphPlot(float x, float y)
+{
   //グラフにデータをプロット
   uint16_t Xdisp, Ydisp;    //画面上の座標
 
   Xdisp = (uint16_t)(X0 + (x - xMin) * Xconv);
   //
-  if (y > yMax){
+  if (y > yMax)
+  {
     y = yMax;
-  }else if (y < yMin){
+  }
+  else if (y < yMin)
+  {
     y = yMin;
   }
   Ydisp = (uint16_t)(Y1 - (y - yMin) * Yconv);
@@ -106,7 +113,8 @@ void graphPlot(float x, float y){
 
 }
 
-void graphAreaClear(void){
+void graphAreaClear(void)
+{
   M5.Display.setColor(TFT_BG_SCREEN);
   M5.Display.fillRect(X0_CLS, Y0_CLS, X_SIZE_CLS, Y_SIZE_CLS);
 }

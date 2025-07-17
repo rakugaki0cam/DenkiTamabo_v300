@@ -16,7 +16,8 @@ uint16_t TFT_BG_TITLE  = M5.Display.color565(0x89, 0x5d, 0x37); //茶色
 uint16_t TFT_BG_BUTTON = M5.Display.color565(0x60, 0x40, 0x20); //濃い茶色
 
 
-void dispInit(void){
+void dispInit(void)
+{
   //スクリーン画面
   //init
   M5.Display.init();
@@ -58,7 +59,8 @@ void dispInit(void){
 
 //--- display --------------------
 
-void dispMeasNum(uint16_t val){
+void dispMeasNum(uint16_t val)
+{
   //測定番号
   M5.Display.setTextDatum(TR_DATUM);  //TopRight....print系では効かない
   M5.Display.setTextColor(TFT_WHITE, TFT_BG_TITLE);
@@ -68,7 +70,8 @@ void dispMeasNum(uint16_t val){
 }
 
 
-void dispPosition(float val){
+void dispPosition(float val)
+{
   //玉位置[mm]
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
@@ -78,7 +81,8 @@ void dispPosition(float val){
 }
 
 
-void dispLoad(float val){
+void dispLoad(float val)
+{
   //抜き弾力[gf]
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
@@ -88,7 +92,8 @@ void dispLoad(float val){
 }
 
 
-void dispZeroSet(void){
+void dispZeroSet(void)
+{
   //スケールゼロセット
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
   M5.Display.setTextColor(TFT_BROWN, TFT_BG_SCREEN);
@@ -98,7 +103,8 @@ void dispZeroSet(void){
 }
 
 
-void dispLoadMax(float val){
+void dispLoadMax(float val)
+{
   //抜き弾抵抗力ピーク値[gf]
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
   M5.Display.setTextColor(TFT_ENJI, TFT_BG_SCREEN);
@@ -112,7 +118,8 @@ void dispLoadMax(float val){
 }
 
 
-void dispBatV(float val){
+void dispBatV(float val)
+{
   //バッテリー電圧[V]
   uint8_t text[20];
 
@@ -124,19 +131,23 @@ void dispBatV(float val){
 
 }
 
-void dispSdcardStatus(uint8_t stat){
+void dispSdcardStatus(uint8_t stat)
+{
   //SDカード無しの警告
   //stat 0:OK, 1:fail
   #define SD_DISP_X 0
   #define SD_DISP_Y 200
 
-  if (stat){
+  if (stat)
+  {
     //SD fail
     M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
     M5.Display.setTextColor(TFT_WHITE, TFT_MAGENTA);
     M5.Display.setCursor(SD_DISP_X, SD_DISP_Y);
     M5.Display.println(" SD Fail! ");
-  }else{
+  }
+  else
+  {
     //SD OK!
     M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
     M5.Display.setTextColor(TFT_BLACK, TFT_GREEN);
@@ -146,12 +157,14 @@ void dispSdcardStatus(uint8_t stat){
 }
 
 
-void dispTamaPos(tama_pos_t pos){
+void dispTamaPos(tama_pos_t pos)
+{
   //玉位置の表示
   M5.Display.setCursor(224, 40);
   M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
-  switch(pos){
+  switch(pos)
+  {
     case START_POS:
       M5.Display.print("スタート点　");
       break;
@@ -166,7 +179,8 @@ void dispTamaPos(tama_pos_t pos){
 }
 
 
-void dispWifi(wifi_stat_t stat){
+void dispWifi(wifi_stat_t stat)
+{
   //WiFi接続状況
   #define WIFI_DISP_X0  0
   #define WIFI_DISP_X1  40
@@ -176,7 +190,8 @@ void dispWifi(wifi_stat_t stat){
   #define WIFI_DISP_Y3  100
 
 
-  switch(stat){
+  switch(stat)
+  {
     case TEXT_WIFI:
       //WiFi
       M5.Display.setFont(&fonts::lgfxJapanGothic_16);
@@ -234,13 +249,15 @@ void dispWifi(wifi_stat_t stat){
 }
 
 
-void dispBtSerial(bts_stat_t stat){
+void dispBtSerial(bts_stat_t stat)
+{
   //WiFi接続状況
   #define BTS_DISP_X0   0
   #define BTS_DISP_X1   80
   #define BTS_DISP_Y0   120
   
-  switch(stat){
+  switch(stat)
+  {
     case BTS_INIT:
       //WiFi
       M5.Display.setFont(&fonts::lgfxJapanGothic_16);
@@ -275,7 +292,8 @@ void dispBtSerial(bts_stat_t stat){
 }
 
 
-void dispNozzle(noz_stat_t stat, float val){
+void dispNozzle(noz_stat_t stat, float val)
+{
   //ノズル測定
   #define DISP_X0  0
   #define DISP_X1  40
@@ -288,7 +306,8 @@ void dispNozzle(noz_stat_t stat, float val){
   #define DISP_Y7  190
   #define DISP_Y8  200
 
-  switch(stat){
+  switch(stat)
+  {
     case NOZ_TITLE:
       //WiFi
       M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
@@ -374,7 +393,8 @@ void dispNozzle(noz_stat_t stat, float val){
 
 
 //--------- ボタン -------------------------
-void dispBtnA(btn_a_name_t name){
+void dispBtnA(btn_a_name_t name)
+{
   //ボタンAの名前の表示
   M5.Display.setTextDatum(BC_DATUM);  //BottomCenter
   M5.Display.setTextColor(TFT_WHITE, TFT_BG_BUTTON);
@@ -394,7 +414,8 @@ void dispBtnA(btn_a_name_t name){
 }
 
 
-void dispBtnB(btn_b_name_t name){
+void dispBtnB(btn_b_name_t name)
+{
   //ボタンBの名前の表示
   M5.Display.setTextDatum(BC_DATUM);  //BottomCenter
   M5.Display.setTextColor(TFT_WHITE, TFT_BG_BUTTON);
@@ -414,11 +435,13 @@ void dispBtnB(btn_b_name_t name){
 }
 
 
-void dispBtnC(btn_c_name_t name){
+void dispBtnC(btn_c_name_t name)
+{
   //ボタンCの名前の表示
   M5.Display.setTextDatum(BC_DATUM);  //BottomCenter
   M5.Display.setTextColor(TFT_WHITE, TFT_BG_BUTTON);
-  switch(name){
+  switch(name)
+  {
     case BTNC_NOZZLE_SET:
       sprintf((char*)text, "ノズル設定　");
       break;

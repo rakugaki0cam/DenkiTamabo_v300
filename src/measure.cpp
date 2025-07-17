@@ -9,7 +9,8 @@
 
 float stepMoving = 2.0f;      //測定時の角度増分
 
-void measNukiF(void){
+void measNukiF(void)
+{
   //抜き弾抵抗力の測定
 #define SAMPLE_NUM 50
   float tamaPos[SAMPLE_NUM];    //測定位置
@@ -53,7 +54,8 @@ void measNukiF(void){
   delay(800);   //玉を落ち着かせる
 
   //測定loop
-  while(servoAngle <= endAngle){
+  while(servoAngle <= endAngle)
+  {
     Serial.printf("Measure angle:%5.1fdeg --> ", servoAngle);
     tamaPos[saNum] = servoMove(servoAngle);
     dispPosition(tamaPos[saNum]);
@@ -68,17 +70,20 @@ void measNukiF(void){
     //簡易グラフ表示
 #define A_SCALE 20
     int8_t n = load[saNum] / A_SCALE;   //マイナスの時は表示しない
-    if (n <= 0){
+    if (n <= 0)
+    {
       n = 0;
     }
 
-    for(i = 0; i < n; i++){
+    for(i = 0; i < n; i++)
+    {
       Serial.print("*");
     }
     Serial.println();
 
     //ピーク値のチェック
-    if (load[saNum] > loadMax){
+    if (load[saNum] > loadMax)
+    {
       loadMax = load[saNum];
       dispLoadMax(loadMax);
     }
@@ -102,7 +107,8 @@ void measNukiF(void){
 
 //------ nozzle set ----------------------------------------------------------------------------
 
-typedef enum {
+typedef enum 
+{
   NZFL_IDLE,
   NZFL_BB_SET,
   NZFL_NOZZLE_DETECT,
@@ -111,7 +117,8 @@ typedef enum {
 } nozzle_stat_t;
 
 
-void measNozzlePos(void){
+void measNozzlePos(void)
+{
   //ノズル位置とパッキンとの隙間距離の測定
   static nozzle_stat_t nozzleStat = NZFL_IDLE;
   float   servoAngle;
@@ -123,7 +130,8 @@ void measNozzlePos(void){
   //Serial.printf("nozzle status:%d\n", nozzleStat);
 
   //ノズル設定が有効になっている時ーーーーーーーーーーーーーーーー
-  if (NZFL_ANGLESET == nozzleStat){
+  if (NZFL_ANGLESET == nozzleStat)
+  {
     //ノズル位置設定をリセットする
     M5.Speaker.tone(2000, 800);
     servoInit(0);   //default set
@@ -167,13 +175,16 @@ void measNozzlePos(void){
   //調整後ボタンCを押す
   Serial.println("wait for button C");
   toCnt = 1200;     //timeout カウンタ 10分 -----> 測定に入ってしまう／／／／／／／／／／／／／／／／／／／／／／／／／／
-  while(toCnt > 0){
+  while(toCnt > 0)
+  {
     blinkCnt = 6;
     dispBtnC(BTNC_PUSH_TO_START);   //ボタンに文字を表示
-    while(blinkCnt){
+    while(blinkCnt)
+    {
       M5.update();  //ボタンの状態を更新する。
       dispLoad(measLoad(10));
-      if (M5.BtnC.wasPressed()){
+      if (M5.BtnC.wasPressed())
+      {
         M5.Speaker.tone(1760,100);
         toCnt = -1;
         break;
@@ -183,11 +194,13 @@ void measNozzlePos(void){
     }
     blinkCnt = 4;
     dispBtnC(BTNC_NULL);   //ボタンを空白にして点滅させる
-    while(blinkCnt){
+    while(blinkCnt)
+    {
       M5.update();  //ボタンの状態を更新する。
       dispLoad(measLoad(10));
       blinkCnt--;
-      if (M5.BtnC.wasPressed()){
+      if (M5.BtnC.wasPressed())
+      {
         M5.Speaker.tone(1760,100);
         toCnt = 0;
         break;
@@ -220,7 +233,8 @@ void measNozzlePos(void){
   Serial.println("--> TAMA goes to right.");
   stat = 0;
   dispNozzle(NOZ_PACKING, 0);
-  while(servoAngle > -26){
+  while(servoAngle > -26)
+  {
     //玉を奥へ進める
     Serial.printf("Angle:%5.1fdeg --> ", servoAngle);
     pos = servoMove(servoAngle);
@@ -228,13 +242,15 @@ void measNozzlePos(void){
     delay(100);    /////////////
 
     nLoad = measLoad(10);
-    if (abs(nLoad) < minLoad){
+    if (abs(nLoad) < minLoad)
+    {
       minLoad = abs(nLoad);
     }
     dispLoad(nLoad);
     Serial.printf(" == LOAD:%6.1fgf \n", nLoad);
 
-    if ((stat == 0) && (nLoad > -3.0) && (nLoad < 3.0)){
+    if ((stat == 0) && (nLoad > -3.0) && (nLoad < 3.0))
+    {
       //パッキンの抵抗から抜けた位置
       paFreePos = pos;
       paFreeAngle = servoAngle;
@@ -245,7 +261,8 @@ void measNozzlePos(void){
       delay(1000);
       dispNozzle(NOZ_NOZZLE, 0);
     }
-    if ((stat == 1) && (nLoad < -20.0)){
+    if ((stat == 1) && (nLoad < -20.0))
+    {
       //ノズル先端位置を検出
       nozPos = pos;
       nozAngle = servoAngle;
@@ -264,7 +281,8 @@ void measNozzlePos(void){
 
   Serial.printf("min Load (absolute):%6.1f\n", minLoad);
 
-  if (stat == 9){
+  if (stat == 9)
+  {
     //正常測定完了
     Serial.println("OK");
     dispNozzle(NOZ_OK, 0);
@@ -274,7 +292,9 @@ void measNozzlePos(void){
     dispBtnC(BTNC_NOZZLE_RESET);
     nozzleStat = NZFL_ANGLESET; 
     //Serial.printf("nozzle status:%d\n", nozzleStat);
-  }else{
+  }
+  else
+  {
     //ノズル検出不可
     Serial.println("Nozzle detect error!");
     dispNozzle(NOZ_ERR, 0);
