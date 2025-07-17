@@ -19,7 +19,7 @@ void servoInit(float);
 //
 float endAngleGet(void);
 float startAngleGet(void);
-void  servo1WriteMs(uint32_t);
+void  servo1WriteUs(uint32_t);
 float servoMove(float);
 //btnB
 void servoPosition(void);

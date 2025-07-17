@@ -101,10 +101,12 @@ void loop()
   //routine
   delay(20);
   cnt++;
-  if (cnt > 50)
-  {
-    cnt = 0;
-  }
+  //if (cnt > 50)
+  //{
+  //  cnt = 0;
+  //}
+  cnt = (cnt > 50) ? 0: cnt;  //cycle 1sec
+
   if ((cnt % 2) == 1)
   {
     //load
