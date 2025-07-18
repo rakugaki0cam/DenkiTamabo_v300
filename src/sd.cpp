@@ -45,7 +45,6 @@ uint8_t wifiInit(void)
   dispWifi(TEXT_WIFI);
   //NTP
   esp_sntp_servermode_dhcp(1);// (optional)
-  sntp_set_time_sync_notification_cb(timeavailable); //NTPサーバーからの時刻取得完了時に呼び出されるコールバック関数を設定
 
   while (WiFi.status() != WL_CONNECTED)
   { //接続状態の確認
@@ -76,7 +75,8 @@ uint8_t wifiInit(void)
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());//割り当てられたIPアドレスをシリアルモニタに表示
   dispWifi(TEXT_IP);
-
+  //NTP
+  sntp_set_time_sync_notification_cb(timeavailable); //NTPサーバーからの時刻取得完了時に呼び出されるコールバック関数を設定
   stat = ntpTimeInit();   //NTPより時刻取得
 
   delay(500);
@@ -93,7 +93,7 @@ uint8_t ntpTimeInit(void){
   const char* ntpServer2 = "ntp.jst.mfeed.ad.jp";
   const long  gmtOffset_sec = 9 * 3600;
   const int   daylightOffset_sec = 0;
-  uint8_t toutCnt = 0;  //タイムアウトカウント
+  uint8_t     toutCnt = 0;  //タイムアウトカウント
 
   //
   Serial.print("NTP server ");
@@ -107,9 +107,9 @@ uint8_t ntpTimeInit(void){
     Serial.print(".");
     delay(500);                           //接続していなければ0.5秒待つ
     toutCnt++;
-    if (toutCnt > 20)
+    if (toutCnt > 40)
     {
-      //timeout 10秒
+      //timeout 20秒
       Serial.println(" Timeout!");
       dispWifi(TEXT_NTP_TIMEOUT);
       return 1;
@@ -125,7 +125,7 @@ uint8_t ntpTimeInit(void){
   M5.Rtc.setDateTime(localtime(&ti));
   uint8_t text[] = "000000-000000          ";
   getTimeStamp((char*)text);
-  ESP_LOGI(TAG, "RTC set '%s' OK!", text);
+  Serial.printf("RTC set '%s' OK!\n", text);
   //
   M5.Speaker.tone(1000, 100);
 
@@ -138,13 +138,13 @@ uint8_t ntpTimeInit(void){
 //***** NTP & RTC time sub ******************************
 void printLocalTime(void)
 {
-
   if(!getLocalTime(&timeInfo))
   {
-    ESP_LOGI(TAG, "No time available (yet)");
+    ESP_LOGE(TAG, "No time available (yet)");
     return;
   }
-  Serial.printf("%A, %B %d %Y %H:%M:%S\n", &timeInfo);
+  Serial.println(&timeInfo, "%A, %B %d %Y %H:%M:%S");   //特別な書き方　printfとかにするとリセットかかったりするので注意
+  //普通の書き方
   //ESP_LOGI(TAG, "NTP: %04d/%02d/%02d(%s) - ", (timeInfo.tm_year + 1900), (timeInfo.tm_mon + 1), timeInfo.tm_mday, week[timeInfo.tm_wday]);
   //ESP_LOGI(TAG, "%02d:%02d:%02d", timeInfo.tm_hour, timeInfo.tm_min, timeInfo.tm_sec);
 
@@ -194,7 +194,7 @@ void generateFileName(void)
 // Callback function (get's called when time adjusts via NTP)
 void timeavailable(struct timeval *t)
 {
-  Serial.println(" get time.");
+  Serial.print(" get time:  ");
   timeFlag = 1;
 }
 
