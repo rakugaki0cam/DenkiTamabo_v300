@@ -169,7 +169,7 @@ void servoPosition(void)
       //スタート位置へ
       tamaPos = START_POS;        //スタート位置へ移動
       
-      servoMove(startAngle, SPEED_MID);
+      servoMove(startAngle, SPEED_SLOW);
 
       dispTamaPos(tamaPos);       //玉位置表示
       dispBtnB(TO_CENTER);        //ボタンへは次の行先を表示
@@ -203,7 +203,7 @@ void servoPosition(void)
       //センターへ
       tamaPos = CENTER1_POS;
       
-      servoMove(centerAngle, SPEED_MID);
+      servoMove(centerAngle, SPEED_SLOW);
 
       dispTamaPos(tamaPos);
       dispBtnB(TO_START);
