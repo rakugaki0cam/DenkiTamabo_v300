@@ -70,10 +70,10 @@ uint8_t wifiInit(void)
   //NTP
   sntp_set_time_sync_notification_cb( timeavailable );
   //通信が可能となったら各種情報を表示する
-  Serial.print(" Connected.  ");       //接続したらシリアルモニタに「WiFi Connected」と表示
+  ESP_LOGI(TAG, " Connected.  ");       //接続したらシリアルモニタに「WiFi Connected」と表示
   dispWifi(TEXT_WIFI_CONECT);
-  Serial.print("IP Address: ");          //シリアルモニタに表示
-  Serial.println(WiFi.localIP());         //割り当てられたIPアドレスをシリアルモニタに表示
+  ESP_LOGI(TAG, "IP Address: ");          //シリアルモニタに表示
+  ESP_LOGI(TAG, "%s", WiFi.localIP());         //割り当てられたIPアドレスをシリアルモニタに表示
   dispWifi(TEXT_IP);
 
   stat = ntpTimeInit();   //NTPより時刻取得
@@ -124,7 +124,7 @@ uint8_t ntpTimeInit(void){
   M5.Rtc.setDateTime(localtime(&ti));
   uint8_t text[] = "000000-000000          ";
   getTimeStamp((char*)text);
-  Serial.printf("RTC set '%s' OK!\n", text);
+  ESP_LOGI(TAG, "RTC set '%s' OK!", text);
   //
   M5.Speaker.tone(1000, 100);
 
@@ -140,13 +140,13 @@ void printLocalTime(void)
 
   if(!getLocalTime(&timeInfo))
   {
-    Serial.println("No time available (yet)");
+    ESP_LOGI(TAG, "No time available (yet)");
     return;
   }
-  Serial.println(&timeInfo, "%A, %B %d %Y %H:%M:%S");
+  ESP_LOGI(TAG, "%A, %B %d %Y %H:%M:%S", &timeInfo);
 
-  //Serial.printf("NTP: %04d/%02d/%02d(%s) - ", (timeInfo.tm_year + 1900), (timeInfo.tm_mon + 1), timeInfo.tm_mday, week[timeInfo.tm_wday]);
-  //Serial.printf("%02d:%02d:%02d\n", timeInfo.tm_hour, timeInfo.tm_min, timeInfo.tm_sec);
+  //ESP_LOGI(TAG, "NTP: %04d/%02d/%02d(%s) - ", (timeInfo.tm_year + 1900), (timeInfo.tm_mon + 1), timeInfo.tm_mday, week[timeInfo.tm_wday]);
+  //ESP_LOGI(TAG, "%02d:%02d:%02d", timeInfo.tm_hour, timeInfo.tm_min, timeInfo.tm_sec);
 
 }
 
@@ -157,17 +157,17 @@ void getTimeStamp(char* txt)
 /*
   //NTPより取得したタイム（WiFi切った後も動いている）
   if(!getLocalTime(&timeInfo)){
-    Serial.println("No time available (yet)");
+    ESP_LOGI(TAG, "No time available (yet)");
     return;
   } 
   sprintf(txt, "%02d%02d%02d-%02d%02d%02d", (timeInfo.tm_year - 100), (timeInfo.tm_mon + 1), timeInfo.tm_mday, timeInfo.tm_hour, timeInfo.tm_min, timeInfo.tm_sec);
-  Serial.printf("NTP: %s\n", txt);
+  ESP_LOGI(TAG, "NTP: %s", txt);
 */  
   //RTCより
   M5.Rtc.getDate(&rtcDateDef);
   M5.Rtc.getTime(&rtcTimeDef);
   sprintf(txt, "%02d%02d%02d-%02d%02d%02d", (rtcDateDef.year - 2000), rtcDateDef.month, rtcDateDef.date, rtcTimeDef.hours, rtcTimeDef.minutes, rtcTimeDef.seconds);
-  //Serial.printf("RTC: %s\n", txt);
+  //ESP_LOGI(TAG, "RTC: %s", txt);
 }
 
 void getTimeText(char* txt)
@@ -176,7 +176,7 @@ void getTimeText(char* txt)
   M5.Rtc.getDate(&rtcDateDef);
   M5.Rtc.getTime(&rtcTimeDef);
   sprintf(txt, "%02d/%02d/%02d %02d:%02d:%02d", (rtcDateDef.year - 2000), rtcDateDef.month, rtcDateDef.date, rtcTimeDef.hours, rtcTimeDef.minutes, rtcTimeDef.seconds);
-  //Serial.printf("RTC: %s\n", txt);
+  //ESP_LOGI(TAG, "RTC: %s", txt);
 }
 
 
@@ -194,7 +194,7 @@ void generateFileName(void)
 // Callback function (get's called when time adjusts via NTP)
 void timeavailable(struct timeval *t)
 {
-  Serial.print(" get time :");
+  ESP_LOGI(TAG, " get time :");
   timeFlag = 1;
 }
 
@@ -213,7 +213,7 @@ uint8_t sdInit(void)
 
   if (!SD.begin(GPIO_NUM_4, SPI, 20000000))
   { //25000000
-    Serial.println("SD failed!");
+    ESP_LOGI(TAG, "SD failed!");
     if (sdStat == 0)
     {
       //最初だけ表示と音で警告
@@ -226,18 +226,18 @@ uint8_t sdInit(void)
   //
   generateFileName();
   tamaFile = SD.open((char*)tamaFileName, FILE_WRITE);  //SDカードを抜き差しした後はエラーになってしまう
-  //Serial.printf("SDopen:%d\n", tamaFile);/////////
+  //ESP_LOGI(TAG, "SDopen:%d", tamaFile);/////////
   if (tamaFile != 1)
   {
-    Serial.println("SD card error!");
+    ESP_LOGI(TAG, "SD card error!");
     tamaFile.close();
     return 2;
   }
 
   tamaFile.println("*** DENKI Tamabo M5 v3 ***");
-  //Serial.println("write title");
+  //ESP_LOGI(TAG, "write title");
   tamaFile.close();
-  Serial.println("SD card OK!");
+  ESP_LOGI(TAG, "SD card OK!");
   if (sdStat != 0)
   {
     //SD mount OK
@@ -254,11 +254,11 @@ void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load, f
   uint16_t i;
 
   tamaFile = SD.open((char*)tamaFileName, FILE_APPEND);
-  //Serial.print("tamaFile = ");
-  //Serial.println(tamaFile);
+  //ESP_LOGI(TAG, "tamaFile = ");
+  //ESP_LOGI(TAG, "tamaFile = %d", tamaFile);
   if (tamaFile != 1)
   {
-    Serial.println("SD error");
+    ESP_LOGI(TAG, "SD error");
     //sdStat = 2;
     //エラーの時、SDマウントしなおしたいけれど、SDライブラリ側で再マウントできない仕様らしい
     tamaFile.close();
@@ -277,7 +277,7 @@ void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load, f
   tamaFile.printf("nukidan Integral:,%7.1f,gf-mm\n", nukiIntegral);
   tamaFile.println();
   tamaFile.close();
-  Serial.println("SDcard data saved.");
+  ESP_LOGI(TAG, "SDcard data saved.");
 }
 
 /*
@@ -297,12 +297,12 @@ void bluetoothSerialInit(void)
 
   SerialBT.begin("DENKI-Tamabo-v3", true);
   connected = SerialBT.connect(slaveName);
-  Serial.printf("Bluetooth Serial connect --> BT device\"%s\" ", slaveName.c_str());
+  ESP_LOGI(TAG, "Bluetooth Serial connect --> BT device\"%s\" ", slaveName.c_str());
 
   if (connected)
   {
-    Serial.println("port: '/dev/cu.Bluetooth-Incoming-Port' ");
-    Serial.println(" OK!");
+    ESP_LOGI(TAG, "port: '/dev/cu.Bluetooth-Incoming-Port' ");
+    ESP_LOGI(TAG, " OK!");
     dispBtSerial(BTS_OK);
     dispBtSerial(BTS_PORT1);
 
@@ -310,14 +310,14 @@ void bluetoothSerialInit(void)
   else
   {
     SerialBT.connected(10000));  //timeout 10000msec
-    Serial.println("failed.");
+    ESP_LOGI(TAG, "failed.");
     dispBtSerial(BTS_TIMEOUT);
   }
 #else
   //接続先を指定しない
   SerialBT.begin("DENKI-Tamabo-v3");
-  Serial.print("Bluetooth Serial connecting --> BT device ");
-  Serial.println("port: '/dev/cu.DENKI-Tamabo-v3-ESP32SPP'");
+  ESP_LOGI(TAG, "Bluetooth Serial connecting --> BT device ");
+  ESP_LOGI(TAG, "port: '/dev/cu.DENKI-Tamabo-v3-ESP32SPP'");
   dispBtSerial(BTS_OK);
   dispBtSerial(BTS_PORT2);
 #endif
@@ -340,7 +340,7 @@ void btDataSend(char* time, uint16_t mNum, uint8_t n, float* pos, float* load)
   }
   SerialBT.println();
   SerialBT.printf("nukidan Integral: %7.1fgf-mm\n", nukiIntegral);
-  Serial.println("bluetooth serial data send.");
+  ESP_LOGI(TAG, "bluetooth serial data send.");
 
 }
 

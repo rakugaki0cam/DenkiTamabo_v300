@@ -54,8 +54,6 @@ uint16_t  endPwidth;
 float startPosition;
 float endPosition;
 
-//debug
-static const char *TAG = "servo";
 
 
 void servoInit(float setAngle)
@@ -66,7 +64,7 @@ void servoInit(float setAngle)
   {
     //スタート角度を変更（ノズル検出による変更）
     startAngle = setAngle;
-    Serial.printf("CHANGE start angle:%6.1fdeg\n", setAngle);
+    ESP_LOGI(TAG, "CHANGE start angle:%6.1fdeg", setAngle);
   }
   else
   {
@@ -130,7 +128,7 @@ float servoMove(float angle, uint16_t speed)
   uint32_t pw;
   //ゆっくりうごかす
   if (dir > 0)
-  { //+
+  { //+方向
     for (pw = prevPw; pw < toPw; pw++)
     {
       uint32_t dutyTick = pw * (32768.0 / 20000.0); // 15bit / 20000usec (50Hz)
@@ -141,7 +139,7 @@ float servoMove(float angle, uint16_t speed)
     }
   }
   else
-  { //-
+  { //-方向
     for (pw = prevPw; pw > toPw; pw--)
     {
       uint32_t dutyTick = pw * (32768.0 / 20000.0); // 15bit / 20000usec (50Hz)
@@ -154,8 +152,7 @@ float servoMove(float angle, uint16_t speed)
 
   float pos = ARM_LENGTH * sin(degToRad(angle)) - startPosition;
 
-  ESP_LOGD(TAG, "servo angle:%5.1fdeg  pulse width:%5dms ", servoAngleS, pw);
-  ESP_LOGD(TAG, "--> POSITION:%7.3fmm \n", pos);
+  ESP_LOGD(TAG, "servo angle:%5.1fdeg  pulse width:%5dms --> POSITION:%7.3fmm", servoAngleS, pw, pos);
 
   return pos;
 }
@@ -226,7 +223,7 @@ void servo1WriteUs(uint32_t usec)
 { //LEDCのPWM dutyでサーボを動かす
   uint32_t dutyTick = usec * ((1 << LEDC_BIT)  / PWM_PERIOD);  // 15bit / 20000usec (50Hz)
 
-  //Serial.printf("pulse:%5d -- dutyTick:%6lu\n", usec, dutyTick);
+  //ESP_LOGI(TAG, "pulse:%5d -- dutyTick:%6lu", usec, dutyTick);
   //ver.2
   //ledcWrite(LEDC_CH, dutyTick);
   //ver.3
@@ -242,7 +239,7 @@ void servoAdjust(void)
   //ESP32PWM::allocateTimer(0);   //0〜3
   //servo1.setPeriodHertz(50);    // standard 50 hz servo
   //servo1.attach(PIN_SERVO, 500, 2400); ///////////////////可動域制限///////////
-  Serial.println("**** servo adjust **********");
+  ESP_LOGI(TAG, "**** servo adjust **********");
 
   //display init
   M5.Display.clearDisplay(TFT_BLACK);
@@ -277,7 +274,7 @@ void servoAdjust(void)
     M5.update();
     //servo1.writeMicroseconds(pw);
     servo1WriteUs(pw);
-    Serial.printf("pulse width:%d \n", pw);
+    ESP_LOGI(TAG, "pulse width:%d", pw);
     M5.Display.setCursor(0, 30);
     M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
     M5.Display.setTextColor(TFT_WHITE, TFT_BLACK);
@@ -309,7 +306,7 @@ void servoAdjust(void)
     M5.update();
     //servo1.writeMicroseconds(pw);
     servo1WriteUs(pw);
-    Serial.printf("pulse width:%d \n", pw);
+    ESP_LOGI(TAG, "pulse width:%d", pw);
     M5.Display.setCursor(0, 50);
     M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
     M5.Display.setTextColor(TFT_WHITE, TFT_BLACK);
@@ -341,7 +338,7 @@ void servoAdjust(void)
     M5.update();
     //servo1.writeMicroseconds(pw);
     servo1WriteUs(pw);
-    Serial.printf("pulse width:%d \n", pw);
+    ESP_LOGI(TAG, "pulse width:%d", pw);
     M5.Display.setCursor(0, 70);
     M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
     M5.Display.setTextColor(TFT_WHITE, TFT_BLACK);
@@ -379,7 +376,7 @@ void servoAdjust(void)
     pw = (pwP90 - pwM90) / 180 * centerAngleS + pwN0;
     //servo1.writeMicroseconds(pw);
     servo1WriteUs(pw);
-    Serial.printf("pulse width:%d \n", pw);
+    ESP_LOGI(TAG, "pulse width:%d", pw);
     M5.Display.setCursor(0, 110);
     M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
     M5.Display.setTextColor(TFT_WHITE, TFT_BLACK);

@@ -35,9 +35,6 @@ static int16_t Xbefore;  //前回のプロット点
 static int16_t Ybefore;
 
 
-//debug
-static const char *TAG = "graph";
-
 
 void graphInit(void)
 {
@@ -61,7 +58,7 @@ void graphInit(void)
   for (y = yMin; y <= yMax; y += yScale)
   {
     Ydisp = Y1 - (float)(y - yMin) * Yconv;
-    //Serial.printf("y:%d Ydisp:%d \n", y, Ydisp);
+    //ESP_LOGD(TAG, "y:%d Ydisp:%d", y, Ydisp);
     M5.Display.setColor(TFT_N_GRAY);
     M5.Display.drawLine(X0, Ydisp, X1, Ydisp);
     sprintf((char*)text, "%d", y);
