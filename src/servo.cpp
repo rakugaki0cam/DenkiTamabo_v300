@@ -90,7 +90,7 @@ void servoInit(float setAngle)
   //ver.3
   ledcAttach(PIN_SERVO, LEDC_FREQ, LEDC_BIT);
   //
-  servoMove(centerAngle, 1);/////////////////////////
+  servoMove(centerAngle, SPEED_SLOW);/////////////////////////
   //
   ESP_LOGI(TAG, "start angle:%5.1fdeg (dx:%6.3fmm)", startAngle, startPosition);
   ESP_LOGI(TAG, "~ end angle:%5.1fdeg (dx:%6.3fmm)", endAngle, endPosition);
@@ -108,79 +108,54 @@ float startAngleGet(void)
 }
 
 
-void servo1WriteUs(uint32_t usec)
-{ //LEDCのPWM dutyでサーボを動かす
-  uint32_t dutyTick = usec * ((1 << LEDC_BIT)  / PWM_PERIOD);  // 15bit / 20000usec (50Hz)
-
-  //Serial.printf("pulse:%5d -- dutyTick:%6lu\n", usec, dutyTick);
-  //ver.2
-  //ledcWrite(LEDC_CH, dutyTick);
-
-
-
-  //ver.3
-  ledcWrite(PIN_SERVO, dutyTick);
-
-
-
-
-
-
-}
-
-
 float servoMove(float angle, uint16_t speed)
-{ //サーボを動かす
+{ //サーボをゆっくり動かす
   //angle: 装置での角度[deg]（真上がゼロ）　 startMoving ~ endMoving (-26.0 ~ 28.0)
+  //speed: 0=最高速, μsのディレイが入る
   //ret pos: 玉の位置[mm]
 
-  float prevAngle = servoAngleS;          //現在角度を退避
+  static float prevAngle = centerAngleS;          //初期値（物理位置は不明）
+  
+  prevAngle = servoAngleS;          //現在角度を退避
   servoAngleS = centerAngleS - angle;     //サーボでの角度
 
-  ESP_LOGI(TAG, "angle:%5.1fdeg speed:%5dus", angle, speed);
-  //servo1.writeMicroseconds(pw);
-  //servo1WriteUs(pw);
-
-  
-
+  ESP_LOGD(TAG, "angle:%5.1f -> %5.1fdeg speed:%5dms", prevAngle, angle, speed);
+ 
   uint32_t prevPw = pwPerDeg * prevAngle + pwN0; //usec
   uint32_t toPw = pwPerDeg * servoAngleS + pwN0; //usec
 
 //方向
   int8_t dir = (servoAngleS >= prevAngle) ? +1 : -1;
  
-
   uint32_t pw;
   //ゆっくりうごかす
   if (dir > 0)
-  {
+  { //+
     for (pw = prevPw; pw < toPw; pw++)
     {
       uint32_t dutyTick = pw * (32768.0 / 20000.0); // 15bit / 20000usec (50Hz)
       //ver.3
       ledcWrite(PIN_SERVO, dutyTick);
       ESP_LOGD(TAG, "pw:%dus duty:%04x dir:%d", pw, dutyTick, dir);
-      delayMicroseconds(speed);
+      delay(speed); //msec
     }
   }
   else
-  {
+  { //-
     for (pw = prevPw; pw > toPw; pw--)
     {
       uint32_t dutyTick = pw * (32768.0 / 20000.0); // 15bit / 20000usec (50Hz)
       //ver.3
       ledcWrite(PIN_SERVO, dutyTick);
       ESP_LOGD(TAG, "pw:%dus duty:%04x dir:%d", pw, dutyTick, dir);
-      delayMicroseconds(speed);
+      delay(speed); //msec
     }
   }
 
-
   float pos = ARM_LENGTH * sin(degToRad(angle)) - startPosition;
 
-  //Serial.printf("Tamabo angle:%5.1fdeg ", angle);
-  ESP_LOGI(TAG, "servo angle:%5.1fdeg  pulse width:%5dus ", servoAngleS, pw);
-  ESP_LOGI(TAG, "--> POSITION:%7.3fmm \n", pos);
+  ESP_LOGD(TAG, "servo angle:%5.1fdeg  pulse width:%5dms ", servoAngleS, pw);
+  ESP_LOGD(TAG, "--> POSITION:%7.3fmm \n", pos);
 
   return pos;
 }
@@ -197,7 +172,7 @@ void servoPosition(void)
       //スタート位置へ
       tamaPos = START_POS;        //スタート位置へ移動
       
-      servoMove(startAngle, 20);
+      servoMove(startAngle, SPEED_MID);
 
       dispTamaPos(tamaPos);       //玉位置表示
       dispBtnB(TO_CENTER);        //ボタンへは次の行先を表示
@@ -206,7 +181,7 @@ void servoPosition(void)
       //センターへ
       tamaPos = CENTER2_POS;
       
-      servoMove(centerAngle, 20);
+      servoMove(centerAngle, SPEED_MID);
 
       dispTamaPos(tamaPos);
       dispBtnB(TO_END);
@@ -215,7 +190,7 @@ void servoPosition(void)
       //エンド位置へ
       tamaPos = END_POS;
       
-      servoMove(endAngle, 20);
+      servoMove(endAngle, SPEED_MID);
 
       dispTamaPos(tamaPos);
       delay(300);
@@ -231,7 +206,7 @@ void servoPosition(void)
       //センターへ
       tamaPos = CENTER1_POS;
       
-      servoMove(centerAngle, 20);
+      servoMove(centerAngle, SPEED_MID);
 
       dispTamaPos(tamaPos);
       dispBtnB(TO_START);
@@ -246,6 +221,18 @@ void servoPosition(void)
 
 
 //------- TEST ------------------------------------------------------------------------------- 
+
+void servo1WriteUs(uint32_t usec)
+{ //LEDCのPWM dutyでサーボを動かす
+  uint32_t dutyTick = usec * ((1 << LEDC_BIT)  / PWM_PERIOD);  // 15bit / 20000usec (50Hz)
+
+  //Serial.printf("pulse:%5d -- dutyTick:%6lu\n", usec, dutyTick);
+  //ver.2
+  //ledcWrite(LEDC_CH, dutyTick);
+  //ver.3
+  ledcWrite(PIN_SERVO, dutyTick);
+}
+
 
 void servoAdjust(void)
 {

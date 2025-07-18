@@ -13,13 +13,14 @@ void measNukiF(void)
 {
   //抜き弾抵抗力の測定
 #define SAMPLE_NUM 50
-  float tamaPos[SAMPLE_NUM];    //測定位置
-  float load[SAMPLE_NUM];  //抜き弾力測定値
+  static float tamaPos[SAMPLE_NUM];    //測定位置
+  static float load[SAMPLE_NUM];  //抜き弾力測定値
   uint8_t saNum = 0;
   float loadMax;
   float servoAngle;
   float startAngle = startAngleGet();
   float endAngle = endAngleGet();
+  float nukiInteg = 0;  //抜き弾抵抗値の積分値
   uint8_t i;
   uint8_t measTime[] ="00/00/00 00:00:00     ";
 
@@ -37,7 +38,7 @@ void measNukiF(void)
 
   //スケールのゼロセット
   Serial.print("Zero set --> ");
-  servoMove(endAngle, 30);
+  servoMove(endAngle, SPEED_MID);
   delay(200);
   scaleTare();  //スケールゼロ
   Serial.println(" ---> scale zero set.");
@@ -47,7 +48,7 @@ void measNukiF(void)
   //スタート位置
   servoAngle = startAngle;
   Serial.print("Start pos --> ");
-  dispPosition(servoMove(servoAngle, 40));
+  dispPosition(servoMove(servoAngle, SPEED_MID));
   dispLoad(measLoad(10));
   Serial.println(" ---> start position wait.");
   //
@@ -57,23 +58,21 @@ void measNukiF(void)
   while(servoAngle <= endAngle)
   {
     Serial.printf("Measure angle:%5.1fdeg --> ", servoAngle);
-    tamaPos[saNum] = servoMove(servoAngle, 20000);
+    tamaPos[saNum] = servoMove(servoAngle, SPEED_MEAS);
     dispPosition(tamaPos[saNum]);
     //delay(20);            //サーボが動き終わるまで待つ
 
-    load[saNum] = measLoad(10);
+    load[saNum] = measLoad(5);//(10);
     dispLoad(load[saNum]);       //抵抗力測定
     //
     graphPlot(tamaPos[saNum], load[saNum]);
     //
     Serial.printf(" == LOAD: %6.1fgf ", load[saNum]);
     //簡易グラフ表示
-#define A_SCALE 20
-    int8_t n = load[saNum] / A_SCALE;   //マイナスの時は表示しない
-    if (n <= 0)
-    {
-      n = 0;
-    }
+    #define A_SCALE 20
+
+    int8_t n = load[saNum] / A_SCALE;
+    n = (n <= 0) ? 0 : n;   //マイナスの時は表示しない
 
     for(i = 0; i < n; i++)
     {
@@ -88,15 +87,24 @@ void measNukiF(void)
       dispLoadMax(loadMax);
     }
 
+    //積分値の計算
+    if ((saNum >= 1) && (load[saNum] > 0))
+    {
+      nukiInteg += (tamaPos[saNum] - tamaPos[saNum - 1]) * (load[saNum] + load[saNum - 1]) / 2;
+    }
+    dispNukiInteg(nukiInteg);
+
     servoAngle += stepMoving;
     saNum++;
     delay(50);
   }
+  Serial.printf("Nuki load integral: %7.1fgf-mm\n", nukiInteg);
+
   dispBtnA(MEAS_COMPLETE);
   
   //SDsave BTserialsend
-  sdDataSave((char*)measTime, measCnt, saNum, tamaPos, load);
-  //btDataSend((char*)measTime, measCnt, saNum, tamaPos, load);
+  sdDataSave((char*)measTime, measCnt, saNum, tamaPos, load, nukiInteg);
+  //btDataSend((char*)measTime, measCnt, saNum, tamaPos, load, nukiInteg);
   //
   M5.Speaker.tone(1500,100);
   delay(500);
@@ -157,7 +165,7 @@ void measNozzlePos(void)
   dispLoadMax(-9999); //表示をリセット
   //スケールのゼロセット
   Serial.print("Scale zero set --> ");
-  servoMove(endAngleGet(), 10);
+  servoMove(endAngleGet(), SPEED_MID);
   delay(200);
   scaleTare();  //スケールゼロ
   dispLoad(measLoad(10));
@@ -167,7 +175,7 @@ void measNozzlePos(void)
   //棒の長さを調整する
   servoAngle = startAngleGet() + 3;   //最前位置より3度戻し
   Serial.print("Start pos set --> ");
-  dispPosition(servoMove(servoAngle, 10));
+  dispPosition(servoMove(servoAngle, SPEED_MID));
   dispLoad(measLoad(10));
   Serial.println();
   dispNozzle(NOZ_EXP1, 0);
@@ -226,7 +234,7 @@ void measNozzlePos(void)
   Serial.println("measure Packing Free & Nozzle position.");
   dispNozzle(NOZ_MEAS, 0);
   servoAngle += 10;           //10度戻す
-  servoMove(servoAngle, 10);//////////////////////////////////////////////////
+  servoMove(servoAngle, SPEED_SLOW);//////////////////////////////////////////////////
   Serial.println("measure start position set.");
   delay(1500);
   //
@@ -237,7 +245,7 @@ void measNozzlePos(void)
   {
     //玉を奥へ進める
     Serial.printf("Angle:%5.1fdeg --> ", servoAngle);
-    pos = servoMove(servoAngle, 30);
+    pos = servoMove(servoAngle, SPEED_SLOW);
     dispPosition(pos);
     delay(100);    /////////////
 

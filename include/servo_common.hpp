@@ -10,11 +10,10 @@
 #pragma once
 
 //global
-typedef enum {
+typedef enum 
+{
   CENTER1_POS,
   START_POS,
   CENTER2_POS,
   END_POS,
 } tama_pos_t;
-
-

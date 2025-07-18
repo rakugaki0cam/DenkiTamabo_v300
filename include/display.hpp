@@ -51,6 +51,8 @@ void  dispLoad(float);
 void  dispZeroSet(void);
 void  dispPosition(float);
 void  dispMeasNum(uint16_t);
+void  dispNukiInteg(float);
+//
 void  dispBatV(float);
 void  dispSdcardStatus(uint8_t);
 void  dispTamaPos(tama_pos_t);

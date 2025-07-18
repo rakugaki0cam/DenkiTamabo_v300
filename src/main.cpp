@@ -10,6 +10,8 @@
                 LEDC変更（チャンネル数は不要になった）
                 BTserialはIRAMエラーになるため廃止
                 WiFi NTP 手順変更
+    2025.07.17  サーボをゆっくり動かす
+    2025.07.18  抜き弾抵抗力の積分値を表示            
 
 
   ///　タッチパネル初期化に失敗していることがある。入力しない。
@@ -25,7 +27,7 @@
 
 
 //global
-uint8_t   fmVer[] = "3.03";
+uint8_t   fmVer[] = "3.05";
 uint16_t  measCnt;   //測定回数 
 uint8_t   sdStat = 0;       //SDcard detect 0:未,1:OK,2:fail
 
@@ -101,10 +103,6 @@ void loop()
   //routine
   delay(20);
   cnt++;
-  //if (cnt > 50)
-  //{
-  //  cnt = 0;
-  //}
   cnt = (cnt > 50) ? 0: cnt;  //cycle 1sec
 
   if ((cnt % 2) == 1)
@@ -112,10 +110,7 @@ void loop()
     //load
     dispLoad(measLoad(10));
   }
-  else
-  {
-    //
-  }
+  
   switch (cnt)
   {
     case 10:

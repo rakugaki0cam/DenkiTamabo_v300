@@ -118,6 +118,18 @@ void dispLoadMax(float val)
 }
 
 
+void dispNukiInteg(float val)
+{
+  //抜き弾抵抗力積分値[gf-mm]
+  M5.Display.setTextDatum(TR_DATUM);  //TopRight
+  M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
+  sprintf((char*)text, "　%5.0fgf-mm", val);
+  M5.Display.drawString((char*)text, 309, 160, &fonts::lgfxJapanGothicP_12);
+  M5.Display.setTextDatum(TL_DATUM);  //TopLeft
+}
+
+
+//
 void dispBatV(float val)
 {
   //バッテリー電圧[V]

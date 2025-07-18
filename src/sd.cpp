@@ -249,7 +249,7 @@ uint8_t sdInit(void)
 } 
  
 
-void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load)
+void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load, float nukiIntegral)
 {
   uint16_t i;
 
@@ -266,14 +266,15 @@ void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load)
     M5.Speaker.tone(4000, 600);
     return;
   }
-  tamaFile.printf("measure #%d\n", mNum);
+  tamaFile.printf("measure #,%d\n", mNum);
   tamaFile.printf("%s\n", time);
-  tamaFile.printf("measure angle: %4.1f ~ %4.1f deg\n", startAngleGet(), endAngleGet());
+  tamaFile.printf("measure angle:,%4.1f ~,%4.1f deg\n", startAngleGet(), endAngleGet());
   tamaFile.println("#, pos[mm], load[gf]");
   for (i = 0; i < n; i++)
   {
     tamaFile.printf("%5d, %6.3f, %6.2f\n", (i + 1), pos[i], load[i]);
   }
+  tamaFile.printf("nukidan Integral:,%7.1f,gf-mm\n", nukiIntegral);
   tamaFile.println();
   tamaFile.close();
   Serial.println("SDcard data saved.");
@@ -338,6 +339,7 @@ void btDataSend(char* time, uint16_t mNum, uint8_t n, float* pos, float* load)
     SerialBT.printf("%5d, %6.3f, %6.2f\n", (i + 1), pos[i], load[i]);
   }
   SerialBT.println();
+  SerialBT.printf("nukidan Integral: %7.1fgf-mm\n", nukiIntegral);
   Serial.println("bluetooth serial data send.");
 
 }
