@@ -36,7 +36,7 @@ uint8_t   sdStat = 0;   //SDcard detect 0:未,1:OK,2:fail
 uint8_t cnt = 0;        //ループのカウンタ処理カウント用
 
 //debug
-const char *TAG = "tamabou";
+const char *TAG = "tamaV3";
 
 
 void setup()
@@ -76,7 +76,7 @@ void loop()
   M5.update();  //ボタンの状態を更新する。
 
   //button
-  if (M5.BtnA.pressedFor(150))
+  if (M5.BtnA.pressedFor(100))
   {  //ms長押し
     //測定
     M5.Speaker.tone(1000,200);

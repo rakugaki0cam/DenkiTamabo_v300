@@ -43,7 +43,9 @@ uint8_t wifiInit(void)
   WiFi.begin(ssid, passwd);               //アクセスポイント接続のためのIDとパスワードの設定
   Serial.print("WiFi ");
   dispWifi(TEXT_WIFI);
+  //NTP
   esp_sntp_servermode_dhcp(1);// (optional)
+  sntp_set_time_sync_notification_cb(timeavailable); //NTPサーバーからの時刻取得完了時に呼び出されるコールバック関数を設定
 
   while (WiFi.status() != WL_CONNECTED)
   { //接続状態の確認
@@ -67,13 +69,12 @@ uint8_t wifiInit(void)
       return 1;
     }
   }
-  //NTP
-  sntp_set_time_sync_notification_cb( timeavailable );
+
   //通信が可能となったら各種情報を表示する
-  ESP_LOGI(TAG, " Connected.  ");       //接続したらシリアルモニタに「WiFi Connected」と表示
+  Serial.println(" Connected.");       //接続したらシリアルモニタに「WiFi Connected」と表示
   dispWifi(TEXT_WIFI_CONECT);
-  ESP_LOGI(TAG, "IP Address: ");          //シリアルモニタに表示
-  ESP_LOGI(TAG, "%s", WiFi.localIP());         //割り当てられたIPアドレスをシリアルモニタに表示
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());//割り当てられたIPアドレスをシリアルモニタに表示
   dispWifi(TEXT_IP);
 
   stat = ntpTimeInit();   //NTPより時刻取得
@@ -143,8 +144,7 @@ void printLocalTime(void)
     ESP_LOGI(TAG, "No time available (yet)");
     return;
   }
-  ESP_LOGI(TAG, "%A, %B %d %Y %H:%M:%S", &timeInfo);
-
+  Serial.printf("%A, %B %d %Y %H:%M:%S\n", &timeInfo);
   //ESP_LOGI(TAG, "NTP: %04d/%02d/%02d(%s) - ", (timeInfo.tm_year + 1900), (timeInfo.tm_mon + 1), timeInfo.tm_mday, week[timeInfo.tm_wday]);
   //ESP_LOGI(TAG, "%02d:%02d:%02d", timeInfo.tm_hour, timeInfo.tm_min, timeInfo.tm_sec);
 
@@ -194,7 +194,7 @@ void generateFileName(void)
 // Callback function (get's called when time adjusts via NTP)
 void timeavailable(struct timeval *t)
 {
-  ESP_LOGI(TAG, " get time :");
+  Serial.println(" get time.");
   timeFlag = 1;
 }
 
