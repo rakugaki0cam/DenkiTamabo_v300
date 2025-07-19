@@ -120,7 +120,7 @@ float servoMove(float angle, uint16_t speed)
   uint32_t prevPw = pwPerDeg * prevAngle + pwN0; //usec
   uint32_t toPw = pwPerDeg * servoAngleS + pwN0; //usec
 
-//方向
+  //方向
   int8_t dir = (servoAngleS >= prevAngle) ? +1 : -1;
  
   uint32_t pw;
