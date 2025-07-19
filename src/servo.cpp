@@ -8,33 +8,31 @@
 #include "servo.hpp"
 
 
-#define PIN_SERVO 33      //G5@stack M5 BASIC v2.7
+#define PIN_SERVO   33
 //LEDC
-//#define LEDC_CH     0
 #define LEDC_BIT    15  //resolution[bit]
 #define LEDC_FREQ   50  //PWM frequency[Hz]
-//
-#define ARM_LENGTH 9.0f   //サーボホーンアーム長さ[mm]
+//servo
+#define ARM_LENGTH    9.0f   //サーボホーンアーム長さ[mm]
+#define DEAD_BAND     1       //PWMデッドバンド[usec]
+#define SERVO_SPEED   120000 / 60           //[usec/deg] = 2ms/deg
+#define PWM_PERIOD    1000000 / LEDC_FREQ   //[usec] = 20000usec
 //
 #define degToRad(deg) (deg / 180 * PI)
 #define radToDeg(rad) (rad / PI * 180)
-//servo
-#define DEAD_BAND   1 //[usec]
-#define SERVO_SPEED 120000 / 60 //[usec/deg] = 2ms/deg
-#define PWM_PERIOD 1000000 / LEDC_FREQ  //[usec] = 20000usec
+
 
 //global
 tama_pos_t tamaPos;  //玉のポジション[mm]
 
-//
-Servo servo1;
 
 //local
-//servo adjust　-90,0,+90deg --> [usec]
+Servo servo1;
+//servo adjust　-90, 0, +90deg
 uint16_t  pwM90 = 560;    //-90度   typ.500us
 uint16_t  pwN0  = 1420;   //0度     typ.1450us
 uint16_t  pwP90 = 2320;   //+90度   typ.2400us
-float deadBandPw = 180.0 / (pwP90 - pwM90);   //[deg/us]
+float deadBandAngle = 180.0 / (pwP90 - pwM90);   // = 180 / (2400 - 500) = 0.108 [deg/us]  分解能0.1°
 
 //サーボ角度とパルス幅　[deg]
 const float centerAngle  = 0;   //この装置での基準角度
