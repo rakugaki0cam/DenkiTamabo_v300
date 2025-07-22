@@ -330,10 +330,19 @@ void dispNozzle(noz_stat_t stat, float val)
     case NOZ_EXP1:
       //explanation1
       M5.Display.setFont(&fonts::lgfxJapanGothicP_12);
+      M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
       M5.Display.setCursor(DISP_X0, DISP_Y1);
       //M5.Display.println("1.ホップ調整を最弱にする。");
       M5.Display.println("ノズル先端に玉が軽く当たるように");
       M5.Display.println("棒の長さを調整する。");
+      break;
+    case NOZ_ABORT:
+      //中止
+      M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
+      M5.Display.setTextColor(TFT_RED, TFT_BG_SCREEN);
+
+      M5.Display.setCursor(DISP_X0 + 144, DISP_Y0);
+      M5.Display.println("中止");
       break;
     case NOZ_MEAS:
       //nozzle position measure

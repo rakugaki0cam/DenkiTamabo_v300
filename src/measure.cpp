@@ -178,13 +178,31 @@ void measNozzlePos(void)
   delay(800);   //玉を落ち着かせる
   //調整後ボタンCを押す
   ESP_LOGI(TAG, "wait for button C");
-  toCnt = 60;     //timeout カウンタ 1分
+  toCnt = 600;     //timeout カウンタ 5分
   blinkCnt = 0;
 
-
-  while()
+  while(true)
   {
-    if (toCnt == 0)
+    //ボタンを点滅させる
+    if (blinkCnt < 6)
+    {
+      dispBtnC(BTNC_PUSH_TO_START);   
+    }
+    else
+    {
+      dispBtnC(BTNC_NULL);
+    }
+      
+    M5.update();  //ボタンの状態を更新する。
+    dispLoad(measLoad(10));
+    blinkCnt++;
+    if(blinkCnt >= 10)
+    {
+      blinkCnt = 0;   //点滅カウントリセット
+    }
+    
+    toCnt--;
+    if (toCnt < 0)
     {
       //タイムアウト
       M5.Speaker.tone(1000, 500);
@@ -192,44 +210,21 @@ void measNozzlePos(void)
       dispNozzle(NOZ_DIS, 0);
       dispBtnC(BTNC_NOZZLE_SET);
       nozzleStat = NZFL_IDLE;
+      dispNozzle(NOZ_ABORT, 0);
       delay(1000);
       tamaPos = END_POS;
       servoPosition();
       return;
     }
 
-    if (blinkCnt < 6)
-    {
-     
+    delay(50);
 
-      M5.update();  //ボタンの状態を更新する。
-      dispLoad(measLoad(10));
-      
-      blinkCnt--;
-     
-    }
-    else
-    {
-      dispBtnC(BTNC_NULL);   //ボタンを空白にして点滅させる
-    }
-      
-    M5.update();  //ボタンの状態を更新する。
-    dispLoad(measLoad(10));
-    blinkCnt--;
-    
-    if (M5.BtnC.wasPressed())
+    if (M5.BtnC.isPressed())
     {
       M5.Speaker.tone(1760,100);
-      toCnt = -10;
       break;
     }
 
-
-
-
-      toCnt--;
-      delay(50);      
-    }
   }
 
 

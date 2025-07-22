@@ -14,9 +14,8 @@
     2025.07.18  抜き弾抵抗力の積分値を表示            
 
 
-  // タッチパネル初期化に失敗していることがある。入力しない。
+  タッチパネル初期化に失敗していることがある。入力しない。
 
-    
 */
 
 #include "header.hpp"
@@ -76,7 +75,7 @@ void loop()
   M5.update();  //ボタンの状態を更新する。
 
   //button
-  if (M5.BtnA.pressedFor(100))
+  if (M5.BtnA.pressedFor(50))
   {  //ms長押し
     //測定
     M5.Speaker.tone(1000,200);
@@ -94,7 +93,7 @@ void loop()
     servoPosition();          //玉ポジション移動
   }
 
-  if (M5.BtnC.wasPressed())
+  if (M5.BtnC.pressedFor(200))
   {
     //ノズル検出
     M5.Speaker.tone(1760,100);

@@ -12,6 +12,7 @@
 typedef enum {
   NOZ_TITLE,
   NOZ_EXP1,
+  NOZ_ABORT,
   NOZ_MEAS,
   NOZ_EXP3,
   NOZ_NOZZLE_OK,
