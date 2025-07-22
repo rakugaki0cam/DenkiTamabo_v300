@@ -38,12 +38,13 @@ float deadBandAngle = 180.0 / (pwP90 - pwM90);   // = 180 / (2400 - 500) = 0.108
 const float centerAngle  = 0;   //この装置での基準角度
 const float startAngleD  = -26; //真上からの前進量(マイナス値)[deg]
 const float endAngle     = 28;  //真上からの後退量(プラス値)[deg]
+//
 float centerAngleS = 60;        //この装置での中点でのサーボの角度 サーボホーンが真上を向く角度...セレーションの影響あり[deg]
 float startAngle;
-float startAngleS;              //サーボのスタート角度　AngleS　S=Servo[deg]
-float endAngleS;                //サーボのエンド角度[deg]
-float servoAngleS;              //サーボの現在角度[deg]
-float pwPerDeg;                          
+float startAngleS;                //サーボのスタート角度　AngleS　S=Servo[deg]
+float endAngleS;                  //サーボのエンド角度[deg]
+float servoAngleS = centerAngleS - 1; //サーボの現在角度[deg]
+float pwPerDeg;
 //各玉ポジションでのパルス幅 [usec]
 uint16_t  startPwidth;
 uint16_t  centerPwidth;                                                 
@@ -58,16 +59,15 @@ void servoInit(float setAngle)
 {
   //サーボの初期化
   //setAngle 0:default setting, -20~-26:set Angle
-  if ((setAngle < -20.0) && (setAngle > -26.0))
-  {
-    //スタート角度を変更（ノズル検出による変更）
+  if ((setAngle < -20.0) && (setAngle > startAngleD))
+  {  //スタート角度を変更（ノズル検出による変更）
     startAngle = setAngle;
-    ESP_LOGI(TAG, "CHANGE start angle:%6.1fdeg", setAngle);
   }
   else
   {
     startAngle = startAngleD;
   }
+  ESP_LOGI(TAG, "Servo start angle:%6.1fdeg", startAngle);
   startAngleS  = centerAngleS - startAngle;   //最大角度 60-(-26) = 86
   endAngleS    = centerAngleS - endAngle;     //最小角度 60-28 = 32 (測定時は角度をマイナスさせる方向 86 -> 32)
   pwPerDeg    = (pwP90 - pwM90) / 180.0;      //1度あたりのパルス幅usec                           
@@ -80,16 +80,11 @@ void servoInit(float setAngle)
   endPosition = ARM_LENGTH * sin(degToRad(endAngle));
 
   //PWM(LEDC) init
-  //ver.2
-  //ledcSetup(LEDC_CH, LEDC_FREQ, LEDC_BIT);
-  //ledcAttachPin(PIN_SERVO, LEDC_CH);
-  //ver.3
-  ledcAttach(PIN_SERVO, LEDC_FREQ, LEDC_BIT);
+  ledcAttach(PIN_SERVO, LEDC_FREQ, LEDC_BIT); //ver.3
   //
-  servoMove(centerAngle, SPEED_SLOW);/////////////////////////
+  servoMove(centerAngle, SPEED_SLOW);/////////////////////////もとの位置がわからないので最大速度で動くことがある
   //
-  ESP_LOGI(TAG, "start angle:%5.1fdeg (dx:%6.3fmm)", startAngle, startPosition);
-  ESP_LOGI(TAG, "~ end angle:%5.1fdeg (dx:%6.3fmm)", endAngle, endPosition);
+  ESP_LOGD(TAG, "start angle:%5.1fdeg (dx:%6.3fmm) ~ end angle:%5.1fdeg (dx:%6.3fmm)", startAngle, startPosition, endAngle, endPosition);
 }
 
 
@@ -97,6 +92,7 @@ float endAngleGet(void)
 {
   return endAngle;
 }
+
 
 float startAngleGet(void)
 {
@@ -110,18 +106,19 @@ float servoMove(float angle, uint16_t speed)
   //speed: 0=最高速, μsのディレイが入る
   //ret pos: 玉の位置[mm]
 
-  static float prevAngle = centerAngleS;          //初期値（物理位置は不明）
+  static float prevAngleS;          //初期値（物理位置は不明）
   
-  prevAngle = servoAngleS;          //現在角度を退避
+  prevAngleS = servoAngleS;          //現在角度を退避
   servoAngleS = centerAngleS - angle;     //サーボでの角度
 
-  ESP_LOGD(TAG, "angle:%5.1f -> %5.1fdeg speed:%5dms", prevAngle, angle, speed);
+  ESP_LOGD(TAG, "servo angle:%5.1f -> %5.1fdeg speed:%5dms", prevAngleS, servoAngleS, speed);
  
-  uint32_t prevPw = pwPerDeg * prevAngle + pwN0; //usec
+  uint32_t prevPw = pwPerDeg * prevAngleS + pwN0; //usec
   uint32_t toPw = pwPerDeg * servoAngleS + pwN0; //usec
+  ESP_LOGD(TAG, "pw:%5d -> %5dusec", prevPw, toPw);
 
   //方向
-  int8_t dir = (servoAngleS >= prevAngle) ? +1 : -1;
+  int8_t dir = (servoAngleS >= prevAngleS) ? +1 : -1;
  
   uint32_t pw;
   //ゆっくりうごかす
@@ -130,7 +127,6 @@ float servoMove(float angle, uint16_t speed)
     for (pw = prevPw; pw < toPw; pw++)
     {
       uint32_t dutyTick = pw * (32768.0 / 20000.0); // 15bit / 20000usec (50Hz)
-      //ver.3
       ledcWrite(PIN_SERVO, dutyTick);
       ESP_LOGD(TAG, "pw:%dus duty:%04x dir:%d", pw, dutyTick, dir);
       delay(speed); //msec
@@ -141,7 +137,6 @@ float servoMove(float angle, uint16_t speed)
     for (pw = prevPw; pw > toPw; pw--)
     {
       uint32_t dutyTick = pw * (32768.0 / 20000.0); // 15bit / 20000usec (50Hz)
-      //ver.3
       ledcWrite(PIN_SERVO, dutyTick);
       ESP_LOGD(TAG, "pw:%dus duty:%04x dir:%d", pw, dutyTick, dir);
       delay(speed); //msec
@@ -149,7 +144,6 @@ float servoMove(float angle, uint16_t speed)
   }
 
   float pos = ARM_LENGTH * sin(degToRad(angle)) - startPosition;
-
   ESP_LOGD(TAG, "servo angle:%5.1fdeg  pulse width:%5dms --> POSITION:%7.3fmm", servoAngleS, pw, pos);
 
   return pos;

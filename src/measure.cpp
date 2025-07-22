@@ -33,30 +33,27 @@ void measNukiF(void)
   
   //抜き弾値リセット
   loadMax = 0;
-  dispLoadMax(-9999); //表示をリセット
+  dispLoadMax(-9999); //最大抵抗力をリセット
 
   //スケールのゼロセット
-  ESP_LOGI(TAG, "Zero set --> ");
-  servoMove(endAngle, SPEED_MID);
-  delay(200);
+  ESP_LOGI(TAG, "Scale zero set.");
+  servoMove(endAngle, SPEED_FAST);
+  delay(500);
   scaleTare();  //スケールゼロ
-  ESP_LOGI(TAG, " ---> scale zero set.");
   dispLoad(measLoad(10));
   delay(200);
 
   //スタート位置
   servoAngle = startAngle;
-  ESP_LOGI(TAG, "Start pos --> ");
+  ESP_LOGI(TAG, "Move start position & wait.");
   dispPosition(servoMove(servoAngle, SPEED_SLOW));
   dispLoad(measLoad(10));
-  ESP_LOGI(TAG, " ---> start position wait.");
-  //
   delay(1200);   //玉を落ち着かせる
 
   //測定loop
   while(servoAngle <= endAngle)
   {
-    Serial.printf("Measure angle:%5.1fdeg --> ", servoAngle);
+    Serial.printf("angle:%5.1fdeg", servoAngle);
     tamaPos[saNum] = servoMove(servoAngle, SPEED_MEAS);
     dispPosition(tamaPos[saNum]);
 
@@ -65,7 +62,7 @@ void measNukiF(void)
     //
     graphPlot(tamaPos[saNum], load[saNum]);
     //
-    Serial.printf(" == LOAD: %6.1fgf ", load[saNum]);
+    Serial.printf(" LOAD: %6.1fgf ", load[saNum]);
     //簡易グラフ表示
     #define A_SCALE 20
 
@@ -141,28 +138,25 @@ void measNozzlePos(void)
     //ノズル位置設定をリセットする
     M5.Speaker.tone(2000, 800);
     servoInit(0);   //default set
-    ESP_LOGI(TAG, "nozzle position RESET!");
+    ESP_LOGI(TAG, "Nozzle position RESET!");
     dispNozzle(NOZ_RESET, 0);
     dispBtnC(BTNC_NOZZLE_SET);
 
-    tamaPos = CENTER1_POS;
+    tamaPos = CENTER2_POS;
     servoPosition();
     nozzleStat = NZFL_IDLE;   
     dispNozzle(NOZ_DIS, 0);
     delay(200);
-    //中間ポジションへ移動
-    tamaPos = END_POS;  
-    servoPosition();
+    
     return;
   }
 
   //ノズル位置の測定ーーーーーーーーーーーーーーーーーーーーーーー
   dispNozzle(NOZ_TITLE, 0);
-  ESP_LOGI(TAG, "nozzle position setting");
-  //抜き弾値リセット
-  dispLoadMax(-9999); //表示をリセット
+  ESP_LOGI(TAG, "Nozzle position setting。");
+  dispLoadMax(-9999); //最大値をリセット
   //スケールのゼロセット
-  ESP_LOGI(TAG, "Scale zero set --> ");
+  ESP_LOGI(TAG, "Scale zero set。");
   servoMove(endAngleGet(), SPEED_MID);
   delay(200);
   scaleTare();  //スケールゼロ
@@ -192,7 +186,6 @@ void measNozzlePos(void)
     {
       dispBtnC(BTNC_NULL);
     }
-      
     M5.update();  //ボタンの状態を更新する。
     dispLoad(measLoad(10));
     blinkCnt++;
@@ -216,7 +209,6 @@ void measNozzlePos(void)
       servoPosition();
       return;
     }
-
     delay(50);
 
     if (M5.BtnC.isPressed())

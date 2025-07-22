@@ -59,10 +59,10 @@ void setup()
   sdStat = sdInit();  //dispInitの後に
   //bluetoothSerialInit();
   scaleInit();
-  servoInit(0);   //default set
   digitalWrite(PIN_BAT_ON, HIGH);    //サーボ用バッテリ電源オン
+  servoInit(0);   //default set
 
-  ///////////// test ////////////////////////////////////////////////////////////////
+  // test ----------
   //servoAdjust();
   //graphInit();
   ESP_LOGI(TAG, "***********************************************************************");
