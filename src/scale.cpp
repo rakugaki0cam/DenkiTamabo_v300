@@ -36,7 +36,7 @@ void scaleInit(void)
 float measLoad(uint8_t n)
 {
   float load = scale.get_units(n);
-  //Serial.println(load, 2); 
+  //ESP_LOGI(TAG, "Load: %.2f", load);
   return load;
 }
 

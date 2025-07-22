@@ -21,6 +21,7 @@
 
 #include "header.hpp"
 
+
 #define PIN_BAT_V   36    //10k+10k分圧　
 #define ANALOG_CH   0     //G36...ADC1_0
 #define PIN_BAT_ON  19    //サーボ用バッテリ電源オフ　(G13..stack M5 BASIC v2.7)
@@ -28,11 +29,14 @@
 
 //global
 uint8_t   fmVer[] = "3.05";
-uint16_t  measCnt;   //測定回数 
-uint8_t   sdStat = 0;       //SDcard detect 0:未,1:OK,2:fail
+uint16_t  measCnt;      //測定回数 
+uint8_t   sdStat = 0;   //SDcard detect 0:未,1:OK,2:fail
 
 //local
-uint8_t cnt = 0;          //ループのカウンタ処理カウント用
+uint8_t cnt = 0;        //ループのカウンタ処理カウント用
+
+//debug
+const char *TAG = "tamaV3";
 
 
 void setup()
@@ -49,8 +53,7 @@ void setup()
 
   M5.Speaker.setVolume(30);
   M5.Speaker.tone(1500,300);
-  Serial.println();
-  Serial.printf("*** DENKI Tamabo M5 ver.%s ******************************************\n", (char*)fmVer);
+  ESP_LOGI(TAG, "*** DENKI Tamabo M5 ver.%s ******************************************", (char*)fmVer);
 
   dispInit();
   wifiInit();
@@ -63,7 +66,7 @@ void setup()
   ///////////// test ////////////////////////////////////////////////////////////////
   //servoAdjust();
   //graphInit();
-  Serial.println("***********************************************************************");
+  ESP_LOGI(TAG, "***********************************************************************");
 
 }
 
@@ -73,7 +76,7 @@ void loop()
   M5.update();  //ボタンの状態を更新する。
 
   //button
-  if (M5.BtnA.pressedFor(150))
+  if (M5.BtnA.pressedFor(100))
   {  //ms長押し
     //測定
     M5.Speaker.tone(1000,200);
@@ -127,7 +130,7 @@ void loop()
       if (sdStat == 2)
       { //SD card
         //抜いたのは検出しない
-        //Serial.printf("SD flag %d\n", sdFlag);
+        //ESP_LOGD(TAG, "SD flag %d", sdFlag);
         sdStat = sdInit();
       }
       break;
