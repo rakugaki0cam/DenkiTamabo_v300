@@ -47,7 +47,7 @@ void measNukiF(void)
   //スタート位置
   servoAngle = startAngle;
   ESP_LOGI(TAG, "Start pos --> ");
-  dispPosition(servoMove(servoAngle, SPEED_MID));
+  dispPosition(servoMove(servoAngle, SPEED_SLOW));
   dispLoad(measLoad(10));
   ESP_LOGI(TAG, " ---> start position wait.");
   //
@@ -59,7 +59,6 @@ void measNukiF(void)
     Serial.printf("Measure angle:%5.1fdeg --> ", servoAngle);
     tamaPos[saNum] = servoMove(servoAngle, SPEED_MEAS);
     dispPosition(tamaPos[saNum]);
-    //delay(20);            //サーボが動き終わるまで待つ
 
     load[saNum] = measLoad(5);//(10);
     dispLoad(load[saNum]);       //抵抗力測定
@@ -179,41 +178,63 @@ void measNozzlePos(void)
   delay(800);   //玉を落ち着かせる
   //調整後ボタンCを押す
   ESP_LOGI(TAG, "wait for button C");
-  toCnt = 1200;     //timeout カウンタ 10分 -----> 測定に入ってしまう／／／／／／／／／／／／／／／／／／／／／／／／／／
-  while(toCnt > 0)
+  toCnt = 60;     //timeout カウンタ 1分
+  blinkCnt = 0;
+
+
+  while()
   {
-    blinkCnt = 6;
-    dispBtnC(BTNC_PUSH_TO_START);   //ボタンに文字を表示
-    while(blinkCnt)
+    if (toCnt == 0)
     {
-      M5.update();  //ボタンの状態を更新する。
-      dispLoad(measLoad(10));
-      if (M5.BtnC.wasPressed())
-      {
-        M5.Speaker.tone(1760,100);
-        toCnt = -1;
-        break;
-      }    
-      blinkCnt--;
-      delay(50);
+      //タイムアウト
+      M5.Speaker.tone(1000, 500);
+      ESP_LOGI(TAG, "Timeout! Nozzle position setting canceled.");
+      dispNozzle(NOZ_DIS, 0);
+      dispBtnC(BTNC_NOZZLE_SET);
+      nozzleStat = NZFL_IDLE;
+      delay(1000);
+      tamaPos = END_POS;
+      servoPosition();
+      return;
     }
-    blinkCnt = 4;
-    dispBtnC(BTNC_NULL);   //ボタンを空白にして点滅させる
-    while(blinkCnt)
+
+    if (blinkCnt < 6)
     {
+     
+
       M5.update();  //ボタンの状態を更新する。
       dispLoad(measLoad(10));
+      
       blinkCnt--;
-      if (M5.BtnC.wasPressed())
-      {
-        M5.Speaker.tone(1760,100);
-        toCnt = 0;
-        break;
-      }
+     
+    }
+    else
+    {
+      dispBtnC(BTNC_NULL);   //ボタンを空白にして点滅させる
+    }
+      
+    M5.update();  //ボタンの状態を更新する。
+    dispLoad(measLoad(10));
+    blinkCnt--;
+    
+    if (M5.BtnC.wasPressed())
+    {
+      M5.Speaker.tone(1760,100);
+      toCnt = -10;
+      break;
+    }
+
+
+
+
       toCnt--;
       delay(50);      
     }
   }
+
+
+  
+
   //測定開始
   float nLoad;
   float minLoad = 999;
@@ -237,10 +258,10 @@ void measNozzlePos(void)
   ESP_LOGI(TAG, "--> TAMA goes to right.");
   stat = 0;
   dispNozzle(NOZ_PACKING, 0);
+
   while(servoAngle > -26)
   {
     //玉を奥へ進める
-    ESP_LOGI(TAG, "Angle:%5.1fdeg --> ", servoAngle);
     pos = servoMove(servoAngle, SPEED_SLOW);
     dispPosition(pos);
     delay(100);    /////////////
@@ -251,7 +272,7 @@ void measNozzlePos(void)
       minLoad = abs(nLoad);
     }
     dispLoad(nLoad);
-    ESP_LOGI(TAG, " == LOAD:%6.1fgf", nLoad);
+    ESP_LOGI(TAG, "Angle:%5.1fdeg LOAD:%6.1fgf", servoAngle, nLoad);
 
     if ((stat == 0) && (nLoad > -3.0) && (nLoad < 3.0))
     {

@@ -13,7 +13,7 @@ uint16_t X0_CLS = 0;        //グラフ全面 カラー:TFT_BG_SCREEN
 uint16_t Y0_CLS = 20;
 uint16_t X_SIZE_CLS = 210;
 uint16_t Y_SIZE_CLS = 200;
-//
+//グラフ
 uint16_t X0 = 30;           //左上座標
 uint16_t Y0 = 30;        
 uint16_t X_SIZE = 170;      //大きさ
@@ -21,12 +21,12 @@ uint16_t Y_SIZE = 170;
 uint16_t X1 = X0 + X_SIZE;  //右下座標
 uint16_t Y1 = Y0 + Y_SIZE;
 //データの数値
+uint16_t xScale = 1;
 int16_t xMin = 0;
 int16_t xMax = 9;
+uint16_t yScale = 100;
 int16_t yMin = -100;
 int16_t yMax = 500;
-uint16_t xScale = 1;
-uint16_t yScale = 100;
 //縮尺変換係数
 float Xconv = (float)X_SIZE / (xMax - xMin);
 float Yconv = (float)Y_SIZE / (yMax - yMin);
