@@ -54,7 +54,7 @@ void measNukiF(void)
   while(servoAngle <= endAngle)
   {
     Serial.printf("angle:%5.1fdeg", servoAngle);
-    tamaPos[saNum] = servoMove(servoAngle, SPEED_MEAS);
+    tamaPos[saNum] = servoMove(servoAngle, SPEED_MEAS); //スピードを変更するメニューをどこかに作る
     dispPosition(tamaPos[saNum]);
 
     load[saNum] = measLoad(5);//(10);
