@@ -177,6 +177,7 @@ void measNozzlePos(void)
 
   while(true)
   {
+    M5.update();  //ボタンの状態を更新する。
     //ボタンを点滅させる
     if (blinkCnt < 6)
     {
@@ -186,14 +187,12 @@ void measNozzlePos(void)
     {
       dispBtnC(BTNC_NULL);
     }
-    M5.update();  //ボタンの状態を更新する。
     dispLoad(measLoad(10));
     blinkCnt++;
     if(blinkCnt >= 10)
     {
       blinkCnt = 0;   //点滅カウントリセット
     }
-    
     toCnt--;
     if (toCnt < 0)
     {
@@ -214,13 +213,12 @@ void measNozzlePos(void)
     if (M5.BtnC.isPressed())
     {
       M5.Speaker.tone(1760,100);
+      vibration(100);
       break;
     }
 
   }
 
-
-  
 
   //測定開始
   float nLoad;

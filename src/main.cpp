@@ -20,14 +20,13 @@
 
 #include "header.hpp"
 
-
 #define PIN_BAT_V   36    //10k+10k分圧　
 #define ANALOG_CH   0     //G36...ADC1_0
 #define PIN_BAT_ON  19    //サーボ用バッテリ電源オフ　(G13..stack M5 BASIC v2.7)
 
 
 //global
-uint8_t   fmVer[] = "3.05";
+uint8_t   fmVer[] = "3.06";
 uint16_t  measCnt;      //測定回数 
 uint8_t   sdStat = 0;   //SDcard detect 0:未,1:OK,2:fail
 
@@ -74,9 +73,14 @@ void loop()
 {
   M5.update();  //ボタンの状態を更新する。
 
+  m5::touch_detail_t pos = M5.Touch.getDetail();
+  auto x = pos.distanceX();
+  auto y = pos.distanceY();
+
   //button
   if (M5.BtnA.pressedFor(50))
   {  //ms長押し
+    vibration(100);
     //測定
     M5.Speaker.tone(1000,200);
     graphInit();
@@ -88,6 +92,7 @@ void loop()
   
   if (M5.BtnB.wasPressed())
   {
+    vibration(100);
     //玉位置移動
     M5.Speaker.tone(1320,100);
     servoPosition();          //玉ポジション移動
@@ -95,6 +100,7 @@ void loop()
 
   if (M5.BtnC.pressedFor(200))
   {
+    vibration(100);
     //ノズル検出
     M5.Speaker.tone(1760,100);
     measNozzlePos();
@@ -138,3 +144,12 @@ void loop()
   
 }
 
+
+//
+void vibration(uint16_t timeMs)
+{ //バイブレーションモーター
+  //電源IC AXP2101につながっている
+  M5.Power.Axp2101.setDLDO1(3300);
+  delay(timeMs);
+  M5.Power.Axp2101.setDLDO1(0);  //DLDO1 off
+}
