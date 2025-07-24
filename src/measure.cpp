@@ -16,6 +16,8 @@ void speedSet(void)
 {  //スピードを変更する
 
 
+//////////////////////////////////////
+
   speedMeasure;  //新しいスピードを設定
 }
 
@@ -64,6 +66,7 @@ void measNukiF(void)
   delay(1200);   //玉を落ち着かせる
 
   //測定loop
+  M5.Speaker.tone(1000, 100);
   while(servoAngle <= endAngle)
   {
     Serial.printf("angle:%5.1fdeg", servoAngle);
@@ -106,6 +109,7 @@ void measNukiF(void)
     saNum++;
     delay(50);
   }
+  
   ESP_LOGI(TAG, "Nuki load integral: %7.1fgf-mm", nukiInteg);
 
   dispBtnA(MEAS_COMPLETE);

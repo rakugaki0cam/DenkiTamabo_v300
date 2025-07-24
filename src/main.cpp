@@ -82,7 +82,7 @@ void loop()
   {  //ms長押し
     vibration(100);
     //測定
-    M5.Speaker.tone(1000,200);
+    M5.Speaker.tone(1000, 200);
     graphInit();
     measNukiF();
     //玉位置情報更新
@@ -94,7 +94,7 @@ void loop()
   {
     vibration(100);
     //玉位置移動
-    M5.Speaker.tone(1320,100);
+    M5.Speaker.tone(1320, 100);
     servoPosition();          //玉ポジション移動
   }
 
@@ -102,7 +102,7 @@ void loop()
   {
     vibration(100);
     //ノズル検出
-    M5.Speaker.tone(1760,100);
+    M5.Speaker.tone(1760, 100);
     measNozzlePos();
     delay(200);
   }
@@ -123,7 +123,7 @@ void loop()
   {
     case 10:
       //batteryVolt
-      dispBatV((float)analogReadMilliVolts(PIN_BAT_V) * 2.0f / 1000);
+      dispBatV((float)analogReadMilliVolts(PIN_BAT_V) * 2.0f / 1000);///電源ICから読めるはずーーーーーーーーーーーーーーーー
       break;
     case 20:
       //bat %

@@ -75,6 +75,7 @@ void servoInit(float setAngle)
   startPwidth  = pwPerDeg * startAngleS  + pwN0;
   centerPwidth = pwPerDeg * centerAngleS + pwN0;                                                 
   endPwidth    = pwPerDeg * endAngleS    + pwN0;
+  ESP_LOGI(TAG, "Servo start pw:%5dus center pw:%5dus end pw:%5dus", startPwidth, centerPwidth, endPwidth);
   //玉の位置[mm]
   startPosition = ARM_LENGTH * sin(degToRad(startAngle));
   endPosition = ARM_LENGTH * sin(degToRad(endAngle));
@@ -84,7 +85,7 @@ void servoInit(float setAngle)
   //
   servoMove(centerAngle, SPEED_SLOW);/////////////////////////もとの位置がわからないので最大速度で動くことがある
   //
-  ESP_LOGD(TAG, "start angle:%5.1fdeg (dx:%6.3fmm) ~ end angle:%5.1fdeg (dx:%6.3fmm)", startAngle, startPosition, endAngle, endPosition);
+  ESP_LOGI(TAG, "start angle:%5.1fdeg (dx:%6.3fmm) ~ end angle:%5.1fdeg (dx:%6.3fmm)", startAngle, startPosition, endAngle, endPosition);
 }
 
 
@@ -101,9 +102,7 @@ float servoMove(float angle, uint16_t speed)
   uint32_t prevPw = pwPerDeg * prevAngleS + pwN0; //usec
   uint32_t toPw = pwPerDeg * servoAngleS + pwN0; //usec
 
-  ESP_LOGD(TAG, "servo angle:%5.1f -> %5.1fdeg speed:%5dms", prevAngleS, servoAngleS, speed);
-  ESP_LOGD(TAG, "pw:%5d -> %5dusec", prevPw, toPw);
-
+  ESP_LOGD(TAG, "servo angle:%5.1fdeg (pw:%5d) -> %5.1fdeg (pw:%5d)   speed:%5dms", prevAngleS, prevPw, servoAngleS, toPw, speed);
   //方向
   int8_t dir = (servoAngleS >= prevAngleS) ? +1 : -1;
  
@@ -135,7 +134,7 @@ float servoMove(float angle, uint16_t speed)
 
 void servo1WriteUs(uint32_t pwUsec)
 { //LEDCのPWM dutyでサーボを動かす
-  constrain(pwUsec, startPwidth, endPwidth); //制限
+  constrain(pwUsec, endPwidth, startPwidth); //制限
   uint32_t dutyTick = pwUsec * (1 << LEDC_BIT)  / PWM_PERIOD;  // 32768(15bit) / 20000usec (50Hz)
   ESP_LOGD(TAG, "pw:%dus dutytick:%04x", pwUsec, dutyTick);
   //ver.2
