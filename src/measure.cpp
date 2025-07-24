@@ -8,11 +8,24 @@
 
 
 float stepMoving = 2.0f;      //測定時の角度増分
+uint16_t speedMeasure = SPEED_MEAS;  //測定時のサーボモータの速度
+
+
+
+void speedSet(void)
+{  //スピードを変更する
+
+
+  speedMeasure;  //新しいスピードを設定
+}
+
 
 void measNukiF(void)
 {
   //抜き弾抵抗力の測定
+
 #define SAMPLE_NUM 50
+
   static float tamaPos[SAMPLE_NUM];    //測定位置
   static float load[SAMPLE_NUM];  //抜き弾力測定値
   uint8_t saNum = 0;
@@ -54,7 +67,7 @@ void measNukiF(void)
   while(servoAngle <= endAngle)
   {
     Serial.printf("angle:%5.1fdeg", servoAngle);
-    tamaPos[saNum] = servoMove(servoAngle, SPEED_MEAS); //スピードを変更するメニューをどこかに作る
+    tamaPos[saNum] = servoMove(servoAngle, speedMeasure); 
     dispPosition(tamaPos[saNum]);
 
     load[saNum] = measLoad(5);//(10);
@@ -98,8 +111,8 @@ void measNukiF(void)
   dispBtnA(MEAS_COMPLETE);
   
   //SDsave BTserialsend
-  sdDataSave((char*)measTime, measCnt, saNum, tamaPos, load, nukiInteg);
-  //btDataSend((char*)measTime, measCnt, saNum, tamaPos, load, nukiInteg);
+  sdDataSave((char*)measTime, measCnt, saNum, tamaPos, load, speedMeasure, nukiInteg);
+  //btDataSend((char*)measTime, measCnt, saNum, tamaPos, load, speedMeasure, nukiInteg);
   //
   M5.Speaker.tone(1500,100);
   delay(500);

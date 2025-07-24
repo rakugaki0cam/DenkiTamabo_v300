@@ -11,6 +11,6 @@
 #include "measure_common.hpp"
 
 
+void speedSet(void);
 void measNukiF(void);
-
 void measNozzlePos(void);

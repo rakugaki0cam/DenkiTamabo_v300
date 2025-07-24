@@ -234,8 +234,7 @@ uint8_t sdInit(void)
     return 2;
   }
 
-  tamaFile.println("*** DENKI Tamabo M5 v3 ***");
-  //ESP_LOGI(TAG, "write title");
+  tamaFile.printf("DENKI,Tamabo,v.%s\n", (char*)fmVer);
   tamaFile.close();
   ESP_LOGI(TAG, "SD card OK!");
   if (sdStat != 0)
@@ -249,13 +248,11 @@ uint8_t sdInit(void)
 } 
  
 
-void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load, float nukiIntegral)
+void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load, uint16_t speed, float nukiIntegral)
 {
   uint16_t i;
 
   tamaFile = SD.open((char*)tamaFileName, FILE_APPEND);
-  //ESP_LOGI(TAG, "tamaFile = ");
-  //ESP_LOGI(TAG, "tamaFile = %d", tamaFile);
   if (tamaFile != 1)
   {
     ESP_LOGI(TAG, "SD error");
@@ -266,9 +263,11 @@ void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load, f
     M5.Speaker.tone(4000, 600);
     return;
   }
+  time[8] = ',';  //日付と時刻を分ける
   tamaFile.printf("measure #,%d\n", mNum);
   tamaFile.printf("%s\n", time);
-  tamaFile.printf("measure angle:,%4.1f ~,%4.1f deg\n", startAngleGet(), endAngleGet());
+  tamaFile.printf("angle:,%4.1f ~,%4.1f deg\n", startAngleGet(), endAngleGet());
+  tamaFile.printf("speed:,%6d,msec\n", speed);
   tamaFile.println("#, pos[mm], load[gf]");
   for (i = 0; i < n; i++)
   {
@@ -325,7 +324,7 @@ void bluetoothSerialInit(void)
 
 }
 
-void btDataSend(char* time, uint16_t mNum, uint8_t n, float* pos, float* load)
+void btDataSend(char* time, uint16_t mNum, uint8_t n, float* pos, uint16_t speed, float* load)
 {
   //Bluetoothシリアルでデータを送信
   uint16_t i;
@@ -333,6 +332,7 @@ void btDataSend(char* time, uint16_t mNum, uint8_t n, float* pos, float* load)
   SerialBT.printf("measure #%d\n", mNum);
   SerialBT.printf("%s\n", time);
   SerialBT.printf("measure angle: %4.1f ~ %4.1f deg\n", startAngleGet(), endAngleGet());
+  SerialBT.printf("speed: %6d msec\n", speed);
   SerialBT.println("#, pos[mm], load[gf]");
   for (i = 0; i < n; i++)
   {

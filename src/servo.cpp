@@ -13,10 +13,10 @@
 #define LEDC_BIT    15  //resolution[bit]
 #define LEDC_FREQ   50  //PWM frequency[Hz]
 //servo
-#define ARM_LENGTH    9.0f   //サーボホーンアーム長さ[mm]
-#define DEAD_BAND     1       //PWMデッドバンド[usec]
-#define SERVO_SPEED   120000 / 60           //[usec/deg] = 2ms/deg
-#define PWM_PERIOD    1000000 / LEDC_FREQ   //[usec] = 20000usec
+#define ARM_LENGTH    9.0f        //サーボホーンアーム長さ[mm]
+#define DEAD_BAND     1           //PWMデッドバンド[usec]
+#define SERVO_SPEED   (120000 / 60)           //[usec/deg] = 2ms/deg
+#define PWM_PERIOD    (1000000 / LEDC_FREQ)   //[usec] = 20000usec
 //
 #define degToRad(deg) (deg / 180 * PI)
 #define radToDeg(rad) (rad / PI * 180)
@@ -70,7 +70,7 @@ void servoInit(float setAngle)
   ESP_LOGI(TAG, "Servo start angle:%6.1fdeg", startAngle);
   startAngleS  = centerAngleS - startAngle;   //最大角度 60-(-26) = 86
   endAngleS    = centerAngleS - endAngle;     //最小角度 60-28 = 32 (測定時は角度をマイナスさせる方向 86 -> 32)
-  pwPerDeg    = (pwP90 - pwM90) / 180.0;      //1度あたりのパルス幅usec                           
+  pwPerDeg    = (pwP90 - pwM90) / 180.0;      //1度あたりのパルス幅usec  約　9.78usec/deg                          
   //各玉ポジションでのパルス幅 [usec]
   startPwidth  = pwPerDeg * startAngleS  + pwN0;
   centerPwidth = pwPerDeg * centerAngleS + pwN0;                                                 
@@ -88,18 +88,6 @@ void servoInit(float setAngle)
 }
 
 
-float endAngleGet(void)
-{
-  return endAngle;
-}
-
-
-float startAngleGet(void)
-{
-  return startAngle;
-}
-
-
 float servoMove(float angle, uint16_t speed)
 { //サーボをゆっくり動かす
   //angle: 装置での角度[deg]（真上がゼロ）　 startMoving ~ endMoving (-26.0 ~ 28.0)
@@ -110,11 +98,10 @@ float servoMove(float angle, uint16_t speed)
   
   prevAngleS = servoAngleS;          //現在角度を退避
   servoAngleS = centerAngleS - angle;     //サーボでの角度
-
-  ESP_LOGD(TAG, "servo angle:%5.1f -> %5.1fdeg speed:%5dms", prevAngleS, servoAngleS, speed);
- 
   uint32_t prevPw = pwPerDeg * prevAngleS + pwN0; //usec
   uint32_t toPw = pwPerDeg * servoAngleS + pwN0; //usec
+
+  ESP_LOGD(TAG, "servo angle:%5.1f -> %5.1fdeg speed:%5dms", prevAngleS, servoAngleS, speed);
   ESP_LOGD(TAG, "pw:%5d -> %5dusec", prevPw, toPw);
 
   //方向
@@ -126,9 +113,7 @@ float servoMove(float angle, uint16_t speed)
   { //+方向
     for (pw = prevPw; pw < toPw; pw++)
     {
-      uint32_t dutyTick = pw * (32768.0 / 20000.0); // 15bit / 20000usec (50Hz)
-      ledcWrite(PIN_SERVO, dutyTick);
-      ESP_LOGD(TAG, "pw:%dus duty:%04x dir:%d", pw, dutyTick, dir);
+      servo1WriteUs(pw);
       delay(speed); //msec
     }
   }
@@ -136,9 +121,7 @@ float servoMove(float angle, uint16_t speed)
   { //-方向
     for (pw = prevPw; pw > toPw; pw--)
     {
-      uint32_t dutyTick = pw * (32768.0 / 20000.0); // 15bit / 20000usec (50Hz)
-      ledcWrite(PIN_SERVO, dutyTick);
-      ESP_LOGD(TAG, "pw:%dus duty:%04x dir:%d", pw, dutyTick, dir);
+      servo1WriteUs(pw);
       delay(speed); //msec
     }
   }
@@ -150,8 +133,19 @@ float servoMove(float angle, uint16_t speed)
 }
 
 
-// button B -----------------------------------------------------------------
+void servo1WriteUs(uint32_t pwUsec)
+{ //LEDCのPWM dutyでサーボを動かす
+  constrain(pwUsec, startPwidth, endPwidth); //制限
+  uint32_t dutyTick = pwUsec * (1 << LEDC_BIT)  / PWM_PERIOD;  // 32768(15bit) / 20000usec (50Hz)
+  ESP_LOGD(TAG, "pw:%dus dutytick:%04x", pwUsec, dutyTick);
+  //ver.2
+  //ledcWrite(LEDC_CH, dutyTick);
+  //ver.3
+  ledcWrite(PIN_SERVO, dutyTick);
+}
 
+
+// button B -----------------------------------------------------------------
 void servoPosition(void)
 {
   //ボタンBが押された時に玉の位置を動かす
@@ -208,21 +202,20 @@ void servoPosition(void)
 }
 
 
-
-//------- TEST ------------------------------------------------------------------------------- 
-
-void servo1WriteUs(uint32_t usec)
-{ //LEDCのPWM dutyでサーボを動かす
-  uint32_t dutyTick = usec * ((1 << LEDC_BIT)  / PWM_PERIOD);  // 15bit / 20000usec (50Hz)
-
-  //ESP_LOGI(TAG, "pulse:%5d -- dutyTick:%6lu", usec, dutyTick);
-  //ver.2
-  //ledcWrite(LEDC_CH, dutyTick);
-  //ver.3
-  ledcWrite(PIN_SERVO, dutyTick);
+//get 
+float endAngleGet(void)
+{
+  return endAngle;
 }
 
 
+float startAngleGet(void)
+{
+  return startAngle;
+}
+
+
+//------- TEST ------------------------------------------------------------------------------- 
 void servoAdjust(void)
 {
   //サーボホーンの組み付け調整

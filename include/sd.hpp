@@ -30,10 +30,10 @@ void    timeavailable(struct timeval *t);
 
 //SD card
 uint8_t sdInit(void);
-void    sdDataSave(char*, uint16_t, uint8_t, float*, float*, float);
+void    sdDataSave(char*, uint16_t, uint8_t, float*, float*, uint16_t, float);
 
 //Bluetooth serial
 void    bluetoothSerialInit(void);
-void    btDataSend(char*, uint16_t, uint8_t, float*, float*, float);
+void    btDataSend(char*, uint16_t, uint8_t, float*, float*, uint16_t, float);
 void    btSerialRx(void);
 
