@@ -36,7 +36,26 @@ uint8_t wifiInit(void)
 
   //SSIDをSDカードから読み出すようにする
 
-  uint8_t ssidFile[] = "/tamabo_ssid.txt";  //アクセスポイント情報ファイル
+  uint8_t ssidFileName[] = "/tamabo_ssid.txt";  //アクセスポイント情報ファイル
+  uint8_t readText[200];
+  uint8_t len = 0;
+  uint8_t i = 0;
+  uint8_t j = 0;
+
+  tamaFile = SD.open((char*)ssidFileName, FILE_READ);  //SDカードを抜き差しした後はエラーになってしまう
+  if (tamaFile != 1)
+  {
+    ESP_LOGI(TAG, "SD card error!");
+    tamaFile.close();
+    return 2;
+  }
+
+
+    while(tamaFile.available())
+    {
+      readText[len++] = tamaFile.read();
+    }
+    tamaFile.close();
 
 
 
@@ -46,6 +65,34 @@ uint8_t wifiInit(void)
 
   uint8_t ssid[] = "B0C7456EFFCD";   //ssidを入力
   uint8_t passwd[] = "uk5ii9dmj5rxu"; //ネットワークパスワード入力
+
+  i = 0;
+  uint8_t chr;
+  while (i < len)
+  {
+    chr = readText[i];
+    if (chr != '\n')
+    {
+      i++;
+      break;
+    }
+    ssid[i++] = chr;
+  }
+  j = 0;
+  while (i < len)
+  {
+    chr = readText[i];
+    if (chr != '\n')
+    {
+      break;
+    }
+    passwd[j++] = chr;
+    i++;
+  }
+  Serial.printf("SSID     :'%s'", ssid);
+  Serial.printf("password :'%s'", passwd);
+
+
   
   uint8_t toutCnt = 0;  //タイムアウトカウント
   uint8_t stat = 0;
@@ -241,6 +288,14 @@ uint8_t sdInit(void)
     }
     return 2;//////////////////////
   }
+
+
+
+
+
+
+
+
   //
   generateFileName();
   tamaFile = SD.open((char*)tamaFileName, FILE_WRITE);  //SDカードを抜き差しした後はエラーになってしまう
