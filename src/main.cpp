@@ -2,6 +2,8 @@
   電気タマボー　
     Platform IO + VScode
     stack M5 CORE2 v1.1 #2
+    stack M5 CORE2 v1.0 #1も追加　ー　タマボー2号機
+
 
     2024.04.19  uiFlow + stack M5 CORE Basic V2.7から移植
     2024.04.29  ver.3.02  BTserial仮完成
