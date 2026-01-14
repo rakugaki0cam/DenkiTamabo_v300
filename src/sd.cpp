@@ -31,8 +31,21 @@ uint8_t wifiInit(void)
   //SDに日付を入れるために使用
 
   //アクセスポイント情報
-  const char* ssid = "B0C7456EFFCD";   //ssidを入力
-  const char* passwd = "uk5ii9dmj5rxu"; //ネットワークパスワード入力
+
+
+
+  //SSIDをSDカードから読み出すようにする
+
+  uint8_t ssidFile[] = "/tamabo_ssid.txt";  //アクセスポイント情報ファイル
+
+
+
+
+
+
+
+  uint8_t ssid[] = "B0C7456EFFCD";   //ssidを入力
+  uint8_t passwd[] = "uk5ii9dmj5rxu"; //ネットワークパスワード入力
   
   uint8_t toutCnt = 0;  //タイムアウトカウント
   uint8_t stat = 0;
@@ -40,7 +53,7 @@ uint8_t wifiInit(void)
   //
   WiFi.disconnect();
   delay(500);
-  WiFi.begin(ssid, passwd);               //アクセスポイント接続のためのIDとパスワードの設定
+  WiFi.begin((char*)ssid, (char*)passwd);               //アクセスポイント接続のためのIDとパスワードの設定
   Serial.print("WiFi ");
   dispWifi(TEXT_WIFI);
   //NTP
@@ -65,6 +78,13 @@ uint8_t wifiInit(void)
       Serial.println(" Timeout!");
       dispWifi(TEXT_WIFI_TIMEOUT);
       WiFi.disconnect();
+
+      //接続しなかった時の時刻の設定
+
+
+
+
+
       return 1;
     }
   }
@@ -181,13 +201,11 @@ void getTimeText(char* txt)
 
 
 void generateFileName(void)
-{
-  //filename
+{ //filename
   uint8_t fTime[] = "000000-000000          ";
 
   getTimeStamp((char*)fTime);
   sprintf((char*)tamaFileName, "/tamabo%s.csv", fTime); //Global/////////////
-
 }
 
 
