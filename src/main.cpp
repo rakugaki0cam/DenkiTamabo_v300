@@ -19,13 +19,52 @@
 
   タッチパネル初期化に失敗していることがある。入力しない。
 
+
+  STACK M-BUS
+  CORE2では以前のものとピン配置が違っているところがあるので注意
+  CORE2 (CORE & PROTO)   
+  *LEFT
+  GND   (GND)   - GND
+  GND   (GND)
+  GND   (GND)
+  G23   (G23)
+  G38   (G19)*
+  G18   (G18)
+  G3    (G3)
+  G13   (G16)*  - GPIO_IN/ HX711_DOUT
+  G21   (G21)
+  G32   (G2)*
+  G27   (G12)*
+  G2    (G15)*
+  NC    (HPWR)
+  NC    (HPWR)
+  NC    (HPWR)
+
+  *RIGHT
+  G35   (G35)
+  G36   (G36)   - ANALOG_IN(CH0)/ BAT_V_1/2
+  EN    (EN)
+  G25   (G25)
+  G26   (G26)
+  3V3   (3V3)   - 3.3V POWER
+  G1    (G1)
+  G14   (G17)*  - GPIO_IN/ HX711_SCK
+  G22   (G22)
+  G33   (G5)*
+  G19   (G13)*  - GPIO_OUT/ BAT_ON
+  G0    (G0)  
+  G34   (G34)
+  5V    (5V)
+  BAT   (BAT)   - BAT_POWER
+
+
 */
 
 #include "header.hpp"
 
 #define PIN_BAT_V   36    //10k+10k分圧　
-#define ANALOG_CH   0     //G36...ADC1_0
-#define PIN_BAT_ON  19    //サーボ用バッテリ電源オフ　(G13..stack M5 BASIC v2.7)
+#define ANALOG_CH   0     //GPIO36...ADC1_0
+#define PIN_BAT_ON  19    //サーボ用バッテリ電源オフ　(GPIO13..stack M5 BASIC v2.7 & PROTO MODULE SYLK#)
 
 
 //global
