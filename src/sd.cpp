@@ -21,26 +21,12 @@ const char* week[7] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 //m5::rtc_datetime_t rtcDateTimeDef;
 m5::rtc_date_t rtcDateDef;
 m5::rtc_time_t rtcTimeDef;
-
 struct tm timeInfo;       //time information
+//debug
+static const char *TAG = "SDカード";
+
 
 //---- WiFi ---------------------------------------
-
-
-
-
-
-// SSIDとPASSを渡すための構造体
-typedef struct {
-  String ssidInfo;
-  String passInfo;
-} WifiInfo;
-
-const char* path = "/pass.txt";
-
-
-
-
 uint8_t wifiInit(void)
 {
   //SDに日付を入れるために使用
@@ -65,27 +51,34 @@ uint8_t wifiInit(void)
     return 2;
   }
 
-
-    while(tamaFile.available())
-    {
-      readText[len++] = tamaFile.read();
-    }
-    tamaFile.close();
-
+/*
+  while(tamaFile.available())
+  {
+    readText[len++] = tamaFile.read();
+  }
+  tamaFile.close();
+*/
 
 ///////////////////////////////////
-while (tamaFile.available()) {
-    String line = tamaFile.readStringUntil('\n'); //改行までを読み出し
-    line = line.substring(0, line.indexOf('#'));  //comment
-    String ssid = line.substring(0, line.indexOf(' ')); //１文字目から　’スペース’までを検索して　最初の単語を切り出す
-    ssid.trim();  //前後のスペースを取り除く
-    String password = line.substring(line.indexOf(' '));//スペース以降を切り出す
-    password.trim();
-    if (ssid.length() != 0) {
-      log_d("WiFiMulti += SSID: %s", ssid.c_str());
-      //wifiMulti.addAP(ssid.c_str(), password.c_str());
-    }
+String line;
+String ssid;
+String password;
+
+while (tamaFile.available()) 
+{
+  line = tamaFile.readStringUntil('\n'); //改行までを読み出し
+  line = line.substring(0, line.indexOf('#'));  //comment
+  ssid = line.substring(0, line.indexOf(' ')); //１文字目から　’スペース’までを検索して　最初の単語を切り出す
+  ssid.trim();  //前後のスペースを取り除く
+  password = line.substring(line.indexOf(' '));//スペース以降を切り出す
+  password.trim();
+  if (ssid.length() != 0) 
+  {
+    ESP_LOGD(TAG, "WiFi SSID:%s password:%s ", ssid.c_str(), password.c_str());
+    //WiFi.begin(ssid.c_str(), password.c_str());  
+    break;
   }
+}
 
 
 /////////////////////////////
@@ -107,6 +100,12 @@ SSID3 password3 # 3rd
 */
 
 
+
+
+
+while(1);///////////////////STOP////////////////////////////////////////////////////////////
+
+/*
   uint8_t ssid[] = "B0C7456EFFCD";   //ssidを入力
   uint8_t passwd[] = "uk5ii9dmj5rxu"; //ネットワークパスワード入力
 
@@ -136,7 +135,7 @@ SSID3 password3 # 3rd
   Serial.printf("SSID     :'%s'", ssid);
   Serial.printf("password :'%s'", passwd);
 
-
+*/
   
   uint8_t toutCnt = 0;  //タイムアウトカウント
   uint8_t stat = 0;
@@ -144,7 +143,7 @@ SSID3 password3 # 3rd
   //
   WiFi.disconnect();
   delay(500);
-  WiFi.begin((char*)ssid, (char*)passwd);               //アクセスポイント接続のためのIDとパスワードの設定
+  WiFi.begin(ssid.c_str(), password.c_str());               //アクセスポイント接続のためのIDとパスワードの設定
   Serial.print("WiFi ");
   dispWifi(TEXT_WIFI);
   //NTP

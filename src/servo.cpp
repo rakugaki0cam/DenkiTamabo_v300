@@ -53,7 +53,8 @@ uint16_t  endPwidth;
 float startPosition;
 float endPosition;
 
-
+//debug
+static const char *TAG = "サーボ";
 
 void servoInit(float setAngle)
 {

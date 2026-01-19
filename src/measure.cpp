@@ -10,7 +10,8 @@
 float stepMoving = 2.0f;      //測定時の角度増分
 uint16_t speedMeasure = SPEED_MEAS;  //測定時のサーボモータの速度
 
-
+//debug
+static const char *TAG = "測定";
 
 void speedSet(void)
 {  //スピードを変更する

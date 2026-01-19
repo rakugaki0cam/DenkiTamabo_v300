@@ -76,7 +76,7 @@ uint8_t   sdStat = 0;   //SDcard detect 0:未,1:OK,2:fail
 uint8_t cnt = 0;        //ループのカウンタ処理カウント用
 
 //debug
-const char *TAG = "tamaV3";
+static const char *TAG = "メイン";
 
 
 void setup()
