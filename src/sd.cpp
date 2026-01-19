@@ -28,169 +28,124 @@ static const char *TAG = "SDカード";
 
 //---- WiFi ---------------------------------------
 uint8_t wifiInit(void)
-{
-  //SDに日付を入れるために使用
+{ //SDに日付を入れるために使用
+  //ret:  0..OK
+  //      1..wifi接続不可
+  //      2..SDに接続情報なし　
 
-  //アクセスポイント情報
-
-
-
-  //SSIDをSDカードから読み出すようにする
-
-  uint8_t ssidFileName[] = "/tamabo_ssid.txt";  //アクセスポイント情報ファイル
-  uint8_t readText[200];
-  uint8_t len = 0;
-  uint8_t i = 0;
-  uint8_t j = 0;
+  //アクセスポイント情報をSDカードから読み出すようにする
+  uint8_t ssidFileName[] = "/AccessPoint/ssid.txt";  //アクセスポイント情報ファイル
+  String  readText;
+  String  ssid;
+  String  password;
 
   tamaFile = SD.open((char*)ssidFileName, FILE_READ);  //SDカードを抜き差しした後はエラーになってしまう
   if (tamaFile != 1)
   {
-    ESP_LOGI(TAG, "SD card error!");
+    ESP_LOGE(TAG, "SD card error!");
     tamaFile.close();
     return 2;
   }
+  ESP_LOGI(TAG, "SD open %s OK.", (char*)ssidFileName);
 
-/*
-  while(tamaFile.available())
+  while (tamaFile.available()) 
   {
-    readText[len++] = tamaFile.read();
+    readText = tamaFile.readStringUntil('\n');                //改行までを読み出し
+    readText = readText.substring(0, readText.indexOf('#'));  //コメント
+    ssid = readText.substring(0, readText.indexOf(' '));      //１文字目から　’スペース’までを検索して　最初の単語を切り出す
+    ssid.trim();                                              //前後のスペースを取り除く
+    password = readText.substring(readText.indexOf(' '));     //スペース以降を切り出す
+    password.trim();                                          //前後のスペースを取り除く
+    if (ssid.length() != 0) 
+    {
+      ESP_LOGI(TAG, "WiFi SSID:%s password:%s ", ssid.c_str(), password.c_str());
+      //WiFi.begin(ssid.c_str(), password.c_str());  
+      break;
+    }
   }
-  tamaFile.close();
-*/
 
-///////////////////////////////////
-String line;
-String ssid;
-String password;
-
-while (tamaFile.available()) 
-{
-  line = tamaFile.readStringUntil('\n'); //改行までを読み出し
-  line = line.substring(0, line.indexOf('#'));  //comment
-  ssid = line.substring(0, line.indexOf(' ')); //１文字目から　’スペース’までを検索して　最初の単語を切り出す
-  ssid.trim();  //前後のスペースを取り除く
-  password = line.substring(line.indexOf(' '));//スペース以降を切り出す
-  password.trim();
-  if (ssid.length() != 0) 
-  {
-    ESP_LOGD(TAG, "WiFi SSID:%s password:%s ", ssid.c_str(), password.c_str());
-    //WiFi.begin(ssid.c_str(), password.c_str());  
-    break;
-  }
-}
-
-
-/////////////////////////////
 /*
 -----------------------------------------------------
-wifi.txt
+/AccessPoint/ssid.txt
 
-# This is treated as a comment.
-# Please enter SSID and password separated by space
+# WiFi アクセスポイント設定ファイル
+# 2.4GHzのみ　　5.0GHzは不可
 
-# Home WiFi
-your_SSID your_password
+# SSID パスワードを間にスペースを入れて、パスワードの後は改行して記入する
 
-# Office WiFi
-SSID1 password1 # 1st
-SSID2 password2 # 2nd
-SSID3 password3 # 3rd
+# 例
+# Baffalo-G-1234 abc27833ad
+#
+
+B0C7456EFFCD uk5ii9dmj5rxu
+#B0C7456EFFgD uk5ii9dmj5r test
+
+＃はコメント行
 -----------------------------------------------------
 */
 
 
-
-
-
-while(1);///////////////////STOP////////////////////////////////////////////////////////////
-
-/*
-  uint8_t ssid[] = "B0C7456EFFCD";   //ssidを入力
-  uint8_t passwd[] = "uk5ii9dmj5rxu"; //ネットワークパスワード入力
-
-  i = 0;
-  uint8_t chr;
-  while (i < len)
-  {
-    chr = readText[i];
-    if (chr != '\n')
-    {
-      i++;
-      break;
-    }
-    ssid[i++] = chr;
-  }
-  j = 0;
-  while (i < len)
-  {
-    chr = readText[i];
-    if (chr != '\n')
-    {
-      break;
-    }
-    passwd[j++] = chr;
-    i++;
-  }
-  Serial.printf("SSID     :'%s'", ssid);
-  Serial.printf("password :'%s'", passwd);
-
-*/
-  
   uint8_t toutCnt = 0;  //タイムアウトカウント
   uint8_t stat = 0;
-
+  bool done = true;
   //
   WiFi.disconnect();
   delay(500);
-  WiFi.begin(ssid.c_str(), password.c_str());               //アクセスポイント接続のためのIDとパスワードの設定
+  WiFi.begin(ssid.c_str(), password.c_str()); //アクセスポイント接続のためのIDとパスワードの設定
   Serial.print("WiFi ");
   dispWifi(TEXT_WIFI);
   //NTP
-  esp_sntp_servermode_dhcp(1);// (optional)
-
-  while (WiFi.status() != WL_CONNECTED)
-  { //接続状態の確認
-    delay(500);                           //接続していなければ0.5秒待つ
-    Serial.print(".");                    //接続しなかったらシリアルモニタに「.」と表示
-    if (toutCnt % 2 + 1)
+  esp_sntp_servermode_dhcp(1);  //(optional)
+  
+  while (done) 
+  {
+    Serial.print("WiFi connecting");
+    auto last = millis() + 2000;
+    while ((WiFi.status() != WL_CONNECTED) && ( millis() < last)) 
     {
+      delay(500);
+      Serial.print(".");
       dispWifi(TEXT_DOT);
     }
-    else
+    if (WiFi.status() == WL_CONNECTED) 
     {
-      dispWifi(TEXT_DOT_NONE);
+      done = false;
+    } 
+    else 
+    {
+      Serial.println("retry");
+      WiFi.disconnect();
+      WiFi.reconnect();
     }
     toutCnt++;
-    if (toutCnt > 100)
+    if (toutCnt > 2)
     {
       //timeout
-      Serial.println(" Timeout!");
+      ESP_LOGE(TAG, "Timeout!");
       dispWifi(TEXT_WIFI_TIMEOUT);
-      WiFi.disconnect();
+      WiFi.disconnect(true);  //wifiをオフ
+      WiFi.mode(WIFI_OFF); 
 
-      //接続しなかった時の時刻の設定
-
-
-
-
-
+      //接続しなかった時の時刻はM5内蔵のRTCによる
+      ESP_LOGE(TAG, "WiFi not connect!");
       return 1;
     }
   }
 
   //通信が可能となったら各種情報を表示する
-  Serial.println(" Connected.");       //接続したらシリアルモニタに「WiFi Connected」と表示
+  Serial.print("WiFi connected.");
   dispWifi(TEXT_WIFI_CONECT);
+
   Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());//割り当てられたIPアドレスをシリアルモニタに表示
+  Serial.println(WiFi.localIP());//割り当てられたIPアドレスをシリアルモニタに表示 
   dispWifi(TEXT_IP);
   //NTP
   sntp_set_time_sync_notification_cb(timeavailable); //NTPサーバーからの時刻取得完了時に呼び出されるコールバック関数を設定
   stat = ntpTimeInit();   //NTPより時刻取得
 
   delay(500);
-  WiFi.disconnect();
+   
+  WiFi.disconnect(true);  //wifiをオフ
   return stat;
 }
 
@@ -331,15 +286,14 @@ uint8_t sdInit(void)
     }
     return 2;//////////////////////
   }
+  return 1;
+}
 
 
 
+uint8_t filenameInit(void)
+{ //ファイルネームを生成
 
-
-
-
-
-  //
   generateFileName();
   tamaFile = SD.open((char*)tamaFileName, FILE_WRITE);  //SDカードを抜き差しした後はエラーになってしまう
   //ESP_LOGI(TAG, "SDopen:%d", tamaFile);/////////

@@ -74,6 +74,7 @@ uint8_t   sdStat = 0;   //SDcard detect 0:未,1:OK,2:fail
 
 //local
 uint8_t cnt = 0;        //ループのカウンタ処理カウント用
+uint8_t wifiConnected = 0;   //wifi未接続フラグ
 
 //debug
 static const char *TAG = "メイン";
@@ -96,8 +97,9 @@ void setup()
   ESP_LOGI(TAG, "*** DENKI Tamabo M5 ver.%s ******************************************", (char*)fmVer);
 
   dispInit();
-  wifiInit();
   sdStat = sdInit();  //dispInitの後に
+  wifiConnected = wifiInit();
+  filenameInit();
   //bluetoothSerialInit();
   scaleInit();
   digitalWrite(PIN_BAT_ON, HIGH);    //サーボ用バッテリ電源オン
