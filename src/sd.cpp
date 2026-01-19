@@ -26,6 +26,21 @@ struct tm timeInfo;       //time information
 
 //---- WiFi ---------------------------------------
 
+
+
+
+
+// SSIDとPASSを渡すための構造体
+typedef struct {
+  String ssidInfo;
+  String passInfo;
+} WifiInfo;
+
+const char* path = "/pass.txt";
+
+
+
+
 uint8_t wifiInit(void)
 {
   //SDに日付を入れるために使用
@@ -58,9 +73,38 @@ uint8_t wifiInit(void)
     tamaFile.close();
 
 
+///////////////////////////////////
+while (tamaFile.available()) {
+    String line = tamaFile.readStringUntil('\n'); //改行までを読み出し
+    line = line.substring(0, line.indexOf('#'));  //comment
+    String ssid = line.substring(0, line.indexOf(' ')); //１文字目から　’スペース’までを検索して　最初の単語を切り出す
+    ssid.trim();  //前後のスペースを取り除く
+    String password = line.substring(line.indexOf(' '));//スペース以降を切り出す
+    password.trim();
+    if (ssid.length() != 0) {
+      log_d("WiFiMulti += SSID: %s", ssid.c_str());
+      //wifiMulti.addAP(ssid.c_str(), password.c_str());
+    }
+  }
 
 
+/////////////////////////////
+/*
+-----------------------------------------------------
+wifi.txt
 
+# This is treated as a comment.
+# Please enter SSID and password separated by space
+
+# Home WiFi
+your_SSID your_password
+
+# Office WiFi
+SSID1 password1 # 1st
+SSID2 password2 # 2nd
+SSID3 password3 # 3rd
+-----------------------------------------------------
+*/
 
 
   uint8_t ssid[] = "B0C7456EFFCD";   //ssidを入力

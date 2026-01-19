@@ -24,14 +24,14 @@
   CORE2では以前のものとピン配置が違っているところがあるので注意
   CORE2 (CORE & PROTO)   
   *LEFT
-  GND   (GND)   - GND
+  GND   (GND)   - GND   アース
   GND   (GND)
   GND   (GND)
   G23   (G23)
   G38   (G19)*
   G18   (G18)
   G3    (G3)
-  G13   (G16)*  - GPIO_IN/ HX711_DOUT
+  G13   (G16)*  - GPIO_IN/ HX711_DOUT　ロードセルIC通信データ（独自プロトコル）
   G21   (G21)
   G32   (G2)*
   G27   (G12)*
@@ -42,29 +42,29 @@
 
   *RIGHT
   G35   (G35)
-  G36   (G36)   - ANALOG_IN(CH0)/ BAT_V_1/2
+  G36   (G36)   - ANALOG_IN(CH0)/ BAT_V_1/2   バッテリー電圧測定
   EN    (EN)
   G25   (G25)
   G26   (G26)
-  3V3   (3V3)   - 3.3V POWER
+  3V3   (3V3)   - 3.3V POWER  ロードセル電源
   G1    (G1)
-  G14   (G17)*  - GPIO_IN/ HX711_SCK
+  G14   (G17)*  - GPIO_IN/ HX711_SCK  ロードセルIC通信クロック
   G22   (G22)
   G33   (G5)*
-  G19   (G13)*  - GPIO_OUT/ BAT_ON
+  G19   (G13)*  - GPIO_OUT/ BAT_ON　　ロードスイッチでサーボ電源のオンオフ
   G0    (G0)  
   G34   (G34)
   5V    (5V)
-  BAT   (BAT)   - BAT_POWER
+  BAT   (BAT)   - BAT_POWER   バッテリー電源
 
 
 */
 
 #include "header.hpp"
 
-#define PIN_BAT_V   36    //10k+10k分圧　
+#define PIN_BAT_V   36    //10k+10k分圧　バッテリー電圧の1/2
 #define ANALOG_CH   0     //GPIO36...ADC1_0
-#define PIN_BAT_ON  19    //サーボ用バッテリ電源オフ　(GPIO13..stack M5 BASIC v2.7 & PROTO MODULE SYLK#)
+#define PIN_BAT_ON  19    //サーボ用バッテリ電源オンオフ　(GPIO13..stack M5 BASIC v2.7 & PROTO MODULE SYLK#)
 
 
 //global
@@ -84,10 +84,10 @@ void setup()
   auto cfg = M5.config();
   M5.begin(cfg);
   //
-  pinMode(PIN_BAT_V, ANALOG);   //3.3V-10bit
-  pinMode(PIN_BAT_ON, OUTPUT);  //サーボへのバッテリ電圧供給
-  digitalWrite(PIN_BAT_ON, LOW);    //サーボ用バッテリ電源オフ
-  analogReadResolution(12);   //アナログ12bit
+  pinMode(PIN_BAT_V, ANALOG);     //バッテリー電圧の1／2  （3.3V=10bit）
+  pinMode(PIN_BAT_ON, OUTPUT);    //サーボへのバッテリ電圧供給ロードスイッチ
+  digitalWrite(PIN_BAT_ON, LOW);  //サーボ用バッテリ電源をオフ
+  analogReadResolution(12);       //アナログ12bit
   //
   Serial.begin(115200);
 
