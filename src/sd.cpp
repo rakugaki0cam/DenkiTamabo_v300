@@ -270,7 +270,7 @@ uint8_t sdInit(void)
   //ret --> 2:err, 1:ok, 0:未（初回）
 
   if (sdStat == 1)
-  {
+  { //SD準備設定済み
     return 1;
   }
 
@@ -278,22 +278,32 @@ uint8_t sdInit(void)
   { //25000000
     ESP_LOGI(TAG, "SD failed!");
     if (sdStat == 0)
-    {
-      //最初だけ表示と音で警告
+    { //最初だけ表示と音で警告
       delay(300);
       dispSdcardStatus(1);
       M5.Speaker.tone(4000, 600);
     }
     return 2;//////////////////////
   }
+  else
+  {
+    ESP_LOGI(TAG, "SD card OK!");
+    if (sdStat != 0)  // == 2 とおなじこと
+    { //SD mount OK
+      M5.Speaker.tone(1500,30);
+      dispSdcardStatus(0);
+    }
+  }
+
+  fileGenerate();
+
   return 1;
 }
 
 
 
-uint8_t filenameInit(void)
+uint8_t fileGenerate(void)
 { //ファイルネームを生成
-
   generateFileName();
   tamaFile = SD.open((char*)tamaFileName, FILE_WRITE);  //SDカードを抜き差しした後はエラーになってしまう
   //ESP_LOGI(TAG, "SDopen:%d", tamaFile);/////////
@@ -306,14 +316,6 @@ uint8_t filenameInit(void)
 
   tamaFile.printf("DENKI,Tamabo,v.%s\n", (char*)fmVer);
   tamaFile.close();
-  ESP_LOGI(TAG, "SD card OK!");
-  if (sdStat != 0)
-  {
-    //SD mount OK
-    M5.Speaker.tone(1500,30);
-    dispSdcardStatus(0);
-  }
-
   return 1;
 } 
  
@@ -326,7 +328,8 @@ void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load, u
   if (tamaFile != 1)
   {
     ESP_LOGI(TAG, "SD error");
-    //sdStat = 2;
+    sdStat = 2;
+    SD.end();
     //エラーの時、SDマウントしなおしたいけれど、SDライブラリ側で再マウントできない仕様らしい
     tamaFile.close();
     dispSdcardStatus(1);

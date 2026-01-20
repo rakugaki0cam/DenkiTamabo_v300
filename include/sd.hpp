@@ -30,7 +30,7 @@ void    timeavailable(struct timeval *t);
 
 //SD card
 uint8_t sdInit(void);
-uint8_t filenameInit(void);
+uint8_t fileGenerate(void);
 void    sdDataSave(char*, uint16_t, uint8_t, float*, float*, uint16_t, float);
 
 //Bluetooth serial

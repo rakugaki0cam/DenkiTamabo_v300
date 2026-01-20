@@ -45,7 +45,7 @@ void measNukiF(void)
   ESP_LOGI(TAG, "***** measure Nukidan  #%3d  (%s) ********* ", measCnt, measTime);
   ESP_LOGI(TAG, "measure angle: %4.1f ~ %4.1f deg", startAngle, endAngle);
   dispMeasNum(measCnt);
-  dispBtnA(MEAS_RUNNING);
+  dispBtnA(MEAS_READY);
   
   //抜き弾値リセット
   loadMax = 0;
@@ -62,11 +62,13 @@ void measNukiF(void)
   //スタート位置
   servoAngle = startAngle;
   ESP_LOGI(TAG, "Move start position & wait.");
+
   dispPosition(servoMove(servoAngle, SPEED_SLOW));
   dispLoad(measLoad(10));
   delay(1200);   //玉を落ち着かせる
 
   //測定loop
+  dispBtnA(MEAS_RUNNING);
   M5.Speaker.tone(1000, 100);
   while(servoAngle <= endAngle)
   {

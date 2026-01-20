@@ -68,7 +68,7 @@
 
 
 //global
-uint8_t   fmVer[] = "3.06";
+uint8_t   fmVer[] = "3.07";
 uint16_t  measCnt;      //測定回数 
 uint8_t   sdStat = 0;   //SDcard detect 0:未,1:OK,2:fail
 
@@ -99,7 +99,6 @@ void setup()
   dispInit();
   sdStat = sdInit();  //dispInitの後に
   wifiConnected = wifiInit();
-  filenameInit();
   //bluetoothSerialInit();
   scaleInit();
   digitalWrite(PIN_BAT_ON, HIGH);    //サーボ用バッテリ電源オン

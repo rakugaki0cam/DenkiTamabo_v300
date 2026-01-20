@@ -16,6 +16,7 @@
 //button
 typedef enum {
   MEAS_START,
+  MEAS_READY,
   MEAS_RUNNING,
   MEAS_COMPLETE,
 } btn_a_name_t;

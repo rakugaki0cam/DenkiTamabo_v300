@@ -419,9 +419,13 @@ void dispBtnA(btn_a_name_t name)
   //ボタンAの名前の表示
   M5.Display.setTextDatum(BC_DATUM);  //BottomCenter
   M5.Display.setTextColor(TFT_WHITE, TFT_BG_BUTTON);
-  switch(name){
+  switch(name)
+  {
     case MEAS_START:
       sprintf((char*)text, "　測定開始　");
+      break;
+    case MEAS_READY:
+      sprintf((char*)text, "　　移動中　");
       break;
     case MEAS_RUNNING:
       sprintf((char*)text, "　測定中　　");
