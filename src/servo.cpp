@@ -56,9 +56,9 @@ float endPosition;
 //debug
 static const char *TAG = "サーボ";
 
+
 void servoInit(float setAngle)
-{
-  //サーボの初期化
+{ //サーボの初期化
   //setAngle 0:default setting, -20~-26:set Angle
   if ((setAngle < -20.0) && (setAngle > startAngleD))
   {  //スタート角度を変更（ノズル検出による変更）
@@ -84,7 +84,7 @@ void servoInit(float setAngle)
   //PWM(LEDC) init
   ledcAttach(PIN_SERVO, LEDC_FREQ, LEDC_BIT); //ver.3
   //
-  servoMove(centerAngle, SPEED_SLOW);/////////////////////////もとの位置がわからないので最大速度で動くことがある
+  servoMove(centerAngle, SPEED_SLOW); /////////////////////////もとの位置がわからないので最大速度で動くことがある
   //
   ESP_LOGI(TAG, "start angle:%5.1fdeg (dx:%6.3fmm) ~ end angle:%5.1fdeg (dx:%6.3fmm)", startAngle, startPosition, endAngle, endPosition);
 }

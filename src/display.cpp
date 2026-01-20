@@ -64,7 +64,7 @@ void dispMeasNum(uint16_t val)
   //測定番号
   M5.Display.setTextDatum(TR_DATUM);  //TopRight....print系では効かない
   M5.Display.setTextColor(TFT_WHITE, TFT_BG_TITLE);
-  sprintf((char*)text, "　#%3d", val);
+  sprintf((char*)text, "　data#%3d", val);
   M5.Display.drawString((char*)text, 309, 0, &fonts::lgfxJapanGothicP_16);
   M5.Display.setTextDatum(TL_DATUM);  //TopLeft = default
 }
@@ -425,7 +425,7 @@ void dispBtnA(btn_a_name_t name)
       sprintf((char*)text, "　測定開始　");
       break;
     case MEAS_READY:
-      sprintf((char*)text, "　　移動中　");
+      sprintf((char*)text, "奥へ移動中　");
       break;
     case MEAS_RUNNING:
       sprintf((char*)text, "　測定中　　");
