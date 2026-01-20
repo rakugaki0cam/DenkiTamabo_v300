@@ -17,9 +17,9 @@
 
 
 //global
-extern uint8_t fmVer[];
+extern uint8_t  fmVer[];
 extern uint16_t measCnt;    //測定回数 
-extern uint8_t sdStat;      //SDcard
+extern uint8_t  sdStat;     //SDcard
 
 
 void vibration(uint16_t);

@@ -64,25 +64,26 @@ uint8_t wifiInit(void)
     }
   }
 
-/*
------------------------------------------------------
-/AccessPoint/ssid.txt
+  /*
+  SDカードへ書き込んでおくファイル
+  -----------------------------------------------------
+  /AccessPoint/ssid.txt
 
-# WiFi アクセスポイント設定ファイル
-# 2.4GHzのみ　　5.0GHzは不可
+  # WiFi アクセスポイント設定ファイル
+  # 2.4GHzのみ　　5.0GHzは不可
 
-# SSID パスワードを間にスペースを入れて、パスワードの後は改行して記入する
+  # SSID パスワードを間にスペースを入れて、パスワードの後は改行して記入する
 
-# 例
-# Baffalo-G-1234 abc27833ad
-#
+  # 例
+  # Baffalo-G-1234 abc27833ad
+  #
 
-B0C7456EFFCD uk5ii9dmj5rxu
-#B0C7456EFFgD uk5ii9dmj5r test
+  B0C7456EFFCD uk5ii9dmj5rxu
+  #B0C7456EFFgD uk5ii9dmj5r test
 
-＃はコメント行
------------------------------------------------------
-*/
+  ＃はコメント行
+  -----------------------------------------------------
+  */
 
 
   uint8_t toutCnt = 0;  //タイムアウトカウント
@@ -217,8 +218,7 @@ void printLocalTime(void)
 
 
 void getTimeStamp(char* txt)
-{
-  //タイムスタンプ取得
+{ //タイムスタンプ取得
 /*
   //NTPより取得したタイム（WiFi切った後も動いている）
   if(!getLocalTime(&timeInfo)){
@@ -265,8 +265,7 @@ void timeavailable(struct timeval *t)
 //***** SD card ****************************************************
 
 uint8_t sdInit(void)
-{
-  //SDcard init
+{ //SDcard init
   //ret --> 2:err, 1:ok, 0:未（初回）
 
   if (sdStat == 1)

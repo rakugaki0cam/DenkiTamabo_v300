@@ -37,8 +37,7 @@ static int16_t Ybefore;
 
 
 void graphInit(void)
-{
-  //graph draw
+{ //graph draw
   uint8_t   text[10];
   int16_t   x, y;     //測定値の値
   uint16_t  Xdisp, Ydisp;  //画面上の座標
@@ -89,8 +88,7 @@ void graphInit(void)
 
 
 void graphPlot(float x, float y)
-{
-  //グラフにデータをプロット
+{ //グラフにデータをプロット
   uint16_t Xdisp, Ydisp;        //画面上の座標
 
   Xdisp = (uint16_t)(X0 + (x - xMin) * Xconv);

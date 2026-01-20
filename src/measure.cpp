@@ -13,21 +13,18 @@ uint16_t speedMeasure = SPEED_MEAS;  //測定時のサーボモータの速度
 //debug
 static const char *TAG = "測定";
 
+
 void speedSet(void)
-{  //スピードを変更する
+{ //スピードを変更する
 
-
-//////////////////////////////////////
-
-  speedMeasure;  //新しいスピードを設定
+  //////////////////////////////////////
+  speedMeasure;  //新しいスピードを設定ーーーーーーーー未
 }
 
 
 void measNukiF(void)
-{
-  //抜き弾抵抗力の測定
-
-#define SAMPLE_NUM 50
+{ //抜き弾抵抗力の測定
+  #define SAMPLE_NUM 50
 
   static float tamaPos[SAMPLE_NUM];    //測定位置
   static float load[SAMPLE_NUM];  //抜き弾力測定値
@@ -141,8 +138,7 @@ typedef enum
 
 
 void measNozzlePos(void)
-{
-  //ノズル位置とパッキンとの隙間距離の測定
+{ //ノズル位置とパッキンとの隙間距離の測定
   static nozzle_stat_t nozzleStat = NZFL_IDLE;
   float   servoAngle;
   int16_t toCnt;
@@ -236,9 +232,7 @@ void measNozzlePos(void)
       vibration(100);
       break;
     }
-
   }
-
 
   //測定開始
   float nLoad;
@@ -256,7 +250,7 @@ void measNozzlePos(void)
   ESP_LOGI(TAG, "measure Packing Free & Nozzle position.");
   dispNozzle(NOZ_MEAS, 0);
   servoAngle += 10;           //10度戻す
-  servoMove(servoAngle, SPEED_SLOW);//////////////////////////////////////////////////
+  servoMove(servoAngle, SPEED_SLOW);  //////////////////////////////////////////////////
   ESP_LOGI(TAG, "measure start position set.");
   delay(1500);
   //

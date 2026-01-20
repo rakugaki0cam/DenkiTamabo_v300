@@ -41,8 +41,7 @@ float measLoad(uint8_t n)
 }
 
 void scaleTare(void)
-{
-  //ゼロセット
+{ //ゼロセット
   scale.tare(); 
 }
 

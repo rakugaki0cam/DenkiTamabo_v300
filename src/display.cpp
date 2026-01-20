@@ -8,7 +8,7 @@ display.cpp
 #include "display.hpp"
 
 
-uint8_t text[20];             //sprint用
+uint8_t text[20];             //sprint用文字列
 //original color
 uint16_t TFT_ENJI      = M5.Display.color565(0x6f, 0x20, 0x20); //エンジ色
 uint16_t TFT_BG_SCREEN = M5.Display.color565(0x9e, 0x9d, 0x8c); //薄茶
@@ -17,8 +17,7 @@ uint16_t TFT_BG_BUTTON = M5.Display.color565(0x60, 0x40, 0x20); //濃い茶色
 
 
 void dispInit(void)
-{
-  //スクリーン画面
+{ //スクリーン画面
   //init
   M5.Display.init();
   M5.Display.setRotation(1);
@@ -60,8 +59,7 @@ void dispInit(void)
 //--- display --------------------
 
 void dispMeasNum(uint16_t val)
-{
-  //測定番号
+{ //測定番号
   M5.Display.setTextDatum(TR_DATUM);  //TopRight....print系では効かない
   M5.Display.setTextColor(TFT_WHITE, TFT_BG_TITLE);
   sprintf((char*)text, "　data#%3d", val);
@@ -71,8 +69,7 @@ void dispMeasNum(uint16_t val)
 
 
 void dispPosition(float val)
-{
-  //玉位置[mm]
+{ //玉位置[mm]
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
   sprintf((char*)text, "　%6.2fmm", val);
@@ -82,8 +79,7 @@ void dispPosition(float val)
 
 
 void dispLoad(float val)
-{
-  //抜き弾力[gf]
+{ //抜き弾力[gf]
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
   sprintf((char*)text, "　%9.0fgf", val);/////////////////////
@@ -93,8 +89,7 @@ void dispLoad(float val)
 
 
 void dispZeroSet(void)
-{
-  //スケールゼロセット
+{ //スケールゼロセット
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
   M5.Display.setTextColor(TFT_BROWN, TFT_BG_SCREEN);
   sprintf((char*)text, "　0セット");
@@ -104,8 +99,7 @@ void dispZeroSet(void)
 
 
 void dispLoadMax(float val)
-{
-  //抜き弾抵抗力ピーク値[gf]
+{ //抜き弾抵抗力ピーク値[gf]
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
   M5.Display.setTextColor(TFT_ENJI, TFT_BG_SCREEN);
   if (val <= -999){
@@ -119,8 +113,7 @@ void dispLoadMax(float val)
 
 
 void dispNukiInteg(float val)
-{
-  //抜き弾抵抗力積分値[gf-mm]
+{ //抜き弾抵抗力積分値[gf-mm]
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
   sprintf((char*)text, "　%5.0fgf-mm", val);
@@ -131,8 +124,7 @@ void dispNukiInteg(float val)
 
 //
 void dispBatV(float val)
-{
-  //バッテリー電圧[V]
+{ //バッテリー電圧[V]
   uint8_t text[20];
 
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
@@ -144,8 +136,7 @@ void dispBatV(float val)
 }
 
 void dispSdcardStatus(uint8_t stat)
-{
-  //SDカード無しの警告
+{ //SDカード無しの警告
   //stat 0:OK, 1:fail
   #define SD_DISP_X 0
   #define SD_DISP_Y 200
@@ -170,8 +161,7 @@ void dispSdcardStatus(uint8_t stat)
 
 
 void dispTamaPos(tama_pos_t pos)
-{
-  //玉位置の表示
+{ //玉位置の表示
   M5.Display.setCursor(224, 40);
   M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
@@ -192,15 +182,13 @@ void dispTamaPos(tama_pos_t pos)
 
 
 void dispWifi(wifi_stat_t stat)
-{
-  //WiFi接続状況
+{ //WiFi接続状況
   #define WIFI_DISP_X0  0
   #define WIFI_DISP_X1  40
   #define WIFI_DISP_Y0  30
   #define WIFI_DISP_Y1  50
   #define WIFI_DISP_Y2  80
   #define WIFI_DISP_Y3  100
-
 
   switch(stat)
   {
@@ -262,8 +250,7 @@ void dispWifi(wifi_stat_t stat)
 
 
 void dispBtSerial(bts_stat_t stat)
-{
-  //WiFi接続状況
+{ //WiFi接続状況
   #define BTS_DISP_X0   0
   #define BTS_DISP_X1   80
   #define BTS_DISP_Y0   120
@@ -305,8 +292,7 @@ void dispBtSerial(bts_stat_t stat)
 
 
 void dispNozzle(noz_stat_t stat, float val)
-{
-  //ノズル測定
+{ //ノズル測定
   #define DISP_X0  0
   #define DISP_X1  40
   #define DISP_X8  226
@@ -409,14 +395,12 @@ void dispNozzle(noz_stat_t stat, float val)
       M5.Display.print("◯");
       break;
   }
-
 }
 
 
 //--------- ボタン -------------------------
 void dispBtnA(btn_a_name_t name)
-{
-  //ボタンAの名前の表示
+{ //ボタンAの名前の表示
   M5.Display.setTextDatum(BC_DATUM);  //BottomCenter
   M5.Display.setTextColor(TFT_WHITE, TFT_BG_BUTTON);
   switch(name)
@@ -440,11 +424,11 @@ void dispBtnA(btn_a_name_t name)
 
 
 void dispBtnB(btn_b_name_t name)
-{
-  //ボタンBの名前の表示
+{ //ボタンBの名前の表示
   M5.Display.setTextDatum(BC_DATUM);  //BottomCenter
   M5.Display.setTextColor(TFT_WHITE, TFT_BG_BUTTON);
-  switch(name){
+  switch(name)
+  {
     case TO_START:
       sprintf((char*)text, "スタート位置");
       break;
@@ -461,8 +445,7 @@ void dispBtnB(btn_b_name_t name)
 
 
 void dispBtnC(btn_c_name_t name)
-{
-  //ボタンCの名前の表示
+{ //ボタンCの名前の表示
   M5.Display.setTextDatum(BC_DATUM);  //BottomCenter
   M5.Display.setTextColor(TFT_WHITE, TFT_BG_BUTTON);
   switch(name)

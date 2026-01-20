@@ -73,8 +73,8 @@ uint16_t  measCnt;      //測定回数
 uint8_t   sdStat = 0;   //SDcard detect 0:未,1:OK,2:fail
 
 //local
-uint8_t cnt = 0;        //ループのカウンタ処理カウント用
-uint8_t wifiConnected = 0;   //wifi未接続フラグ
+uint8_t cnt = 0;            //ループのカウンタ処理カウント用
+uint8_t wifiConnected = 0;  //wifi未接続フラグ
 
 //debug
 static const char *TAG = "メイン";
@@ -97,7 +97,7 @@ void setup()
   ESP_LOGI(TAG, "*** DENKI Tamabo M5 ver.%s ******************************************", (char*)fmVer);
 
   dispInit();
-  sdStat = sdInit();  //dispInitの後に
+  sdStat = sdInit();
   wifiConnected = wifiInit();
   //bluetoothSerialInit();
   scaleInit();
@@ -120,11 +120,11 @@ void loop()
   auto x = pos.distanceX();
   auto y = pos.distanceY();
 
-  //button
+  //タッチボタン入力
   if (M5.BtnA.pressedFor(50))
-  {  //ms長押し
+  { //50ms長押し
     vibration(100);
-    //測定
+    //測定へ
     M5.Speaker.tone(1000, 200);
     graphInit();
     measNukiF();
@@ -142,9 +142,9 @@ void loop()
   }
 
   if (M5.BtnC.pressedFor(200))
-  {
+  { //200msec長押し
     vibration(100);
-    //ノズル検出
+    //ノズル検出へ
     M5.Speaker.tone(1760, 100);
     measNozzlePos();
     delay(200);
@@ -166,7 +166,7 @@ void loop()
   {
     case 10:
       //batteryVolt
-      dispBatV((float)analogReadMilliVolts(PIN_BAT_V) * 2.0f / 1000);///電源ICから読めるはずーーーーーーーーーーーーーーーー
+      dispBatV((float)analogReadMilliVolts(PIN_BAT_V) * 2.0f / 1000);   ///電源ICから読めるみたい？？ーーーーーーーーーーーーーーーー未確認
       break;
     case 20:
       //bat %
@@ -177,9 +177,9 @@ void loop()
     case 40:
       if (sdStat == 2)
       { //SD card
-        //抜いたのは検出しない
+        //抜いたのは検出できてない
         //ESP_LOGD(TAG, "SD flag %d", sdFlag);
-        sdStat = sdInit();
+        sdStat = sdInit();  //挿入検出したら、新しいファイルネームに
       }
       break;
   }

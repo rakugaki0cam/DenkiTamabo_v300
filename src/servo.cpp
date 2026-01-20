@@ -147,8 +147,7 @@ void servo1WriteUs(uint32_t pwUsec)
 
 // button B -----------------------------------------------------------------
 void servoPosition(void)
-{
-  //ボタンBが押された時に玉の位置を動かす
+{ //ボタンBが押された時に玉の位置を動かす
   switch(tamaPos)
   {
     case CENTER1_POS:
@@ -217,8 +216,7 @@ float startAngleGet(void)
 
 //------- TEST ------------------------------------------------------------------------------- 
 void servoAdjust(void)
-{
-  //サーボホーンの組み付け調整
+{ //サーボホーンの組み付け調整
   uint16_t pw;
 
   //ESP32PWM::allocateTimer(0);   //0〜3
