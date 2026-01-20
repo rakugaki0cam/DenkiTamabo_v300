@@ -126,9 +126,11 @@ uint8_t wifiInit(void)
       dispWifi(TEXT_WIFI_TIMEOUT);
       WiFi.disconnect(true);  //wifiをオフ
       WiFi.mode(WIFI_OFF); 
-
-      //接続しなかった時の時刻はM5内蔵のRTCによる
       ESP_LOGE(TAG, "WiFi not connect!");
+      //接続しなかった時の時刻はM5内蔵のRTCによる
+      dispWifi(TEXT_RTC); //RTCタイム
+      dispWifi(TEXT_DATE_TIME);
+
       return 1;
     }
   }

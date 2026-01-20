@@ -230,6 +230,11 @@ void dispWifi(wifi_stat_t stat)
       M5.Display.setCursor(WIFI_DISP_X0, WIFI_DISP_Y2);
       M5.Display.print("NTP->RTC: ");
       break;
+    case TEXT_RTC:
+      //RTC date time  
+      M5.Display.setCursor(WIFI_DISP_X0, WIFI_DISP_Y2);
+      M5.Display.print("RTC: ");
+      break;
     case TEXT_DATE_TIME:
       //date time  
       getTimeStamp((char*)text);
