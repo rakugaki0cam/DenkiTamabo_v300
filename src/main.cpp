@@ -14,7 +14,8 @@
                 WiFi NTP 手順変更
     2025.07.17  サーボをゆっくり動かす
     2025.07.18  抜き弾抵抗力の積分値を表示  
-    2026.01.14  ファイルネームの時刻取得、SSIDの保存場所等変更          
+    2026.01.14  ファイルネームの時刻取得、SSIDの保存場所等変更
+    2026.03.08  ver.4.00  抜き弾抵抗力とホップ押し垂直抗力の2つの荷重を測定する        
 
 
   タッチパネル初期化に失敗していることがある。入力しない。
@@ -27,15 +28,15 @@
   GND   (GND)   - GND   アース
   GND   (GND)
   GND   (GND)
-  G23   (G23)
-  G38   (G19)*
-  G18   (G18)
-  G3    (G3)
-  G13   (G16)*  - GPIO_IN/ HX711_DOUT　ロードセルIC通信データ（独自プロトコル）
-  G21   (G21)
-  G32   (G2)*
+  G23   (G23)   - SPI MOSI/ LCD ILI9342C, SD
+  G38   (G19)*  - SPI MISO/ LCD ILI9342C, SD
+  G18   (G18)   - SPI SCK/ LCD ILI9342C, SD
+  G3    (G3)    - SERIAL_TXD
+  G13   (G16)*  - GPIO_IN/ HX711_DOUT　抜き弾ロードセル1IC通信データ（独自プロトコル）
+  G21   (G21)   - I2C SDA/ CAP_TOUCH, MPU6886, BM8563
+  G32   (G2)*   - PORT A/ SDA
   G27   (G12)*
-  G2    (G15)*
+  G2    (G15)*  - SP_NS4168_DATA
   NC    (HPWR)
   NC    (HPWR)
   NC    (HPWR)
@@ -43,32 +44,43 @@
   *RIGHT
   G35   (G35)
   G36   (G36)   - ANALOG_IN(CH0)/ BAT_V_1/2   バッテリー電圧測定
-  EN    (EN)
-  G25   (G25)
-  G26   (G26)
+  EN    (EN)    - RESET
+  G25   (G25)   - GPIO_IN/ HX711_SCK_2　垂直抗力ロードセル2IC通信クロック
+  G26   (G26)   - GPIO_IN/ HX711_DOUT_2　垂直抗力ロードセル2IC通信データ（独自プロトコル）
   3V3   (3V3)   - 3.3V POWER  ロードセル電源
-  G1    (G1)
-  G14   (G17)*  - GPIO_IN/ HX711_SCK  ロードセルIC通信クロック
-  G22   (G22)
-  G33   (G5)*
+  G1    (G1)    - SERIAL_RXD
+  G14   (G17)*  - GPIO_IN/ HX711_SCK  抜き弾ロードセル1IC通信クロック
+  G22   (G22)   - I2C SCL/ CAP_TOUCH, MPU6886, BM8563
+  G33   (G5)*   - PORT A/ SCL
   G19   (G13)*  - GPIO_OUT/ BAT_ON　　ロードスイッチでサーボ電源のオンオフ
-  G0    (G0)  
-  G34   (G34)
+  G0    (G0)    - SP_NS4168_LRCK/ MIC_CLK
+  G34   (G34)   - MIC_DATA
   5V    (5V)
   BAT   (BAT)   - BAT_POWER   バッテリー電源
 
-
+ *PIN 無し
+  G4            - SD_CS
+  G5            - GPIO_OUT/ LCD_CS
+  G12           - SP_NS4168_BCLK
+  G15           - GPIO_OUT/ LCD_DC
+  G16
+  G17
+  G39           - GPIO_IN/ CAP_TOUCH_INT
 */
 
 #include "header.hpp"
 
+//
+#define N_MEAS_10 10
+
+//pin
 #define PIN_BAT_V   36    //10k+10k分圧　バッテリー電圧の1/2
 #define ANALOG_CH   0     //GPIO36...ADC1_0
 #define PIN_BAT_ON  19    //サーボ用バッテリ電源オンオフ　(GPIO13..stack M5 BASIC v2.7 & PROTO MODULE SYLK#)
 
 
 //global
-uint8_t   fmVer[] = "3.07";
+uint8_t   fmVer[] = "4.00";
 uint16_t  measCnt;      //測定回数 
 uint8_t   sdStat = 0;   //SDcard detect 0:未,1:OK,2:fail
 
@@ -159,7 +171,7 @@ void loop()
   if ((cnt % 2) == 1)
   {
     //load
-    dispLoad(measLoad(10));
+    dispLoad(measLoad(1, N_MEAS_10));
   }
   
   switch (cnt)

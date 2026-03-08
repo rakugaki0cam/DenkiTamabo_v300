@@ -178,7 +178,7 @@ void servoPosition(void)
       delay(300);
       //ゼロセット
       dispZeroSet();
-      scaleTare();
+      scaleTare(1);
       M5.Speaker.tone(1000,500);
       delay(2000);
       //

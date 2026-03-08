@@ -7,6 +7,8 @@
 #include "measure.hpp"
 
 
+#define N_MEAS 10 
+
 float stepMoving = 2.0f;      //測定時の角度増分
 uint16_t speedMeasure = SPEED_MEAS;  //測定時のサーボモータの速度
 
@@ -52,8 +54,8 @@ void measNukiF(void)
   ESP_LOGI(TAG, "Scale zero set.");
   servoMove(endAngle, SPEED_FAST);
   delay(500);
-  scaleTare();  //スケールゼロ
-  dispLoad(measLoad(10));
+  scaleTare(1);  //スケールゼロ
+  dispLoad(measLoad(1, N_MEAS));
   delay(200);
 
   //スタート位置
@@ -61,7 +63,7 @@ void measNukiF(void)
   ESP_LOGI(TAG, "Move start position & wait.");
 
   dispPosition(servoMove(servoAngle, SPEED_SLOW));
-  dispLoad(measLoad(10));
+  dispLoad(measLoad(1, N_MEAS));
   delay(1200);   //玉を落ち着かせる
 
   //測定loop
@@ -73,7 +75,7 @@ void measNukiF(void)
     tamaPos[saNum] = servoMove(servoAngle, speedMeasure); 
     dispPosition(tamaPos[saNum]);
 
-    load[saNum] = measLoad(5);//(10);
+    load[saNum] = measLoad(1, N_MEAS);//(10);
     dispLoad(load[saNum]);       //抵抗力測定
     //
     graphPlot(tamaPos[saNum], load[saNum]);
@@ -175,15 +177,15 @@ void measNozzlePos(void)
   ESP_LOGI(TAG, "Scale zero set。");
   servoMove(endAngleGet(), SPEED_MID);
   delay(200);
-  scaleTare();  //スケールゼロ
-  dispLoad(measLoad(10));
+  scaleTare(1);  //スケールゼロ
+  dispLoad(measLoad(1, N_MEAS));
   delay(200);
 
   //棒の長さを調整する
   servoAngle = startAngleGet() + 3;   //最前位置より3度戻し
   ESP_LOGI(TAG, "Start pos set --> ");
   dispPosition(servoMove(servoAngle, SPEED_MID));
-  dispLoad(measLoad(10));
+  dispLoad(measLoad(1, N_MEAS));
   dispNozzle(NOZ_EXP1, 0);
   delay(800);   //玉を落ち着かせる
   //調整後ボタンCを押す
@@ -203,7 +205,7 @@ void measNozzlePos(void)
     {
       dispBtnC(BTNC_NULL);
     }
-    dispLoad(measLoad(10));
+    dispLoad(measLoad(1, N_MEAS));
     blinkCnt++;
     if(blinkCnt >= 10)
     {
@@ -265,7 +267,7 @@ void measNozzlePos(void)
     dispPosition(pos);
     delay(100);    /////////////
 
-    nLoad = measLoad(10);
+    nLoad = measLoad(1, N_MEAS);
     if (abs(nLoad) < minLoad)
     {
       minLoad = abs(nLoad);
