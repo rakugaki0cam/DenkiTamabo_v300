@@ -7,7 +7,8 @@
 #include "measure.hpp"
 
 
-#define N_MEAS 10 
+#define N_MEAS 10   //荷重測定回数
+#define N_MEAS_Q 5  //荷重測定回数　ループ中
 
 float stepMoving = 2.0f;      //測定時の角度増分
 uint16_t speedMeasure = SPEED_MEAS;  //測定時のサーボモータの速度
@@ -75,7 +76,7 @@ void measNukiF(void)
     tamaPos[saNum] = servoMove(servoAngle, speedMeasure); 
     dispPosition(tamaPos[saNum]);
 
-    load[saNum] = measLoad(1, N_MEAS);//(10);
+    load[saNum] = measLoad(1, N_MEAS_Q);
     dispLoad(load[saNum]);       //抵抗力測定
     //
     graphPlot(tamaPos[saNum], load[saNum]);
