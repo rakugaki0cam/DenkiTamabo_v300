@@ -31,8 +31,8 @@ int16_t yMax = 500;
 float Xconv = (float)X_SIZE / (xMax - xMin);
 float Yconv = (float)Y_SIZE / (yMax - yMin);
 
-static int16_t Xbefore;  //前回のプロット点
-static int16_t Ybefore;
+static int16_t Xbefore[2];  //前回のプロット点
+static int16_t Ybefore[2];  //前回のプロット点
 
 
 
@@ -81,29 +81,39 @@ void graphInit(void)
   M5.Display.setColor(TFT_WHITE);
   M5.Display.drawRect(X0, Y0, X_SIZE, Y_SIZE);
 
-  Xbefore = X0;  //ラインの初期位置
-  Ybefore = Y1;
+  Xbefore[0] = X0;  //ラインの初期位置
+  Ybefore[0] = Y1;
+  Xbefore[1] = X0;  //ラインの初期位置
+  Ybefore[1] = Y1;
 
 }
 
 
-void graphPlot(float x, float y)
+void graphPlot(uint8_t ch, float x, float y)
 { //グラフにデータをプロット
-  uint16_t Xdisp, Ydisp;        //画面上の座標
+  uint16_t Xdisp[2], Ydisp[2];        //画面上の座標
 
-  Xdisp = (uint16_t)(X0 + (x - xMin) * Xconv);
+  Xdisp[ch - 1] = (uint16_t)(X0 + (x - xMin) * Xconv);
   //
   y = (y > yMax) ? yMax : y;
   y = (y < yMin) ? yMin : y;
-  Ydisp = (uint16_t)(Y1 - (y - yMin) * Yconv);
+  Ydisp[ch - 1]  = (uint16_t)(Y1 - (y - yMin) * Yconv);
   //
-  M5.Display.setColor(M5.Display.color565(0x33, 0xff, 0x33));
-  M5.Display.drawLine(Xbefore, Ybefore, Xdisp, Ydisp);
-  //
-  ESP_LOGD(TAG, "before X,Y %4d %4d   X,Y %4d %4d", Xbefore, Ybefore, Xdisp, Ydisp);
+  if (ch == 1)
+  {
+    M5.Display.setColor(M5.Display.color565(0x33, 0xff, 0x33));
+  }
+  else if (ch == 2)
+  {
+    M5.Display.setColor(M5.Display.color565(0x33, 0x33, 0xff));
+  }
 
-  Xbefore = Xdisp;
-  Ybefore = Ydisp;
+  M5.Display.drawLine(Xbefore[ch - 1], Ybefore[ch - 1], Xdisp[ch - 1], Ydisp[ch - 1]);
+  //
+  ESP_LOGD(TAG, "before X,Y %4d %4d   X,Y %4d %4d", Xbefore[ch - 1], Ybefore[ch - 1], Xdisp[ch - 1], Ydisp[ch - 1]);
+
+  Xbefore[ch - 1] = Xdisp[ch - 1];
+  Ybefore[ch - 1] = Ydisp[ch - 1];
   
 }
 
@@ -113,3 +123,5 @@ void graphAreaClear(void)
   M5.Display.setColor(TFT_BG_SCREEN);
   M5.Display.fillRect(X0_CLS, Y0_CLS, X_SIZE_CLS, Y_SIZE_CLS);
 }
+
+

@@ -84,7 +84,7 @@
 
 
 //global
-uint8_t   fmVer[] = "4.00";
+uint8_t   fmVer[] = "4.01";
 uint16_t  measCnt;      //測定回数 
 uint8_t   sdStat = 0;   //SDcard detect 0:未,1:OK,2:fail
 

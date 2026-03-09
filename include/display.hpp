@@ -47,23 +47,22 @@ extern uint16_t TFT_BG_BUTTON;  //濃い茶色
 //display
 void  dispInit(void);
 //
-void  dispLoadMax(float);
-void  dispLoad(float);
-void  dispLoad2(float);
+void  dispMeasNum(uint16_t val);
+void  dispPosition(float val);
+void  dispLoad(float val);
+void  dispLoad2(float val);
+void  dispLoadMax(float val);
 void  dispZeroSet(void);
-void  dispPosition(float);
-void  dispMeasNum(uint16_t);
-void  dispNukiInteg(float);
+void  dispNukiInteg(float val);
 //
-void  dispBatV(float);
-void  dispSdcardStatus(uint8_t);
-void  dispTamaPos(tama_pos_t);
-void  dispWifi(wifi_stat_t);
-void  dispBtSerial(bts_stat_t);
-void  dispNozzle(noz_stat_t, float);
+void  dispBatV(float val);
+void  dispSdcardStatus(uint8_t stat);
+void  dispTamaPos(tama_pos_t pos);
+void  dispWifi(wifi_stat_t stat);
+void  dispBtSerial(bts_stat_t stat);
+void  dispNozzle(noz_stat_t stat, float val);
 
 //button 
-void  dispBtnA(btn_a_name_t);
-void  dispBtnB(btn_b_name_t);
-void  dispBtnC(btn_c_name_t);
-
+void  dispBtnA(btn_a_name_t name);
+void  dispBtnB(btn_b_name_t name);
+void  dispBtnC(btn_c_name_t name);

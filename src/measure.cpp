@@ -26,13 +26,16 @@ void speedSet(void)
 
 
 void measNukiF(void)
-{ //抜き弾抵抗力の測定
+{ //抜き弾抵抗力と垂直抗力の測定
   #define SAMPLE_NUM 50
 
   static float tamaPos[SAMPLE_NUM];    //測定位置
   static float load[SAMPLE_NUM];  //抜き弾力測定値
+  static float load2[SAMPLE_NUM];  //垂直抗力測定値
+
   uint8_t saNum = 0;
   float loadMax;
+  float load2Max;
   float servoAngle;
   float startAngle = startAngleGet();
   float endAngle = endAngleGet();
@@ -56,7 +59,9 @@ void measNukiF(void)
   servoMove(endAngle, SPEED_FAST);
   delay(500);
   scaleTare(1);  //スケールゼロ
+  scaleTare(2);  //スケールゼロ
   dispLoad(measLoad(1, N_MEAS));
+  dispLoad2(measLoad(2, N_MEAS));
   delay(200);
 
   //スタート位置
@@ -65,6 +70,7 @@ void measNukiF(void)
 
   dispPosition(servoMove(servoAngle, SPEED_SLOW));
   dispLoad(measLoad(1, N_MEAS));
+  dispLoad2(measLoad(2, N_MEAS));
   delay(1200);   //玉を落ち着かせる
 
   //測定loop
@@ -77,13 +83,18 @@ void measNukiF(void)
     dispPosition(tamaPos[saNum]);
 
     load[saNum] = measLoad(1, N_MEAS_Q);
+    load2[saNum] = measLoad(2, N_MEAS_Q);
     dispLoad(load[saNum]);       //抵抗力測定
+    dispLoad2(load2[saNum]);     //垂直抗力測定
     //
-    graphPlot(tamaPos[saNum], load[saNum]);
+    graphPlot(2, tamaPos[saNum], load2[saNum]); 
+    graphPlot(1, tamaPos[saNum], load[saNum]);    //抜き弾の方を手前に表示
     //
-    Serial.printf(" LOAD: %6.1fgf ", load[saNum]);
-    //簡易グラフ表示
-    #define A_SCALE 20
+    Serial.printf(" LOAD1: %6.1fgf ", load[saNum]);
+    Serial.printf(" LOAD2: %6.1fgf ", load2[saNum]);
+
+    //簡易グラフ表示 抜き弾抵抗力のみ
+    #define A_SCALE 20  //1つの*が20gf
 
     int8_t n = load[saNum] / A_SCALE;
     n = (n <= 0) ? 0 : n;   //マイナスの時は表示しない
@@ -110,7 +121,7 @@ void measNukiF(void)
 
     servoAngle += stepMoving;
     saNum++;
-    delay(50);
+    delay(1); //(50);
   }
   
   ESP_LOGI(TAG, "Nuki load integral: %7.1fgf-mm", nukiInteg);
@@ -118,8 +129,8 @@ void measNukiF(void)
   dispBtnA(MEAS_COMPLETE);
   
   //SDsave BTserialsend
-  sdDataSave((char*)measTime, measCnt, saNum, tamaPos, load, speedMeasure, nukiInteg);
-  //btDataSend((char*)measTime, measCnt, saNum, tamaPos, load, speedMeasure, nukiInteg);
+  sdDataSave((char*)measTime, measCnt, saNum, tamaPos, load, load2, speedMeasure, nukiInteg);
+  //btDataSend((char*)measTime, measCnt, saNum, tamaPos, load, load2,speedMeasure, nukiInteg);
   //
   M5.Speaker.tone(1500,100);
   delay(500);

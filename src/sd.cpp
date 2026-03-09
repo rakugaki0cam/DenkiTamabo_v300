@@ -321,7 +321,7 @@ uint8_t fileGenerate(void)
 } 
  
 
-void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load, uint16_t speed, float nukiIntegral)
+void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load, float* load2, uint16_t speed, float nukiIntegral)
 {
   uint16_t i;
 
@@ -342,10 +342,10 @@ void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load, u
   tamaFile.printf("%s\n", time);
   tamaFile.printf("angle:,%4.1f ~,%4.1f deg\n", startAngleGet(), endAngleGet());
   tamaFile.printf("speed:,%6d,msec\n", speed);
-  tamaFile.println("#, pos[mm], load[gf]");
+  tamaFile.println("#, pos[mm], nuki[gf], vert[gf]");
   for (i = 0; i < n; i++)
   {
-    tamaFile.printf("%5d, %6.3f, %6.2f\n", (i + 1), pos[i], load[i]);
+    tamaFile.printf("%5d, %6.3f, %6.2f, %6.2f\n", (i + 1), pos[i], load[i], load2[i]);
   }
   tamaFile.printf("nukidan Integral:,%7.1f,gf-mm\n", nukiIntegral);
   tamaFile.println();
@@ -398,7 +398,7 @@ void bluetoothSerialInit(void)
 
 }
 
-void btDataSend(char* time, uint16_t mNum, uint8_t n, float* pos, uint16_t speed, float* load)
+void btDataSend(char* time, uint16_t mNum, uint8_t n, float* pos, uint16_t speed, float* load, float* load2)
 {
   //Bluetoothシリアルでデータを送信
   uint16_t i;
@@ -407,10 +407,10 @@ void btDataSend(char* time, uint16_t mNum, uint8_t n, float* pos, uint16_t speed
   SerialBT.printf("%s\n", time);
   SerialBT.printf("measure angle: %4.1f ~ %4.1f deg\n", startAngleGet(), endAngleGet());
   SerialBT.printf("speed: %6d msec\n", speed);
-  SerialBT.println("#, pos[mm], load[gf]");
+  SerialBT.println("#, pos[mm], nuki[gf], vert[gf]");
   for (i = 0; i < n; i++)
   {
-    SerialBT.printf("%5d, %6.3f, %6.2f\n", (i + 1), pos[i], load[i]);
+    SerialBT.printf("%5d, %6.3f, %6.2f, %6.2f\n", (i + 1), pos[i], load[i], load2[i]);
   }
   SerialBT.println();
   SerialBT.printf("nukidan Integral: %7.1fgf-mm\n", nukiIntegral);

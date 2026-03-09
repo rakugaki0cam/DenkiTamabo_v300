@@ -12,7 +12,7 @@
 
 //void graphInit(void);
 void graphInit(void);
-void graphPlot(float, float);
+void graphPlot(uint8_t ch, float x, float y);
 //
 void graphAreaClear(void);
 

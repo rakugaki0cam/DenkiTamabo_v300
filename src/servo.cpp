@@ -12,6 +12,12 @@
 //LEDC
 #define LEDC_BIT    15  //resolution[bit]
 #define LEDC_FREQ   50  //PWM frequency[Hz]
+// LEDC channel used for servo control.  esp32-hal-ledc.h defines
+// the API such that ledcSetup(channel, freq, resolution) is called
+// first and then ledcAttachPin(pin, channel).  The convenience
+// functions in earlier versions differed which caused confusion in
+// this project.  Choose channel 0 for simplicity.
+#define LEDC_CHANNEL 0
 //servo
 #define ARM_LENGTH    9.0f        //サーボホーンアーム長さ[mm]
 #define DEAD_BAND     1           //PWMデッドバンド[usec]
@@ -27,7 +33,7 @@ tama_pos_t tamaPos;  //玉のポジション[mm]
 
 
 //local
-Servo servo1;
+//Servo servo1;
 //servo adjust　-90, 0, +90deg
 uint16_t  pwM90 = 560;    //-90度   typ.500us
 uint16_t  pwN0  = 1420;   //0度     typ.1450us
@@ -82,7 +88,16 @@ void servoInit(float setAngle)
   endPosition = ARM_LENGTH * sin(degToRad(endAngle));
 
   //PWM(LEDC) init
-  ledcAttach(PIN_SERVO, LEDC_FREQ, LEDC_BIT); //ver.3
+  // The newer Arduino ESP32 core exposes a two-step interface:
+  //   ledcSetup(channel, freq, resolution_bits);
+  //   ledcAttachPin(pin, channel);
+  // The previous version packaged all three arguments in attach().
+  // Our earlier code erroneously passed frequency and resolution to
+  // ledcAttachPin which only accepts (pin, channel) – hence the
+  // "too many arguments" compile error.  Use an explicit channel
+  // constant instead of the pin number when writing duty.
+  ledcSetup(LEDC_CHANNEL, LEDC_FREQ, LEDC_BIT);
+  ledcAttachPin(PIN_SERVO, LEDC_CHANNEL);
   //
   servoMove(centerAngle, SPEED_SLOW); /////////////////////////もとの位置がわからないので最大速度で動くことがある
   //
@@ -93,7 +108,7 @@ void servoInit(float setAngle)
 float servoMove(float angle, uint16_t speed)
 { //サーボをゆっくり動かす
   //angle: 装置での角度[deg]（真上がゼロ）　 startMoving ~ endMoving (-26.0 ~ 28.0)
-  //speed: 0=最高速, μsのディレイが入る
+  //speed: 0=最高速, msのディレイが入る
   //ret pos: 玉の位置[mm]
 
   static float prevAngleS;          //初期値（物理位置は不明）
@@ -141,7 +156,8 @@ void servo1WriteUs(uint32_t pwUsec)
   //ver.2
   //ledcWrite(LEDC_CH, dutyTick);
   //ver.3
-  ledcWrite(PIN_SERVO, dutyTick);
+  // note: ledcWrite takes a *channel* not a pin
+  ledcWrite(LEDC_CHANNEL, dutyTick);
 }
 
 

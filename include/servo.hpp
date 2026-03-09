@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "ESP32Servo.h"
+//#include "ESP32Servo.h"
 #include "header.hpp"
 #include "servo_common.hpp"
 
@@ -24,13 +24,14 @@ extern tama_pos_t tamaPos;
 
 
 
-void servoInit(float);
+void servoInit(float setAngle);
 //
-float endAngleGet(void);
-float startAngleGet(void);
-float servoMove(float, uint16_t);
+float servoMove(float angle, uint16_t speed);
+void  servo1WriteUs(uint32_t pwUsec);
 //btnB
 void servoPosition(void);
+//get
+float endAngleGet(void);
+float startAngleGet(void);
 //test
-void  servo1WriteUs(uint32_t);
 void servoAdjust(void);

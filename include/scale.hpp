@@ -12,5 +12,5 @@
 
 
 void  scaleInit(void);
-float measLoad(uint8_t, uint8_t);
-void  scaleTare(uint8_t);
+float measLoad(uint8_t ch, uint8_t n);
+void  scaleTare(uint8_t ch);

@@ -22,8 +22,8 @@ uint8_t wifiInit(void);
 
 uint8_t ntpTimeInit(void);
 void    printLocalTime(void);
-void    getTimeStamp(char*);
-void    getTimeText(char*);
+void    getTimeStamp(char* txt);
+void    getTimeText(char* txt);
 void    generateFileName(void);
 //time callback
 void    timeavailable(struct timeval *t);
@@ -31,10 +31,10 @@ void    timeavailable(struct timeval *t);
 //SD card
 uint8_t sdInit(void);
 uint8_t fileGenerate(void);
-void    sdDataSave(char*, uint16_t, uint8_t, float*, float*, uint16_t, float);
+void    sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load, float* load2, uint16_t speed, float nukiIntegral);
 
 //Bluetooth serial
 void    bluetoothSerialInit(void);
-void    btDataSend(char*, uint16_t, uint8_t, float*, float*, uint16_t, float);
+void    btDataSend(char* time, uint16_t mNum, uint8_t n, float* pos, float* load, float* load2, uint16_t speed, float nukiIntegral);
 void    btSerialRx(void);
 
