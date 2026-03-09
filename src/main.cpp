@@ -25,7 +25,7 @@
   タッチパネル初期化に失敗していることがある。入力しない。
 
 
-  STACK M-BUS
+  STACK M-BUS　(ESP32無印)
   CORE2では以前のものとピン配置が違っているところがあるので注意
   CORE2 (CORE & PROTO)   
   *LEFT
@@ -176,6 +176,10 @@ void loop()
   {
     //load
     dispLoad(measLoad(1, N_MEAS_10));
+  }
+  else
+  {
+    dispLoad2(measLoad(2, N_MEAS_10));
   }
   
   switch (cnt)

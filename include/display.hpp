@@ -49,6 +49,7 @@ void  dispInit(void);
 //
 void  dispLoadMax(float);
 void  dispLoad(float);
+void  dispLoad2(float);
 void  dispZeroSet(void);
 void  dispPosition(float);
 void  dispMeasNum(uint16_t);

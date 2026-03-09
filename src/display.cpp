@@ -7,6 +7,18 @@ display.cpp
 */
 #include "display.hpp"
 
+//
+#define TITLE_X 0
+#define TITLE_Y 0
+#define NUKI_X 228
+#define NUKI_Y 65
+#define POS_X 228
+#define POS_Y 65
+#define NUKI_P_X 228
+#define NUKI_P_Y 112
+#define BAT_X 265
+#define BAT_Y 190
+
 
 uint8_t text[20];             //sprint用文字列
 //original color
@@ -24,7 +36,7 @@ void dispInit(void)
   M5.Display.clearDisplay(TFT_BG_SCREEN);
   //title bar
   M5.Display.setColor(TFT_BG_TITLE);
-  M5.Display.fillRect(0, 0, 320, 20);
+  M5.Display.fillRect(TITLE_X, TITLE_Y, 320, 20);
   M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
   M5.Display.setTextColor(TFT_WHITE, TFT_BG_TITLE);
   M5.Display.setCursor(4, 0);
@@ -33,14 +45,14 @@ void dispInit(void)
   M5.Display.setFont(&fonts::lgfxJapanGothicP_12);
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
   //load
-  M5.Display.setCursor(228, 65);
+  M5.Display.setCursor(NUKI_X, NUKI_Y);
   M5.Display.printf("抜弾抵抗力");
   //tama position
-  M5.Display.setCursor(228, 25);
+  M5.Display.setCursor(POS_X, POS_Y);
   M5.Display.printf("玉位置");
   //peak load
   M5.Display.setTextColor(TFT_ENJI, TFT_BG_SCREEN);
-  M5.Display.setCursor(228, 112);
+  M5.Display.setCursor(NUKI_P_X, NUKI_P_Y);
   M5.Display.printf("抜弾ピーク値");
   dispLoadMax(-9999);
   //nozzle mark
@@ -48,7 +60,7 @@ void dispInit(void)
   //batV
   M5.Display.setFont(&fonts::lgfxJapanGothicP_8);
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
-  M5.Display.setCursor(265, 190);
+  M5.Display.setCursor(BAT_X, BAT_Y);
   M5.Display.print("バッテリ電圧");
   //button
   dispBtnA(MEAS_START);
@@ -57,13 +69,29 @@ void dispInit(void)
 }
 
 //--- display --------------------
+#define MEAS_NUM_X 309
+#define MEAS_NUM_Y 0
+#define DISP_POS_X 309
+#define DISP_POS_Y 32
+#define DISP_LOAD_X 309
+#define DISP_LOAD_Y 64
+#define DISP_LOAD2_X 309
+#define DISP_LOAD2_Y 96
+#define DISP_LOADMAX_X 309
+#define DISP_LOADMAX_Y 130
+#define DISP_INTEG_X 309
+#define DISP_INTEG_Y 160
+#define DISP_BATV_X 309
+#define DISP_BATV_Y 200
+#define DISP_SD_X 0
+#define DISP_SD_Y 200
 
 void dispMeasNum(uint16_t val)
 { //測定番号
   M5.Display.setTextDatum(TR_DATUM);  //TopRight....print系では効かない
   M5.Display.setTextColor(TFT_WHITE, TFT_BG_TITLE);
   sprintf((char*)text, "　data#%3d", val);
-  M5.Display.drawString((char*)text, 309, 0, &fonts::lgfxJapanGothicP_16);
+  M5.Display.drawString((char*)text, MEAS_NUM_X, MEAS_NUM_Y, &fonts::lgfxJapanGothicP_16);
   M5.Display.setTextDatum(TL_DATUM);  //TopLeft = default
 }
 
@@ -73,7 +101,7 @@ void dispPosition(float val)
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
   sprintf((char*)text, "　%6.2fmm", val);
-  M5.Display.drawString((char*)text, 309, 40, &fonts::lgfxJapanGothicP_16);
+  M5.Display.drawString((char*)text, DISP_POS_X, DISP_POS_Y, &fonts::lgfxJapanGothicP_16);
   M5.Display.setTextDatum(TL_DATUM);  //TopLeft = default
 }
 
@@ -83,7 +111,17 @@ void dispLoad(float val)
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
   sprintf((char*)text, "　%9.0fgf", val);/////////////////////
-  M5.Display.drawString((char*)text, 309, 82, &fonts::lgfxJapanGothicP_16);
+  M5.Display.drawString((char*)text, DISP_LOAD_X, DISP_LOAD_Y, &fonts::lgfxJapanGothicP_16);
+  M5.Display.setTextDatum(TL_DATUM);  //TopLeft = default
+}
+
+
+void dispLoad2(float val)
+{ //垂直抗力[gf]
+  M5.Display.setTextDatum(TR_DATUM);  //TopRight
+  M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
+  sprintf((char*)text, "　%9.0fgf", val);/////////////////////
+  M5.Display.drawString((char*)text, DISP_LOAD2_X, DISP_LOAD2_Y, &fonts::lgfxJapanGothicP_16);
   M5.Display.setTextDatum(TL_DATUM);  //TopLeft = default
 }
 
@@ -93,7 +131,7 @@ void dispZeroSet(void)
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
   M5.Display.setTextColor(TFT_BROWN, TFT_BG_SCREEN);
   sprintf((char*)text, "　0セット");
-  M5.Display.drawString((char*)text, 309, 82, &fonts::lgfxJapanGothicP_16);
+  M5.Display.drawString((char*)text, DISP_LOAD_X, DISP_LOAD_Y, &fonts::lgfxJapanGothicP_16);
   M5.Display.setTextDatum(TL_DATUM);  //TopLeft = default
 }
 
@@ -107,7 +145,7 @@ void dispLoadMax(float val)
   }else{
     sprintf((char*)text, "　%5.0fgf", val);
   }
-  M5.Display.drawString((char*)text, 309, 130, &fonts::lgfxJapanGothicP_20);
+  M5.Display.drawString((char*)text, DISP_LOADMAX_X, DISP_LOADMAX_Y, &fonts::lgfxJapanGothicP_20);
   M5.Display.setTextDatum(TL_DATUM);  //TopLeft
 }
 
@@ -117,7 +155,7 @@ void dispNukiInteg(float val)
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
   sprintf((char*)text, "　%5.0fgf-mm", val);
-  M5.Display.drawString((char*)text, 309, 160, &fonts::lgfxJapanGothicP_12);
+  M5.Display.drawString((char*)text, DISP_INTEG_X, DISP_INTEG_Y, &fonts::lgfxJapanGothicP_12);
   M5.Display.setTextDatum(TL_DATUM);  //TopLeft
 }
 
@@ -130,7 +168,7 @@ void dispBatV(float val)
   M5.Display.setTextDatum(TR_DATUM);  //TopRight
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
   sprintf((char*)text, "　%4.2fV", val);
-  M5.Display.drawString((char*)text, 309, 200, &fonts::lgfxJapanGothicP_12);
+  M5.Display.drawString((char*)text, DISP_BATV_X, DISP_BATV_Y, &fonts::lgfxJapanGothicP_12);
   M5.Display.setTextDatum(TL_DATUM);  //TopLeft
 
 }
@@ -138,15 +176,13 @@ void dispBatV(float val)
 void dispSdcardStatus(uint8_t stat)
 { //SDカード無しの警告
   //stat 0:OK, 1:fail
-  #define SD_DISP_X 0
-  #define SD_DISP_Y 200
 
   if (stat)
   {
     //SD fail
     M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
     M5.Display.setTextColor(TFT_WHITE, TFT_MAGENTA);
-    M5.Display.setCursor(SD_DISP_X, SD_DISP_Y);
+    M5.Display.setCursor(DISP_SD_X, DISP_SD_Y);
     M5.Display.println(" SD Fail! ");
   }
   else
@@ -154,7 +190,7 @@ void dispSdcardStatus(uint8_t stat)
     //SD OK!
     M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
     M5.Display.setTextColor(TFT_BLACK, TFT_GREEN);
-    M5.Display.setCursor(SD_DISP_X, SD_DISP_Y);
+    M5.Display.setCursor(DISP_SD_X, DISP_SD_Y);
     M5.Display.println(" SDcard OK! ");
   }
 }
@@ -162,9 +198,11 @@ void dispSdcardStatus(uint8_t stat)
 
 void dispTamaPos(tama_pos_t pos)
 { //玉位置の表示
-  M5.Display.setCursor(224, 40);
-  M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
+  M5.Display.setTextDatum(TR_DATUM);  //TopRight
   M5.Display.setTextColor(TFT_BLACK, TFT_BG_SCREEN);
+  M5.Display.setFont(&fonts::lgfxJapanGothicP_16);
+  M5.Display.setCursor(DISP_POS_X, DISP_POS_Y);
+
   switch(pos)
   {
     case START_POS:
@@ -178,6 +216,7 @@ void dispTamaPos(tama_pos_t pos)
       M5.Display.print("エンド位置　");
       break;
   }
+  M5.Display.setTextDatum(TL_DATUM);  //TopLeft = default
 }
 
 
