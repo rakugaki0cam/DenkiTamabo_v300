@@ -57,7 +57,7 @@ void measNukiF(void)
   //スケールのゼロセット
   ESP_LOGI(TAG, "Scale zero set.");
   servoMove(endAngle, SPEED_FAST);
-  delay(500);
+  delay(700);
   scaleTare(1);  //スケールゼロ
   scaleTare(2);  //スケールゼロ
   dispLoad(measLoad(1, N_MEAS));
