@@ -67,7 +67,7 @@ void servoInit(float setAngle)
 { //サーボの初期化
   //setAngle 0:default setting, -20~-26:set Angle
   if ((setAngle < -20.0) && (setAngle > startAngleD))
-  {  //スタート角度を変更（ノズル検出による変更）
+  { //スタート角度を変更（ノズル検出による変更）
     startAngle = setAngle;
   }
   else
@@ -169,7 +169,6 @@ void servoPosition(void)
     case CENTER1_POS:
       //スタート位置へ
       tamaPos = START_POS;        //スタート位置へ移動
-      
       servoMove(startAngle, SPEED_SLOW);
 
       dispTamaPos(tamaPos);       //玉位置表示
@@ -178,7 +177,6 @@ void servoPosition(void)
     case START_POS:
       //センターへ
       tamaPos = CENTER2_POS;
-      
       servoMove(centerAngle, SPEED_MID);
 
       dispTamaPos(tamaPos);
@@ -187,7 +185,6 @@ void servoPosition(void)
     case CENTER2_POS:
       //エンド位置へ
       tamaPos = END_POS;
-      
       servoMove(endAngle, SPEED_MID);
 
       dispTamaPos(tamaPos);
@@ -204,7 +201,6 @@ void servoPosition(void)
     case END_POS:
       //センターへ
       tamaPos = CENTER1_POS;
-      
       servoMove(centerAngle, SPEED_SLOW);
 
       dispTamaPos(tamaPos);

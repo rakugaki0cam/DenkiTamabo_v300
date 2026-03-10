@@ -57,9 +57,11 @@ void measNukiF(void)
   //スケールのゼロセット
   ESP_LOGI(TAG, "Scale zero set.");
   servoMove(endAngle, SPEED_FAST);
-  delay(700);
+  delay(200);
+  dispZeroSet();
   scaleTare(1);  //スケールゼロ
   scaleTare(2);  //スケールゼロ
+  delay(1000);
   dispLoad(measLoad(1, N_MEAS));
   dispLoad2(measLoad(2, N_MEAS));
   delay(200);
@@ -121,7 +123,7 @@ void measNukiF(void)
 
     servoAngle += stepMoving;
     saNum++;
-    delay(1); //(50);
+    delay(1);
   }
   
   ESP_LOGI(TAG, "Nuki load integral: %7.1fgf-mm", nukiInteg);
@@ -164,8 +166,7 @@ void measNozzlePos(void)
 
   //ノズル設定が有効になっている時ーーーーーーーーーーーーーーーー
   if (NZFL_ANGLESET == nozzleStat)
-  {
-    //ノズル位置設定をリセットする
+  { //ノズル位置設定をリセットする
     M5.Speaker.tone(2000, 800);
     servoInit(0);   //default set
     ESP_LOGI(TAG, "Nozzle position RESET!");
@@ -219,14 +220,13 @@ void measNozzlePos(void)
     }
     dispLoad(measLoad(1, N_MEAS));
     blinkCnt++;
-    if(blinkCnt >= 10)
+    if (blinkCnt >= 10)
     {
       blinkCnt = 0;   //点滅カウントリセット
     }
     toCnt--;
     if (toCnt < 0)
-    {
-      //タイムアウト
+    { //タイムアウト
       M5.Speaker.tone(1000, 500);
       ESP_LOGI(TAG, "Timeout! Nozzle position setting canceled.");
       dispNozzle(NOZ_DIS, 0);
@@ -273,8 +273,7 @@ void measNozzlePos(void)
   dispNozzle(NOZ_PACKING, 0);
 
   while(servoAngle > -26)
-  {
-    //玉を奥へ進める
+  { //玉を奥へ進める
     pos = servoMove(servoAngle, SPEED_SLOW);
     dispPosition(pos);
     delay(100);    /////////////
@@ -288,8 +287,7 @@ void measNozzlePos(void)
     ESP_LOGI(TAG, "Angle:%5.1fdeg LOAD:%6.1fgf", servoAngle, nLoad);
 
     if ((stat == 0) && (nLoad > -3.0) && (nLoad < 3.0))
-    {
-      //パッキンの抵抗から抜けた位置
+    { //パッキンの抵抗から抜けた位置
       paFreePos = pos;
       paFreeAngle = servoAngle;
       M5.Speaker.tone(1500, 100);
@@ -300,8 +298,7 @@ void measNozzlePos(void)
       dispNozzle(NOZ_NOZZLE, 0);
     }
     if ((stat == 1) && (nLoad < -20.0))
-    {
-      //ノズル先端位置を検出
+    { //ノズル先端位置を検出
       nozPos = pos;
       nozAngle = servoAngle;
       M5.Speaker.tone(1500, 100);
@@ -320,8 +317,7 @@ void measNozzlePos(void)
   ESP_LOGI(TAG, "min Load (absolute):%6.1f", minLoad);
 
   if (stat == 9)
-  {
-    //正常測定完了
+  { //正常測定完了
     ESP_LOGI(TAG, "OK");
     dispNozzle(NOZ_OK, 0);
     servoInit(nozAngle);  //start angle set
@@ -332,8 +328,7 @@ void measNozzlePos(void)
     //ESP_LOGI(TAG, "nozzle status:%d", nozzleStat);
   }
   else
-  {
-    //ノズル検出不可
+  { //ノズル検出不可
     ESP_LOGI(TAG, "Nozzle detect error!");
     dispNozzle(NOZ_ERR, 0);
     servoInit(0);   //default set
