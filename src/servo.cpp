@@ -96,8 +96,9 @@ void servoInit(float setAngle)
   // ledcAttachPin which only accepts (pin, channel) – hence the
   // "too many arguments" compile error.  Use an explicit channel
   // constant instead of the pin number when writing duty.
-  ledcSetup(LEDC_CHANNEL, LEDC_FREQ, LEDC_BIT);
-  ledcAttachPin(PIN_SERVO, LEDC_CHANNEL);
+  //ledcSetup(LEDC_CHANNEL, LEDC_FREQ, LEDC_BIT);
+  //ledcAttachPin(PIN_SERVO, LEDC_CHANNEL);
+  ledcAttach(PIN_SERVO, LEDC_FREQ, LEDC_BIT); //ver.3
   //
   servoMove(centerAngle, SPEED_SLOW); /////////////////////////もとの位置がわからないので最大速度で動くことがある
   //
