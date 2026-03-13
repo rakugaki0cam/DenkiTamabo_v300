@@ -6,6 +6,8 @@
 
 #include "measure.hpp"
 
+#define NUKIDAN 1  //抜き弾抵抗力測定用のスケール
+#define SUITYOKU 2 //垂直抗力測定用のスケール
 
 #define N_MEAS 10   //荷重測定回数
 #define N_MEAS_Q 5  //荷重測定回数　ループ中
@@ -59,11 +61,11 @@ void measNukiF(void)
   servoMove(endAngle, SPEED_FAST);
   delay(200);
   dispZeroSet();
-  scaleTare(1);  //スケールゼロ
-  scaleTare(2);  //スケールゼロ
+  scaleTare(NUKIDAN);  //スケールゼロ
+  scaleTare(SUITYOKU);  //スケールゼロ
   delay(1000);
-  dispLoad(measLoad(1, N_MEAS));
-  dispLoad2(measLoad(2, N_MEAS));
+  dispLoad(measLoad(NUKIDAN, N_MEAS));
+  dispLoad2(measLoad(SUITYOKU, N_MEAS));
   delay(200);
 
   //スタート位置
@@ -71,9 +73,9 @@ void measNukiF(void)
   ESP_LOGI(TAG, "Move start position & wait.");
 
   dispPosition(servoMove(servoAngle, SPEED_SLOW));
-  dispLoad(measLoad(1, N_MEAS));
-  dispLoad2(measLoad(2, N_MEAS));
-  delay(1200);   //玉を落ち着かせる
+  dispLoad(measLoad(NUKIDAN, N_MEAS));
+  dispLoad2(measLoad(SUITYOKU, N_MEAS));
+  delay(600);   //玉を落ち着かせる
 
   //測定loop
   dispBtnA(MEAS_RUNNING);
@@ -84,13 +86,13 @@ void measNukiF(void)
     tamaPos[saNum] = servoMove(servoAngle, speedMeasure); 
     dispPosition(tamaPos[saNum]);
 
-    load[saNum] = measLoad(1, N_MEAS_Q);
-    load2[saNum] = measLoad(2, N_MEAS_Q);
+    load[saNum] = measLoad(NUKIDAN, N_MEAS_Q);
+    load2[saNum] = measLoad(SUITYOKU, N_MEAS_Q);
     dispLoad(load[saNum]);       //抵抗力測定
     dispLoad2(load2[saNum]);     //垂直抗力測定
     //
-    graphPlot(2, tamaPos[saNum], load2[saNum]); 
-    graphPlot(1, tamaPos[saNum], load[saNum]);    //抜き弾の方を手前に表示
+    graphPlot(SUITYOKU, tamaPos[saNum], load2[saNum]); 
+    graphPlot(NUKIDAN, tamaPos[saNum], load[saNum]);    //抜き弾の方を手前に表示
     //
     Serial.printf(" LOAD1: %6.1fgf ", load[saNum]);
     Serial.printf(" LOAD2: %6.1fgf ", load2[saNum]);
@@ -190,15 +192,15 @@ void measNozzlePos(void)
   ESP_LOGI(TAG, "Scale zero set。");
   servoMove(endAngleGet(), SPEED_MID);
   delay(200);
-  scaleTare(1);  //スケールゼロ
-  dispLoad(measLoad(1, N_MEAS));
+  scaleTare(NUKIDAN);  //スケールゼロ
+  dispLoad(measLoad(NUKIDAN, N_MEAS));
   delay(200);
 
   //棒の長さを調整する
   servoAngle = startAngleGet() + 3;   //最前位置より3度戻し
   ESP_LOGI(TAG, "Start pos set --> ");
   dispPosition(servoMove(servoAngle, SPEED_MID));
-  dispLoad(measLoad(1, N_MEAS));
+  dispLoad(measLoad(NUKIDAN, N_MEAS));
   dispNozzle(NOZ_EXP1, 0);
   delay(800);   //玉を落ち着かせる
   //調整後ボタンCを押す
@@ -218,7 +220,7 @@ void measNozzlePos(void)
     {
       dispBtnC(BTNC_NULL);
     }
-    dispLoad(measLoad(1, N_MEAS));
+    dispLoad(measLoad(NUKIDAN, N_MEAS));
     blinkCnt++;
     if (blinkCnt >= 10)
     {
@@ -278,7 +280,7 @@ void measNozzlePos(void)
     dispPosition(pos);
     delay(100);    /////////////
 
-    nLoad = measLoad(1, N_MEAS);
+    nLoad = measLoad(NUKIDAN, N_MEAS);
     if (abs(nLoad) < minLoad)
     {
       minLoad = abs(nLoad);

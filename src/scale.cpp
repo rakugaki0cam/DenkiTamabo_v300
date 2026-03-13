@@ -14,9 +14,11 @@
 #include "scale.hpp"
 
 //scale
+#define NUKIDAN 1
 #define PIN_HX711_DOUT 13   //16..stack M5 BASIC v2.7
 #define PIN_HX711_SCK  14   //17..stack M5 BASIC v2.7
 //scale2
+#define SUITYOKU 2
 #define PIN_HX711_2_DOUT 26
 #define PIN_HX711_2_SCK  25
 
@@ -44,8 +46,8 @@ void scaleInit(void)
   scale2.set_scale(LOADCELL2_DIVIDER);
   scale2.set_offset(LOADCELL2_OFFSET);
   //
-  scaleTare(1);   //zero set
-  scaleTare(2);   //zero set
+  scaleTare(NUKIDAN);   //zero set
+  scaleTare(SUITYOKU);   //zero set
 }
 
 
@@ -55,11 +57,11 @@ float measLoad(uint8_t ch, uint8_t n)
   //n　測定回数　平均値を取るための回数　typ.10回
   float load;
 
-  if (ch == 1)
+  if (ch == NUKIDAN)
   {
     load = scale.get_units(n);
   }
-  if (ch == 2)
+  if (ch == SUITYOKU)
   {
     load = scale2.get_units(n);
   }
@@ -70,12 +72,12 @@ float measLoad(uint8_t ch, uint8_t n)
 
 void scaleTare(uint8_t ch)
 { //ゼロセット
-  if (ch == 1)
+  if (ch == NUKIDAN)
   {
     scale.tare();
     return;
   }
-  if (ch == 2)
+  if (ch == SUITYOKU)
   {
     scale2.tare(); 
     return;
