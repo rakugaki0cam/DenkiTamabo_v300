@@ -33,7 +33,7 @@
   GND   (GND)
   GND   (GND)
   G23   (G23)   - SPI MOSI/ LCD ILI9342C, SD
-  G38   (G19)*  - SPI MISO/ LCD ILI9342C, SD
+  G38   (G19)*  - SPI MISO/ LCD ILI9342C, SD    IO38はWROOMには無い
   G18   (G18)   - SPI SCK/ LCD ILI9342C, SD
   G3    (G3)    - SERIAL_TXD
   G13   (G16)*  - GPIO_IN/ HX711_DOUT　抜き弾ロードセル1IC通信データ（独自プロトコル）
@@ -69,6 +69,7 @@
   G15           - GPIO_OUT/ LCD_DC
   G16
   G17
+  G37
   G39           - GPIO_IN/ CAP_TOUCH_INT
 */
 
