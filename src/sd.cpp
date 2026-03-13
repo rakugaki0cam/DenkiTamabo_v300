@@ -11,7 +11,6 @@
 
 //#define TZ_Asia_Tokyo	PSTR("JST-9")
 
-BluetoothSerial SerialBT;
 
 //
 uint8_t tamaFileName[] = "/tamabo000000-000000.csv          ";  //後端スペースは保険
@@ -355,6 +354,9 @@ void sdDataSave(char* time, uint16_t mNum, uint8_t n, float* pos, float* load, f
 
 /*
 //------------ Bluetooth ----------------------------------------
+
+BluetoothSerial SerialBT;
+
 
 void bluetoothSerialInit(void)
 {
