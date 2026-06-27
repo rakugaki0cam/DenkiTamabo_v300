@@ -101,8 +101,9 @@ uint8_t wifiInit(void)
   while (done) 
   {
     Serial.print("WiFi connecting");
-    auto last = millis() + 2000;
-    while ((WiFi.status() != WL_CONNECTED) && ( millis() < last)) 
+    #define TIMEOUT1 2000 //[msec]
+    uint32_t timeTO = millis();
+    while ((WiFi.status() != WL_CONNECTED) && ( millis() - timeTO < TIMEOUT1)) 
     {
       delay(500);
       Serial.print(".");
